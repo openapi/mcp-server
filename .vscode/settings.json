@@ -1,0 +1,13 @@
+{
+    "chat.mcp.serverSampling": {
+        "mcp.openapi.com/.vscode/mcp.json: openapi.com": {
+            "allowedModels": [
+                "github.copilot-chat/claude-3.5-sonnet",
+                "github.copilot-chat/gemini-2.0-flash-001",
+                "github.copilot-chat/gpt-4.1",
+                "github.copilot-chat/gpt-4o",
+                "github.copilot-chat/o3-mini"
+            ]
+        }
+    }
+}
