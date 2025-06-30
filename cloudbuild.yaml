@@ -1,0 +1,24 @@
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: /usr/bin/bash
+  args:
+    - '-c'
+    - |
+      gcloud beta functions deploy $_FUNCTION_NAME \
+        --region ${_GCP_REGION} \
+        --trigger-http \
+        --runtime ${_RUNTIME} \
+        --memory ${_MEMORY_MB} \
+        --entry-point ${_ENTRY_POINT} \
+        --timeout ${_TIMEOUT} \
+        --min-instances ${_MIN_INSTANCES} \
+        --max-instances ${_MAX_INSTANCES} \
+        --ingress-settings ${_INGRESS_SETTINGS} \
+        --egress-settings all \
+        --vpc-connector ${_VPC_CONNECTOR} \
+        --service-account ${_SA_EMAIL} \
+        --source ${_SOURCE_REPO} \
+        --set-secrets ${_SECRETS} \
+        --set-env-vars ${_ENV_VARS} \
+        --build-env-vars-file ./composer-build.yaml \
+        ${_GEN2} \
+        ${_ALLOW_UNAUTHENTICATED}
