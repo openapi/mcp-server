@@ -37,7 +37,8 @@ if hasattr(mcp, 'app'):
     mcp.app.include_router(router)
 
 def init(request):
-    return mcp.app(request)
+    mcp.run(transport="http", host="0.0.0.0", port=8080)
+    return mcp(request)
 
 if __name__ == "__main__":
     try:
