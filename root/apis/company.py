@@ -4,9 +4,20 @@ from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
 
-@mcp.tool
+@mcp.tool(
+    annotations={
+        "title": "Full company data from VAT",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Restituisce il profilo completo e dettagliato di un'azienda italiana dato Partita IVA o Codice Fiscale."""
+    """Restituisce il profilo completo e dettagliato di un'azienda italiana dato Partita IVA o Codice Fiscale.
+    
+    Args:
+        vat_or_taxCode: vatCode or taxCode of an italian company
+    """
     url = f"https://company.openapi.com/IT-full/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
