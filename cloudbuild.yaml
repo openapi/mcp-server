@@ -1,4 +1,11 @@
 steps:
+# Retrieve composer auth credentials for accessing private repository
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: /usr/bin/bash
+  args:
+    - '-c'
+    - |
+      gcloud secrets versions access latest --secret=composer-github-auth > ./composer-build.yaml
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: /usr/bin/bash
   args:
