@@ -30,5 +30,5 @@ steps:
         --build-env-vars-file ./composer-build.yaml \
         ${_GEN2} \
         ${_ALLOW_UNAUTHENTICATED}
-        options:
-logging: CLOUD_LOGGING_ONLY
+options:
+  logging: CLOUD_LOGGING_ONLY
