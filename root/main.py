@@ -37,7 +37,7 @@ if hasattr(mcp, 'app'):
     mcp.app.include_router(router)
 
 def init(request):
-    return mcp(request)
+    return mcp.app(request)
 
 if __name__ == "__main__":
     try:
