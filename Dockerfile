@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 8080
 
 # Comando di avvio (modifica main:app se il file principale ha un nome diverso)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "main.py"]
