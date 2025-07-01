@@ -46,5 +46,6 @@ app.mount("/", mcp_app)
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:80 ---", file=sys.stderr)
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    port = int(os.environ.get("PORT", 8080))  # Cloud Run usa PORT, default 8080
+    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:{port} ---", file=sys.stderr)
+    uvicorn.run(app, host="0.0.0.0", port=port)
