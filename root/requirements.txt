@@ -2,3 +2,5 @@ fastapi
 fastmcp
 requests
 pydantic
+mangum
+uvicorn
