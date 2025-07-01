@@ -7,6 +7,7 @@ from mangum import Mangum
 
 # Importa MCP e tool già registrati da mcp_core.py
 from mcp_core import mcp
+
 # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 from apis import company, cap, trust, visurecamerali, sms
 
