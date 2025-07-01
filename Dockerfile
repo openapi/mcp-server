@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Espone la porta
-EXPOSE 8080
+EXPOSE 80
 
 # Comando di avvio (modifica main:app se il file principale ha un nome diverso)
 CMD ["python", "main.py"]
