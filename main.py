@@ -33,17 +33,17 @@ async def callbacks_endpoint(request: Request):
 # Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
 app.mount("/", mcp_app)
 
-# Funzione entrypoint per Google Cloud Functions
-def init(request):
-    # Usa la funzione di FastAPI per gestire la richiesta WSGI di GCF
-    from fastapi import Response
-    from fastapi.responses import JSONResponse
+# # Funzione entrypoint per Google Cloud Functions
+# def init(request):
+#     # Usa la funzione di FastAPI per gestire la richiesta WSGI di GCF
+#     from fastapi import Response
+#     from fastapi.responses import JSONResponse
 
-    # Adatta FastAPI per GCF (ASGI -> WSGI)
-    handler = Mangum(app)
-    return handler(request.environ, lambda status, headers: None)
+#     # Adatta FastAPI per GCF (ASGI -> WSGI)
+#     handler = Mangum(app)
+#     return handler(request.environ, lambda status, headers: None)
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:8080 ---", file=sys.stderr)
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:80 ---", file=sys.stderr)
+    uvicorn.run(app, host="0.0.0.0", port=80)
