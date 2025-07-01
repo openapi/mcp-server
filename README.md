@@ -5,8 +5,9 @@ Questo progetto implementa un server **Model Context Protocol (MCP)** che funge 
 ## Caratteristiche
 
 - **Proxy sicuro**: Pass-through del Bearer Token fornito dal client, senza gestione diretta di credenziali sensibili.
-- **Estendibile**: Facilmente adattabile per aggiungere nuovi tool/API.
+- **Estendibile**: Aggiungi facilmente nuovi tool/API creando moduli in [`/apis/`](apis/).
 - **Compatibile MCP**: Progettato secondo le best practice del protocollo MCP.
+- **Modulare**: Tutta la logica di chiamata API e la registrazione dei tool è centralizzata in [`mcp_core.py`](mcp_core.py).
 
 ---
 
@@ -15,10 +16,11 @@ Questo progetto implementa un server **Model Context Protocol (MCP)** che funge 
 - Python 3.9+
 - [uv](https://github.com/astral-sh/uv) (per la gestione delle dipendenze)
 - Connessione Internet
+- **(Opzionale)** [Docker](https://www.docker.com/) per esecuzione containerizzata
 
 ---
 
-## Installazione
+## Installazione (Ambiente Locale)
 
 1. **Clona il repository**  
    ```bash
@@ -36,11 +38,6 @@ Questo progetto implementa un server **Model Context Protocol (MCP)** che funge 
    ```bash
    uv pip install -r requirements.txt
    # oppure, se usi uv:
-   uv pip install fastmcp requests pydantic
-   ```
-
-   Oppure, se usi `uv add`:
-   ```bash
    uv add "fastmcp" requests pydantic
    ```
 
@@ -49,29 +46,40 @@ Questo progetto implementa un server **Model Context Protocol (MCP)** che funge 
 ## Avvio del Server
 
 ```bash
-python server.py
+python main.py
 ```
 
-Il server sarà disponibile su `http://0.0.0.0:8000`.
+Il server sarà disponibile su `http://0.0.0.0:8080`.
+
+---
+
+## Esecuzione con Docker
+
+1. **Costruisci l'immagine Docker**
+   ```bash
+   docker build -t mcp-openapi .
+   ```
+
+2. **Avvia il container**
+   ```bash
+   docker run -it --rm -p 8080:8080 mcp-openapi
+   ```
+
+Il server sarà accessibile su `http://localhost:8080`.
 
 ---
 
 ## Debug e Sviluppo
 
-### Debug Base
-
 - Il server stampa a console dettagli su ogni richiesta, inclusi header e parametri.
 - Per vedere i log, avvia il server da terminale:
   ```bash
-  python server.py
+  python main.py
   ```
-
-### Debug Avanzato
-
-- Modifica la funzione `make_api_call` in `server.py` per aggiungere ulteriori print/logging.
-- Puoi usare strumenti come [httpie](https://httpie.io/) o `curl` per testare manualmente gli endpoint:
+- Puoi modificare la funzione `make_api_call` in [`mcp_core.py`](mcp_core.py) per aggiungere ulteriori print/logging.
+- Usa strumenti come [httpie](https://httpie.io/) o `curl` per testare manualmente gli endpoint:
   ```bash
-  curl -H "Authorization: Bearer IL_TUO_TOKEN" http://localhost:8000/mcp/
+  curl -H "Authorization: Bearer IL_TUO_TOKEN" http://localhost:8080/mcp/
   ```
 
 ### Hot Reload (opzionale)
@@ -79,7 +87,7 @@ Il server sarà disponibile su `http://0.0.0.0:8000`.
 Per sviluppo rapido, puoi usare [watchdog](https://pypi.org/project/watchdog/) o [entr](https://eradman.com/entrproject/) per riavviare il server ad ogni modifica:
 ```bash
 pip install watchdog
-watchmedo auto-restart --pattern="*.py" -- python server.py
+watchmedo auto-restart --pattern="*.py" -- python main.py
 ```
 
 ---
@@ -96,7 +104,7 @@ watchmedo auto-restart --pattern="*.py" -- python server.py
      "servers": {
        "openapi.com": {
          "type": "http",
-         "url": "http://INDIRIZZO_IP_DEL_TUO_SERVER:8000/mcp/",
+         "url": "http://INDIRIZZO_IP_DEL_TUO_SERVER:8080/mcp/",
          "headers": {
            "Authorization": "Bearer IL_TUO_BEARER_TOKEN_DI_PRODUZIONE"
          }
@@ -112,17 +120,31 @@ watchmedo auto-restart --pattern="*.py" -- python server.py
 
 ---
 
+## Struttura del Progetto
+
+- [`main.py`](main.py): Entry point FastAPI + MCP server.
+- [`mcp_core.py`](mcp_core.py): Inizializzazione MCP, helper per chiamate API, error handling.
+- [`/apis/`](apis/): Moduli Python che definiscono i tool MCP (uno per API/ambito).
+- [`requirements.txt`](requirements.txt): Dipendenze Python.
+- [`docs/`](docs/): Documentazione e configurazioni di esempio.
+- [`Dockerfile`](Dockerfile): Build e avvio container Docker.
+
+---
+
 ## Aggiungere Nuovi Tool/API
 
-1. Apri `server.py`.
-2. Segui il pattern dei tool esistenti:
+1. Crea o modifica un file in [`/apis/`](apis/), seguendo il pattern:
    ```python
+   from fastmcp import Context
+   from typing import Any
+   from mcp_core import make_api_call, mcp
+
    @mcp.tool
    async def nome_tool(parametri..., ctx: Context) -> Any:
        # ...logica...
        return make_api_call(ctx, "GET", url, params=params)
    ```
-3. Riavvia il server per applicare le modifiche.
+2. Riavvia il server per applicare le modifiche.
 
 ---
 
@@ -130,6 +152,7 @@ watchmedo auto-restart --pattern="*.py" -- python server.py
 
 - **Mai** inserire credenziali o token hardcoded nel codice.
 - Il server si aspetta che il Bearer Token sia fornito dal client tramite header HTTP.
+- Tutte le chiamate API sono proxyate con il token fornito dal client.
 
 ---
 
