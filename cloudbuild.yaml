@@ -5,30 +5,33 @@ steps:
   args:
     - '-c'
     - |
-      gcloud secrets versions access latest --secret=composer-github-auth > ./composer-build.yaml
+      gcloud secrets versions access latest --secret=composer-github-auth > ./auth.json && ls
 - name: 'gcr.io/cloud-builders/gcloud'
+  timeout: 900s
   entrypoint: /usr/bin/bash
   args:
     - '-c'
     - |
-      gcloud beta functions deploy $_FUNCTION_NAME \
+      gcloud beta run deploy ${_RUN_SERVICE} \
+        --source . \
         --region ${_GCP_REGION} \
-        --trigger-http \
-        --runtime ${_RUNTIME} \
+        --port ${_PORT} \
+        --set-env-vars ${_ENV_VARS} \
+        --set-secrets ${_SECRETS} \
+        --concurrency ${_CONCURRENCY} \
+        --cpu ${_CPU} \
         --memory ${_MEMORY_MB} \
-        --entry-point ${_ENTRY_POINT} \
         --timeout ${_TIMEOUT} \
         --min-instances ${_MIN_INSTANCES} \
         --max-instances ${_MAX_INSTANCES} \
-        --ingress-settings ${_INGRESS_SETTINGS} \
-        --egress-settings all \
+        --ingress internal-and-cloud-load-balancing \
         --vpc-connector ${_VPC_CONNECTOR} \
-        --service-account ${_SA_EMAIL} \
-        --source ${_SOURCE_REPO} \
-        --set-secrets ${_SECRETS} \
-        --set-env-vars ${_ENV_VARS} \
-        --build-env-vars-file ./composer-build.yaml \
-        ${_GEN2} \
-        ${_ALLOW_UNAUTHENTICATED}
+        --vpc-egress all-traffic \
+        --platform managed \
+        --no-use-http2 \
+        --service-account ${_SERVICE_ACCOUNT} \
+        --allow-unauthenticated
+# use --image with Artifact Registry and docker steps
+timeout: 1200s
 options:
   logging: CLOUD_LOGGING_ONLY
