@@ -1,5 +1,6 @@
 import requests
 from fastmcp import FastMCP, Context
+from fastapi import FastAPI, Request, APIRouter
 from typing import Any, Optional
 from pydantic import BaseModel
 
@@ -7,6 +8,7 @@ mcp = FastMCP(
     name="OpenAPI.com Gateway",
     instructions="Questo server fornisce un gateway unificato per diversi servizi di openapi.com."
 )
+
 
 class ApiError(BaseModel):
     error: str

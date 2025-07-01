@@ -1,76 +1,49 @@
 import os
 import sys
-from fastmcp import FastMCP, Context
-from fastapi import Request
-from typing import Dict, Any, Optional
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from mcp_core import mcp, make_api_call
+from fastmcp import FastMCP
+from mangum import Mangum
 
-# --- Modello Pydantic per Risposte di Errore Standard ---
-class ApiError(BaseModel):
-    error: str
-    message: str
-
-# --- Importa i tool ---
+# Importa MCP e tool già registrati da mcp_core.py
+from mcp_core import mcp
+# Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 from apis import company, cap, trust, visurecamerali, sms
 
-# --- FASTAPI CALLBACK ENDPOINT (solo se MCP server) ---
-if hasattr(mcp, 'app'):
-    from fastapi import APIRouter
-    router = APIRouter()
+# Crea l'app ASGI MCP sulla root
+mcp_app = mcp.http_app(path='/')
 
-    @router.post("/callbacks/")
-    async def callbacks_endpoint(request: Request):
-        data = await request.json()
-        callback_custom = data.get("callback", {}).get("custom") if isinstance(data.get("callback"), dict) else None
-        if not callback_custom:
-            return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
-        mcp.notify(callback_custom, {
-            "type": "callback",
-            "payload": data
-        })
-        return {"status": "ok"}
+# Crea l'app FastAPI
+app = FastAPI(lifespan=mcp_app.lifespan)
 
-    mcp.app.include_router(router)
+# Endpoint HTTP REST (fuori da MCP/JSON-RPC)
+@app.post("/callbacks")
+async def callbacks_endpoint(request: Request):
+    data = await request.json()
+    callback_custom = data.get("callback", {}).get("custom") if isinstance(data.get("callback"), dict) else None
+    if not callback_custom:
+        return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
+    # Qui puoi chiamare mcp.notify o altra logica
+    # mcp.notify(callback_custom, {
+    #     "type": "callback",
+    #     "payload": data
+    # })
+    return {"status": "ok"}
 
-# --- FLASK CALLBACK ENDPOINT (solo per Cloud Functions) ---
-try:
-    from flask import Flask, request as flask_request, jsonify
-    app = Flask(__name__)
+# Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
+app.mount("/", mcp_app)
 
-    @app.route("/callbacks/", methods=["POST"])
-    def flask_callbacks_endpoint():
-        data = flask_request.get_json(force=True, silent=True)
-        if not data:
-            return jsonify({"status": "error", "message": "Dati JSON non validi"}), 400
-        callback_custom = data.get("callback", {}).get("custom") if isinstance(data.get("callback"), dict) else None
-        if not callback_custom:
-            return jsonify({"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}), 400
-        mcp.notify(callback_custom, {
-            "type": "callback",
-            "payload": data
-        })
-        return jsonify({"status": "ok"})
-except ImportError:
-    app = None
-
+# Funzione entrypoint per Google Cloud Functions
 def init(request):
-    mcp.run(transport="http", host="0.0.0.0", port=8080)
-    return mcp(request)
+    # Usa la funzione di FastAPI per gestire la richiesta WSGI di GCF
+    from fastapi import Response
+    from fastapi.responses import JSONResponse
 
-# Entrypoint per Google Cloud Functions
-def main(request):
-    if app:
-        return app(request)
-    return "Flask non disponibile", 500
+    # Adatta FastAPI per GCF (ASGI -> WSGI)
+    handler = Mangum(app)
+    return handler(request.environ, lambda status, headers: None)
 
 if __name__ == "__main__":
-    try:
-        print(f"\n--- Server Pronto ---", file=sys.stderr)
-        print("Per avviare in modalità remota, eseguire:", file=sys.stderr)
-        print("python server.py", file=sys.stderr)
-        mcp.run(transport="http", host="0.0.0.0", port=8080)
-    except Exception as e:
-        print(f"ERRORE AVVIO SERVER: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc(file=sys.stderr)
+    import uvicorn
+    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:8080 ---", file=sys.stderr)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
