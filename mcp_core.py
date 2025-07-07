@@ -9,7 +9,6 @@ mcp = FastMCP(
     instructions="Questo server fornisce un gateway unificato per diversi servizi di openapi.com."
 )
 
-
 class ApiError(BaseModel):
     error: str
     message: str
