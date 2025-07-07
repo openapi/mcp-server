@@ -1,11 +1,10 @@
 print("company.py importato")
-from memory_store import callback_results  # usa sempre il singleton globale
-from pydantic import BaseModel
+from memory_store import callback_results,localDomain  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
-import json
-import uuid
+import asyncio
+import pprint
 
 
 @mcp.tool(
@@ -24,17 +23,18 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     """
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     
-    # Usa un client_id generato se ctx.client_id è None
-    client_id = ctx.client_id or str(uuid.uuid4())
+    # Usa un request_id
+    request_id = ctx.request_id
+    
     # Serializza il contesto
     custom_context = {
-        "client_id": client_id,
+        "request_id": request_id,
         "vat_or_taxCode": vat_or_taxCode
     }
     url = f"https://company.openapi.com/IT-full/{vat_or_taxCode}"
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
-            "url": "https://dev.mcp.openapi.com/callbacks",
+            "url": "https://"+localDomain+"/callbacks",
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -42,23 +42,35 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         }
     })
     state = response.get("state")
-    if state in ("PENDING"):
-        # Costruisci poll_url assoluto
-        poll_url = f"https://dev.mcp.openapi.com/status/{client_id}"
+    
+    if state == "PENDING":
         # Salva subito il risultato parziale per il polling
-        callback_results[client_id] = {
+        callback_results[request_id] = {
             "progress": "progress",
             "result": response,
             "custom": custom_context
         }
-        return {
-            "state": "PENDING",
-            "client_id": client_id,
-            "poll_url": poll_url,
-            "message": "Elaborazione in corso, eseguire polling su /status/{client_id}"
-        }
-    print("DEBUG ctx.client_id:", ctx.client_id, "| client_id usato:", client_id)
-    print(response)
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            company_name = None
+            if result:
+                res = result.get("result")
+                if res:
+                    details = res.get("companyDetails")
+                    if details:
+                        company_name = details.get("companyName")
+            if company_name is not None:
+                response = res
+                break
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
     return response
 
 @mcp.tool
