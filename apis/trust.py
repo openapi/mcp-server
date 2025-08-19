@@ -1,76 +1,379 @@
 print("trust.py importato")
+from memory_store import callback_results,localDomain
 from fastmcp import Context
 from typing import Any
+import asyncio
 from mcp_core import make_api_call, mcp
 import json
 
-@mcp.tool
-def checkEmailStart(email: str, ctx: Context) -> Any:
+@mcp.tool(
+    annotations={
+        "title": "checkEmailStart",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkEmailStart(email: str, ctx: Context) -> Any:
+    """Retrieves detailed information about an email address (spf, dmark, disposability, frauds)  
+    Args:
+        email: the email to check
     """
-    Retrieves detailed information about an email address (spf, dmark, disposability, frauds)
-    """
-    print(f"Esecuzione tool: checkEmailBase per {email}")
-    url = f"https://trust.openapi.com/email-start/{email}"
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
     # Serializza il contesto
-    custom_context = json.dumps({
-        "client_id": ctx.client_id,
+    custom_context = {
+        "request_id": request_id,
         "email": email
-    })
-    # Qui puoi generare un request_id unico se vuoi tracciare più richieste per client
-    response = make_api_call(ctx, "POST", url, json_payload={
+    }
+    url = f"https://trust.openapi.com/email-start/{email}"
+    json_payload = {
         "callback": {
-            "url": "https://dev.mcp.openapi.com/callbacks/",
+            "url": "https://"+localDomain+"/callbacks",
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
             }
         }
-    })
-    # Correggi l'accesso ai dati
-    state = response.get("state") or response.get("data", {}).get("state")
-    if state == "DONE":
-        return response.get("result") or response
-    elif state in ("WAIT", "NEW", "PENDING"):
-        return {
-            "state": "PENDING",
-            "client_id": ctx.client_id,
-            "poll_url": f"/status/{ctx.client_id}",
-            "message": "Elaborazione in corso, eseguire polling su /status/{client_id}"
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
         }
-    else:
-        return response
-@mcp.tool
-async def checkMobileStart(mobileNumber: str, ctx: Context) -> Any:
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+
+@mcp.tool(
+    annotations={
+        "title": "checkEmailAdvanced",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkEmailAdvanced(email: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an email address (spfDetails,dmarcDetails,createdAt,updatedAt,state,message,success,valid,disposable,smtpScore,overallScore,firstName,generic,common,dnsValid,honeypot,deliverability,frequentComplainer,spamTrapScore,catchAll,timedOut,suspect,recentAbuse,fraudScore,suggestedDomain,leaked,sanitizedEmail,identityData,domainAge,firstSeen,riskyTld,spfRecord,dmarcRecord,mxRecords,aRecords)  
+    Args:
+        email: the email to check
     """
-    Retrieves detailed information about a mobile number (isPossible, isValid, regionCode, isValidNumberForRegion, network, originalNetwork, roaming, ported, country)
-    """
-    print(f"Esecuzione tool: checkMobileStart per {mobileNumber}")
-    url = f"https://trust.openapi.com/mobile-start/{mobileNumber}"
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
     # Serializza il contesto
-    custom_context = json.dumps({
-        "client_id": ctx.client_id,
-        "mobileNumber": mobileNumber
-    })
-    response = make_api_call(ctx, "POST", url, json_payload={
+    custom_context = {
+        "request_id": request_id,
+        "email": email
+    }
+    url = f"https://trust.openapi.com/email-advanced/{email}"
+    json_payload = {
         "callback": {
-            "url": "https://dev.mcp.openapi.com/callbacks/",
+            "url": "https://"+localDomain+"/callbacks",
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
             }
         }
-    })
-    state = response.get("state") or response.get("data", {}).get("state")
-    if state == "DONE":
-        return response.get("result") or response
-    elif state in ("WAIT", "NEW", "PENDING"):
-        return {
-            "state": "PENDING",
-            "client_id": ctx.client_id,
-            "poll_url": f"/status/{ctx.client_id}",
-            "message": "Elaborazione in corso, eseguire polling su /status/{client_id}"
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
         }
-    else:
-        return response
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+
+@mcp.tool(
+    annotations={
+        "title": "checkMobileStart",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkMobileStart(mobile: str, ctx: Context) -> Any:
+    """Retrieves basic information about a mobile number (requestedNumber,formattedNumber,numberType,isPossible,isValid,regionCode,isValidNumberForRegion,network,originalNetwork,roaming,ported,country,countryPrefix,details)  
+    Args:
+        mobile: with international prefix es +39
+    """
+    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
+    # Serializza il contesto
+    custom_context = {
+        "request_id": request_id,
+        "mobile": mobile
+    }
+    url = f"https://trust.openapi.com/mobile-start/{mobile}"
+    json_payload = {
+        "callback": {
+            "url": "https://"+localDomain+"/callbacks",
+            "custom": custom_context,
+            "headers": {
+                "Authorization": auth_header
+            }
+        }
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
+        }
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+
+@mcp.tool(
+    annotations={
+        "title": "checkMobileAdvanced",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkMobileAdvanced(mobile: str, ctx: Context) -> Any:
+    """Retrieves advanced information about a mobile number (requestedNumber,formattedNumber,createdAt,updatedAt,state,message,success,valid,active,localFormat,fraudScore,recentAbuse,voip,prepaid,risky,name,identityData,carrier,lineType,country,region,city,accurateCountryCode,zipCode,timezone,dialingCode,doNotCall,leaked,spammer,activeStatus,mcc,mnc,transactionDetails)  
+    Args:
+        mobile: with international prefix es +39
+    """
+    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
+    # Serializza il contesto
+    custom_context = {
+        "request_id": request_id,
+        "mobile": mobile
+    }
+    url = f"https://trust.openapi.com/mobile-advanced/{mobile}"
+    json_payload = {
+        "callback": {
+            "url": "https://"+localDomain+"/callbacks",
+            "custom": custom_context,
+            "headers": {
+                "Authorization": auth_header
+            }
+        }
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
+        }
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+
+@mcp.tool(
+    annotations={
+        "title": "checkIpAdvanced",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkIpAdvanced(ip: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an ip address (ip,createdAt,updatedAt,state,requestedIp,message,success,proxy,host,isp,organization,asn,countryCode,city,region,timezone,latitude,longitude,zipCode,isCrawler,connectionType,recentAbuse,abuseVelocity,botStatus,frequentAbuser,highRiskAttacks,sharedConnection,dynamicConnection,securityScanner,trustedNetwork,operatingSystem,browser,deviceBrand,deviceModel,transactionDetails,errors,vpn,tor,activeVpn,activeTor,mobile,fraudScore)  
+    Args:
+        ip: valid ip number
+    """
+    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
+    # Serializza il contesto
+    custom_context = {
+        "request_id": request_id,
+        "ip": ip
+    }
+    url = f"https://trust.openapi.com/ip-advanced/{ip}"
+    json_payload = {
+        "callback": {
+            "url": "https://"+localDomain+"/callbacks",
+            "custom": custom_context,
+            "headers": {
+                "Authorization": auth_header
+            }
+        }
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
+        }
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+@mcp.tool(
+    annotations={
+        "title": "checkUrlAdvanced",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def checkUrlAdvanced(url: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an url address (url,createdAt,updatedAt,state,requestedUrl,message,success,unsafe,domain,ipAddress,countryCode,languageCode,server,contentType,statusCode,pageSize,domainRank,dnsValid,parking,pageTitle,shortLinkRedirect,hostedContent,riskyTld,spfRecord,dmarcRecord,mxRecords,nsRecords,aRecords,errors,riskScore,suspicious,phishing,malware,spamming,adult,category,technologies,domainAge,redirected,scannedUrl,finalUrl)  
+    Args:
+        url: valid url address
+    """
+    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
+    # Serializza il contesto
+    custom_context = {
+        "request_id": request_id,
+        "url": url
+    }
+    url = f"https://trust.openapi.com/url-advanced/{url}"
+    json_payload = {
+        "callback": {
+            "url": "https://"+localDomain+"/callbacks",
+            "custom": custom_context,
+            "headers": {
+                "Authorization": auth_header
+            }
+        }
+    }
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
+        }
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            if result:
+                res = result.get("data")
+                if res:
+                    state = res.get("state")
+                    if state == "DONE":
+                        return res
+                
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+

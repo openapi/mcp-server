@@ -3,13 +3,13 @@ from memory_store import callback_results,localDomain  # usa sempre il singleton
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
+from typing import Union
 import asyncio
-import pprint
 
 
 @mcp.tool(
     annotations={
-        "title": "Full company data from VAT",
+        "title": "Full italian companies data from VAT",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
@@ -17,7 +17,6 @@ import pprint
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     """Restituisce il profilo completo e dettagliato di un'azienda italiana dato Partita IVA o Codice Fiscale.    
-
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
@@ -25,7 +24,6 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    
     # Serializza il contesto
     custom_context = {
         "request_id": request_id,
@@ -61,7 +59,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
             result = callback_results.get(request_id)
             company_name = None
             if result:
-                res = result.get("result")
+                res = result.get("data")
                 if res:
                     details = res.get("companyDetails")
                     if details:
@@ -73,21 +71,73 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         ctx.report_progress(progress=100, total=100)
     return response
 
-@mcp.tool
+@mcp.tool(
+    annotations={
+        "title": "Advanced italian companies data from VAT",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
 async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Restituisce il profilo avanzato di un'azienda italiana dato Partita IVA o Codice Fiscale."""
+    """Returns taxCode, companyName, vatCode,address,activityStatus,reaCode,cciaa,atecoClassification,detailedLegalForm,startDate,registrationDate,endDate,pec,taxCodeCeased,taxCodeCeasedTimestamp,vatGroup,sdiCode,sdiCodeTimestamp,balanceSheets (turnover,employee,networt,staffCost,totalAssets.avgGrossSalary of the last 10 years),shareHolders	
+    of an italian company from vatCode or taxCode.
+    Args:
+        vat_or_taxCode: vatCode or taxCode of an italian company
+    """
     url = f"https://company.openapi.com/IT-advanced/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
-@mcp.tool
-async def get_company_IT_base(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Restituisce il profilo base di un'azienda italiana dato Partita IVA o Codice Fiscale."""
+@mcp.tool(
+    annotations={
+        "title": "Start italian companies data from VAT",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
+    """Returns taxCode,companyName,vatCode,address,activityStatus,sdiCode,registrationDate of an italian company from vatCode or taxCode.
+    Args:
+        vat_or_taxCode: vatCode or taxCode of an italian company
+    """
     url = f"https://company.openapi.com/IT-start/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
-@mcp.tool
-async def get_company_IT_search(companyName: str, ctx: Context) -> Any:
-    """Restituisce un elenco di aziende italiane dato il nome o parte di esso."""
+@mcp.tool(
+    annotations={
+        "title": "Search italian companies by name",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+
+
+async def get_company_IT_search(companyName: str, ctx: Context, province: Union[str, None] = None) -> Any:
+    """Returns a list of 10 taxCode,companyName,vatCode,address of italian companies from the name
+    Args:
+        companyName: the name or part of it of an italian company
+        province: the province where the company is to restrict the results
+    """
     url = f"https://company.openapi.com/IT-search?companyName={companyName}&limit=10&dataEnrichment=name"
+    if province:
+        url += f"&province={province}"
     return make_api_call(ctx, "GET", url)
 
+@mcp.tool(
+    annotations={
+        "title": "Start worldwide companies data from VAT or company number",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context) -> Any:
+    """Returns companyName,nativeCompanyName,companySize,address,gps,activityStatus,incorporationDate,contacts,nace,nationalClassification,balanceSheets data like employees,netWorth,operatingRevenue,equity,totalAssets .
+    Args:
+        vat_or_taxCode: vatCode or taxCode of a company
+        country_code: country code of the company
+    """
+    url = f"https://company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
+    return make_api_call(ctx, "GET", url)

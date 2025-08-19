@@ -1,0 +1,105 @@
+print("risk.py importato")
+from memory_store import callback_results,localDomain  # usa sempre il singleton globale
+from fastmcp import Context
+from typing import Any
+from mcp_core import make_api_call, mcp
+import asyncio
+
+
+@mcp.tool(
+    annotations={
+        "title": "Full Worldwide KYC FULL",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def post_risk_WW__kyc_full(firstName: str,lastName: str,entityType: str,name: str, ctx: Context) -> Any:
+    """This endpoint allows you to create a full kyc request on a subject (politically exposed person, adverse media, local politicians, legal enforcement, sanctions, whitelists)    
+    	name or firstName/lastName combination required
+    Args:
+        firstName: first name of the person
+        lastName: lastName of the person
+        entityType: can be I=Individual,L=Legal Entity,W=Website,VE=Vessel,AC=Aircraft,NA=Unknown
+        name: the name of the entity if not Individual
+    """
+    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
+    
+    # Usa un request_id
+    request_id = ctx.request_id
+    # Serializza il contesto
+    custom_context = {
+        "request_id": request_id,
+        "firstName": firstName,
+        "lastName": lastName,
+        "entityType": entityType,
+        "name": name,
+    }
+    url = f"https://risk.openapi.com/WW-kyc-full"
+    json_payload = {
+        "callback": {
+            "url": "https://"+localDomain+"/callbacks",
+            "custom": custom_context,
+            "headers": {
+                "Authorization": auth_header
+            }
+        }
+    }
+    if firstName:
+        json_payload["firstname"] = {"value": firstName}
+    if lastName:
+        json_payload["lastName"] = {"value": lastName}
+    if entityType:
+        json_payload["entityType"] = {"value": entityType}
+    if name:
+        json_payload["name"] = {"value": name}
+    response = make_api_call(ctx, "POST", url, json_payload=json_payload)
+    state = response.get("state")
+    
+    if state == "PENDING":
+        # Salva subito il risultato parziale per il polling
+        callback_results[request_id] = {
+            "progress": "progress",
+            "result": response,
+            "custom": custom_context
+        }
+
+        ctx.report_progress(progress=1, total=100)
+        
+
+        # avvia un polling ogni secondo su callback_results 
+        res = None
+        for i in range(100):  # Poll up to 10 seconds
+            await asyncio.sleep(1)
+            result = callback_results.get(request_id)
+            company_name = None
+            if result:
+                res = result.get("data")
+                if res:
+                    details = res.get("companyDetails")
+                    if details:
+                        company_name = details.get("companyName")
+            if company_name is not None:
+                response = res
+                break
+            ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=100, total=100)
+    return response
+
+@mcp.tool(
+    annotations={
+        "title": "Provides detailed credit score information for a specific organization using a tax code, VAT number",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
+    """Returns Operational credit limits, Rating evaluations, Risk score history, Public ratings, Financial positions and profiles
+        of an italian company from vatCode or taxCode.
+    Args:
+        vat_or_taxCode: vatCode or taxCode of an italian company
+    """
+    url = f"https://risk.openapi.com/IT-creditscore-top/{vat_or_taxCode}"
+    return make_api_call(ctx, "GET", url)
+

@@ -5,7 +5,7 @@ from typing import Dict
 from fastapi import FastAPI, Request, HTTPException
 from memory_store import callback_results  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from apis import company, cap, trust, visurecamerali, sms # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from apis import company, cap, trust, visurecamerali, sms, risk # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 
 
 
@@ -23,22 +23,26 @@ async def callbacks_endpoint(request: Request):
     try:
         callback = json.loads(raw_body)
     except Exception:
+        print("Body non è un JSON valido")
         return {"status": "error", "message": "Body non è un JSON valido"}
     
-    custom = callback.get("custom")
+    custom = callback.get("custom") or callback.get("callback").get("data")
     if not custom:
+        print("'callback.custom' mancante nei dati ricevuti")
         return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
     request_id = custom.get("request_id")
     if not request_id:
+        print("'request_id' mancante nel campo custom")
         return {"status": "error", "message": "'request_id' mancante nel campo custom"}
     
-    data = callback.get("data",{})
+    data = callback.get("data",{}) or callback
     if not data:
+        print("'callback.data' mancante nei dati ricevuti")
         return {"status": "error", "message": "'callback.data' mancante nei dati ricevuti"}
     
     # Salva il risultato associato al client_id (sovrascrive se arriva una nuova callback)
     callback_results[request_id] = {
-        "result": data,
+        "data": data,
         "custom": custom
     }
 
