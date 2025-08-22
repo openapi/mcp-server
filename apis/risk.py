@@ -1,5 +1,5 @@
 print("risk.py importato")
-from memory_store import callback_results,localDomain  # usa sempre il singleton globale
+from memory_store import callback_results,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
@@ -38,7 +38,7 @@ async def post_risk_WW__kyc_full(firstName: str,lastName: str,entityType: str,na
     url = f"https://risk.openapi.com/WW-kyc-full"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -103,3 +103,18 @@ async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://risk.openapi.com/IT-creditscore-top/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
+@mcp.tool(
+    annotations={
+        "title": "Check if Italian Fiscal Code is real and existent",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_risk_IT_creditscore_top(fiscalCode: str, ctx: Context) -> Any:
+    """Check if an Italian Fiscal Code is real and existent.
+    Args:
+        fiscalCode: fiscal code of an italian person
+    """
+    url = f"https://risk.openapi.com/IT-verifica_cf/{fiscalCode}"
+    return make_api_call(ctx, "GET", url)

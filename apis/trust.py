@@ -1,5 +1,5 @@
 print("trust.py importato")
-from memory_store import callback_results,localDomain
+from memory_store import callback_results,callbackUrl
 from fastmcp import Context
 from typing import Any
 import asyncio
@@ -31,7 +31,7 @@ async def checkEmailStart(email: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/email-start/{email}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -93,7 +93,7 @@ async def checkEmailAdvanced(email: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/email-advanced/{email}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -155,7 +155,7 @@ async def checkMobileStart(mobile: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/mobile-start/{mobile}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -217,7 +217,7 @@ async def checkMobileAdvanced(mobile: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/mobile-advanced/{mobile}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -279,7 +279,7 @@ async def checkIpAdvanced(ip: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/ip-advanced/{ip}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
@@ -340,7 +340,7 @@ async def checkUrlAdvanced(url: str, ctx: Context) -> Any:
     url = f"https://trust.openapi.com/url-advanced/{url}"
     json_payload = {
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header

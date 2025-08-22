@@ -5,7 +5,7 @@ from typing import Dict
 from fastapi import FastAPI, Request, HTTPException
 from memory_store import callback_results  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from apis import company, cap, trust, visurecamerali, sms, risk # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from apis import company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 
 
 
