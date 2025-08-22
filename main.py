@@ -3,7 +3,7 @@ import sys
 import json
 from typing import Dict
 from fastapi import FastAPI, Request, HTTPException
-from memory_store import callback_results  # usa sempre il singleton globale
+from memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from apis import company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 
@@ -41,18 +41,18 @@ async def callbacks_endpoint(request: Request):
         return {"status": "error", "message": "'callback.data' mancante nei dati ricevuti"}
     
     # Salva il risultato associato al client_id (sovrascrive se arriva una nuova callback)
-    callback_results[request_id] = {
-        "data": data,
-        "custom": custom
-    }
+    set_callback_result(request_id, data, custom)
 
     return {"status": "ok"}
 
 @app.get("/status/{client_id}")
 async def get_status(client_id: str):
-    if client_id not in callback_results:
-        raise HTTPException(status_code=404, detail="Risultato non trovato")
-    return callback_results[client_id]
+    try:
+        return get_callback_result(client_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Not Found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 # Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
 app.mount("/", mcp_app)

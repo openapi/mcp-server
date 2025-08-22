@@ -3,6 +3,8 @@ from fastmcp import FastMCP, Context
 # from fastapi import FastAPI, Request, APIRouter
 from typing import Any, Optional
 from pydantic import BaseModel
+from memory_store import get_callback_result
+import asyncio
 
 mcp = FastMCP(
     name="OpenAPI.com MCP Gateway",
@@ -12,6 +14,22 @@ mcp = FastMCP(
 class ApiError(BaseModel):
     error: str
     message: str
+
+async def processPolling(ctx: Context, request_id: str, final_states: Optional[list] = None, state_field: Optional[str] = "state"):
+    if final_states is None:
+        final_states = ["DONE"]
+    # Riporto il progresso
+    ctx.report_progress(progress=1, total=100)
+    # avvia un polling ogni secondo su callback_results 
+    result = None
+    for i in range(100):  # Poll up to 10 seconds
+        await asyncio.sleep(1)
+        result = get_callback_result(request_id)
+        if result.get("data").get(state_field) in final_states:
+            ctx.report_progress(progress=100, total=100)
+            return result
+        ctx.report_progress(progress=(i + 1), total=100)
+    return result
 
 import requests
 """

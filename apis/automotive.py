@@ -1,4 +1,4 @@
-print("geocoding.py importato")
+print("automotive.py importato")
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
