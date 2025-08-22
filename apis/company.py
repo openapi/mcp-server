@@ -1,10 +1,10 @@
 print("company.py importato")
-from memory_store import callback_results,localDomain  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
+from mcp_core import make_api_call, mcp, processPolling
 from typing import Union
-import asyncio
+
 
 
 @mcp.tool(
@@ -32,43 +32,20 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://company.openapi.com/IT-full/{vat_or_taxCode}"
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
             }
         }
     })
-    state = response.get("state")
     
-    if state == "PENDING":
+    #gestione asincrona
+    if response.get("state") == "PENDING":
         # Salva subito il risultato parziale per il polling
-        callback_results[request_id] = {
-            "progress": "progress",
-            "result": response,
-            "custom": custom_context
-        }
-
-        ctx.report_progress(progress=1, total=100)
-        
-
+        set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        res = None
-        for i in range(100):  # Poll up to 10 seconds
-            await asyncio.sleep(1)
-            result = callback_results.get(request_id)
-            company_name = None
-            if result:
-                res = result.get("data")
-                if res:
-                    details = res.get("companyDetails")
-                    if details:
-                        company_name = details.get("companyName")
-            if company_name is not None:
-                response = res
-                break
-            ctx.report_progress(progress=(i + 1), total=100)
-        ctx.report_progress(progress=100, total=100)
+        response = await processPolling(ctx, request_id, ["DONE"])
     return response
 
 @mcp.tool(
