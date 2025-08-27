@@ -16,9 +16,10 @@ from typing import Union
     }
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Restituisce il profilo completo e dettagliato di un'azienda italiana dato Partita IVA o Codice Fiscale.    
+    """Returns the complete and detailed profile of an Italian company given a VAT number or Tax Code.  
+    Use get_company_IT_search to obtain VAT  
     Args:
-        vat_or_taxCode: vatCode or taxCode of an italian company
+        vat_or_taxCode: VAT number or Tax Code of an Italian company
     """
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     
@@ -93,6 +94,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 
 async def get_company_IT_search(companyName: str, ctx: Context, province: Union[str, None] = None) -> Any:
     """Returns a list of 10 taxCode,companyName,vatCode,address of italian companies from the name
+    Use this tool if you don't know the vat number of a company.
     Args:
         companyName: the name or part of it of an italian company
         province: the province where the company is to restrict the results
