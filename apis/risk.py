@@ -1,8 +1,8 @@
 print("risk.py importato")
-from memory_store import callback_results,callbackUrl  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
+from mcp_core import make_api_call, mcp, processPolling
 import asyncio
 
 
@@ -58,32 +58,9 @@ async def post_risk_WW__kyc_full(firstName: str,lastName: str,entityType: str,na
     
     if state == "PENDING":
         # Salva subito il risultato parziale per il polling
-        callback_results[request_id] = {
-            "progress": "progress",
-            "result": response,
-            "custom": custom_context
-        }
-
-        ctx.report_progress(progress=1, total=100)
-        
-
+        set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        res = None
-        for i in range(100):  # Poll up to 10 seconds
-            await asyncio.sleep(1)
-            result = callback_results.get(request_id)
-            company_name = None
-            if result:
-                res = result.get("data")
-                if res:
-                    details = res.get("companyDetails")
-                    if details:
-                        company_name = details.get("companyName")
-            if company_name is not None:
-                response = res
-                break
-            ctx.report_progress(progress=(i + 1), total=100)
-        ctx.report_progress(progress=100, total=100)
+        response =  await processPolling(ctx, request_id, ["DONE"])
     return response
 
 @mcp.tool(
@@ -111,7 +88,7 @@ async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
         "idempotentHint": True
     }
 )
-async def get_risk_IT_creditscore_top(fiscalCode: str, ctx: Context) -> Any:
+async def checkItalianFiscalCode(fiscalCode: str, ctx: Context) -> Any:
     """Check if an Italian Fiscal Code is real and existent.
     Args:
         fiscalCode: fiscal code of an italian person

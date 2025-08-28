@@ -1,10 +1,10 @@
 print("company.py importato")
-from memory_store import callback_results,localDomain  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
+from mcp_core import make_api_call, mcp, processPolling
 from typing import Union
-import asyncio
+
 
 
 @mcp.tool(
@@ -16,9 +16,30 @@ import asyncio
     }
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Restituisce il profilo completo e dettagliato di un'azienda italiana dato Partita IVA o Codice Fiscale.    
+    """Returns the complete and detailed profile of an Italian company given a VAT number or Tax Code.  
+        - Company Data (Name, VAT Number, Tax Code, CCIAA, and REA)
+        - Managers
+        - Registered Office and other types of offices
+        - Activity Classifications (New ATECO 2025, ATECO history since 2022, NACE, SIC, RAE, and SAE)
+        - Corporate Affiliation
+        - Exporter / Importer Status
+        - Company Size
+        - Company Contacts (Email, phone, fax, website, social media)
+        - Shareholders and their ownership shares
+        - Employees, number, trends, statistics on contract duration and types
+        - Regarding shareholders, it is possible to access the list of the top 10 (based on ownership share size) and view their respective ownership shares.
+        - Liquidity and profitability
+        - Receivables and Payables
+        - EBITDA and EBIT
+        - Cashflow with a 2-year history
+        - Financial fixed assets
+        - Production value and costs
+        - Financial revenues and expenses
+        - Tangible, intangible, and financial assets
+        - Net profit/loss
+    Use get_company_IT_search to obtain VAT  
     Args:
-        vat_or_taxCode: vatCode or taxCode of an italian company
+        vat_or_taxCode: VAT number or Tax Code of an Italian company
     """
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     
@@ -32,43 +53,20 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://company.openapi.com/IT-full/{vat_or_taxCode}"
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "custom": custom_context,
             "headers": {
                 "Authorization": auth_header
             }
         }
     })
-    state = response.get("state")
     
-    if state == "PENDING":
+    #gestione asincrona
+    if response.get("state") == "PENDING":
         # Salva subito il risultato parziale per il polling
-        callback_results[request_id] = {
-            "progress": "progress",
-            "result": response,
-            "custom": custom_context
-        }
-
-        ctx.report_progress(progress=1, total=100)
-        
-
+        set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        res = None
-        for i in range(100):  # Poll up to 10 seconds
-            await asyncio.sleep(1)
-            result = callback_results.get(request_id)
-            company_name = None
-            if result:
-                res = result.get("data")
-                if res:
-                    details = res.get("companyDetails")
-                    if details:
-                        company_name = details.get("companyName")
-            if company_name is not None:
-                response = res
-                break
-            ctx.report_progress(progress=(i + 1), total=100)
-        ctx.report_progress(progress=100, total=100)
+        response = await processPolling(ctx, request_id, ["DONE"])
     return response
 
 @mcp.tool(
@@ -116,6 +114,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 
 async def get_company_IT_search(companyName: str, ctx: Context, province: Union[str, None] = None) -> Any:
     """Returns a list of 10 taxCode,companyName,vatCode,address of italian companies from the name
+    Use this tool if you don't know the vat number of a company.
     Args:
         companyName: the name or part of it of an italian company
         province: the province where the company is to restrict the results
