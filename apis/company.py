@@ -145,12 +145,12 @@ async def get_company_IT_search(
         companyName: The name or part of it of an Italian company (optional).
         province: The province where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
-        limit: The maximum number of results to return (default is 10, in dryRun default is null). 
+        limit: The maximum number of results to return (optional, default is 10, in dryRun is optional). 
         dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name),  Available values : start, advanced, pec, address, shareholders, name
         legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
-        dryRun: Simulates a request by returning only the number of records found and the price (optional) Available values :0,1.
+        dryRun: Simulates a request by returning only the number of records "count" found and the price "cost" (optional) Available values :0,1.
         lat: Latitude for geographical search (optional).
         long: Longitude for geographical search (optional).
         radius: Radius in meters for geographical search (optional).
