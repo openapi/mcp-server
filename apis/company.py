@@ -177,9 +177,9 @@ async def get_company_IT_search(
             url += f"&companyName={companyName}"
     if province:
         url += f"&province={province}"
-    if skip is not None and skip is not "null":
+    if skip is not None and skip != "null":
         url += f"&skip={skip}"
-    if limit is not None and limit is not "null":
+    if limit is not None and limit != "null":
         url += f"&limit={limit}"
     if dryRun is None and limit is None:
         url += f"&limit=10"
