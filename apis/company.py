@@ -104,7 +104,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "Search italian companies by name",
+        "title": "Search italian companies by advanced search criteria",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
@@ -119,7 +119,6 @@ async def get_company_IT_search(
     dataEnrichment: str = "name",
     sortBy: Union[str, None] = None,
     vatGroup: Union[bool, None] = None,
-    legalForm: Union[str, None] = None,
     startDate: Union[str, None] = None,
     endDate: Union[str, None] = None,
     dryRun: Union[int, None] = None,
@@ -150,7 +149,7 @@ async def get_company_IT_search(
         skip: The number of records to skip for pagination (optional).
         limit: The maximum number of results to return (default is 10).
         dataEnrichment: Avoid further queries receiving Additional data enrichment options for the search (default is name),  Available values : start, advanced, pec, address, shareholders, name
-        legalForm: Filter by legal form of the company (optional). For Available values use get_company_IT_legal_forms_list
+        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
         dryRun: Simulates a request by returning only the number of records found and the price (optional).
