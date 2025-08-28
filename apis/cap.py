@@ -4,59 +4,59 @@ from typing import Any
 from mcp_core import make_api_call, mcp
 
 @mcp.tool
-async def elenco_regioni_italiane(ctx: Context) -> Any:
+async def get_IT_regions_list(ctx: Context) -> Any:
     """
-    Ritorna l'elenco delle regioni italiane
+    Returns the list of Italian regions
     """
     print(f"Esecuzione tool: elenco_regioni_italiane")
     url = "https://cap.openapi.it/regioni"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
-async def elenco_province_italiane(ctx: Context) -> Any:
+async def get_IT_provinces_list(ctx: Context) -> Any:
     """
-    Ritorna l'elenco delle province italiane
+     Returns the list of Italian provinces
     """
     print(f"Esecuzione tool: elenco_province_italiane")
     url = "https://cap.openapi.it/province"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
-async def elenco_citta_metropolitane_italiane(ctx: Context) -> Any:
+async def get_IT_metropolitan_cities_list(ctx: Context) -> Any:
     """
-    Ritorna l'elenco citta metropolitane italiane
+    Returns the list of Italian metropolitan cities
     """
     print(f"Esecuzione tool: elenco_citta_metropolitane_italiane")
     url = "https://cap.openapi.it/citta_metropolitane"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
-async def elenco_comuni_soppressi_italiani(ctx: Context) -> Any:
+async def get_suppressed_italian_municipalities(ctx: Context) -> Any:
     """
-    Ritorna l'elenco dei comuni soppressi o accorpati italiani
+    Returns the list of suppressed or merged Italian municipalities
     """
-    print(f"Esecuzione tool: elenco_comuni_soppressi_italiani")
+    print(f"Esecuzione tool: get_suppressed_italian_municipalities")
     url = "https://cap.openapi.it/comuni_soppressi"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
-async def find_istat_by_comune_name(comune: str, ctx: Context) -> Any:
+async def find_IT_istat_by_comune_name(comune: str, ctx: Context) -> Any:
     """
-    Cerca il codice istat associato a un dato comune italiano.
+    Searches for the ISTAT code associated with a given Italian municipality.
     """
-    print(f"Esecuzione tool: find_istat_by_comune_name per {comune}")
+    print(f"Esecuzione tool: find_IT_istat_by_comune_name per {comune}")
     url = "https://cap.openapi.it/cerca_comuni"
     params = {"comune": comune}
     return make_api_call(ctx, "GET", url, params=params)
 @mcp.tool
-async def find_comune_by_istat(istatCode: str, ctx: Context) -> Any:
+async def find_IT_municipality_by_istat(istatCode: str, ctx: Context) -> Any:
     """
-    Recupera dati approfonditi su un comune italiano a partire dal codice istat.
+    Retrieves detailed data about an Italian municipality using the ISTAT code.
     """
-    print(f"Esecuzione tool: find_comune_by_istat per {istatCode}")
+    print(f"Esecuzione tool: find_IT_municipality_by_istat for {istatCode}")
     url = f"https://cap.openapi.it/comuni_advance/{istatCode}"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
-async def find_comuni_by_cap(cap: str, ctx: Context) -> Any:
+async def find_IT_municipalities_by_zip(zip_code: str, ctx: Context) -> Any:
     """
-    Recupera l'elenco dei comuni italiani ed il loro codice istat a partire dal CAP (zip code).
+    Retrieves the list of Italian municipalities and their ISTAT code based on the ZIP code.
     """
-    print(f"Esecuzione tool: find_comuni_by_cap per {cap}")
-    url = f"https://cap.openapi.it/cap/{cap}"
+    print(f"Esecuzione tool: find_municipalities_by_zip for {zip_code}")
+    url = f"https://cap.openapi.it/cap/{zip_code}"
     return make_api_call(ctx, "GET", url)

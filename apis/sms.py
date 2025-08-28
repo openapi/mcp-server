@@ -4,7 +4,7 @@ from typing import Any
 from mcp_core import make_api_call, mcp
 
 @mcp.tool
-async def sendSms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
+async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
     """
     Send an SMS to a mobile number using minus sign to separate international prefix from the number
     Args:
@@ -12,7 +12,7 @@ async def sendSms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
         body: the body of the message string
         mobile: the recipient mobile number. Eg.:"+39-1234567890"
     """
-    print(f"Esecuzione tool: sendSms da {sender} a {mobile}")
+    print(f"Esecuzione tool: send_sms da {sender} a {mobile}")
     
     # Ensure the mobile number has a '-' between the international prefix and the number
     if mobile.startswith("+") and "-" not in mobile:

@@ -112,16 +112,136 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 )
 
 
-async def get_company_IT_search(companyName: str, ctx: Context, province: Union[str, None] = None) -> Any:
-    """Returns a list of 10 taxCode,companyName,vatCode,address of italian companies from the name
-    Use this tool if you don't know the vat number of a company.
+async def get_company_IT_search(
+    ctx: Context,
+    companyName: Union[str, None] = None,
+    province: Union[str, None] = None,
+    skip: Union[int, None] = None,
+    limit: int = 10,
+    dataEnrichment: Union[str, None] = None,
+    sortBy: Union[str, None] = None,
+    vatGroup: Union[bool, None] = None,
+    legalForm: Union[str, None] = None,
+    startDate: Union[str, None] = None,
+    endDate: Union[str, None] = None,
+    dryRun: Union[int, None] = None,
+    lat: Union[float, None] = None,
+    long: Union[float, None] = None,
+    radius: Union[int, None] = None,
+    autocomplete: Union[str, None] = None,
+    townCode: Union[str, None] = None,
+    atecoCode: Union[str, None] = None,
+    cciaa: Union[str, None] = None,
+    reaCode: Union[str, None] = None,
+    minTurnover: Union[int, None] = None,
+    maxTurnover: Union[int, None] = None,
+    minEmployees: Union[int, None] = None,
+    maxEmployees: Union[int, None] = None,
+    sdiCode: Union[str, None] = None,
+    legalFormCode: Union[str, None] = None,
+    shareHolderTaxCode: Union[str, None] = None,
+    activityStatus: Union[str, None] = None,
+    pec: Union[str, None] = None,
+    creationTimestamp: Union[int, None] = None,
+    lastUpdateTimestamp: Union[int, None] = None
+) -> Any:
+    """Returns a list of italian companies based on the search criteria. Use this tool if you don't know the VAT number of a company.
     Args:
-        companyName: the name or part of it of an italian company
-        province: the province where the company is to restrict the results
+        companyName: The name or part of it of an Italian company (optional).
+        province: The province where the company is located to restrict the results (optional).
+        skip: The number of records to skip for pagination (optional).
+        limit: The maximum number of results to return (default is 10).
+        dataEnrichment: Additional data enrichment options for the search (optional). Available values : start, advanced, pec, address, shareholders, name
+        sortBy: The field to sort the results by (optional).
+        vatGroup: Filter by VAT group status (optional).
+        legalForm: Filter by legal form of the company (optional).
+        startDate: Filter by the start date of the company (optional).
+        endDate: Filter by the end date of the company (optional).
+        dryRun: Simulates a request by returning only the number of records found and the price (optional).
+        lat: Latitude for geographical search (optional).
+        long: Longitude for geographical search (optional).
+        radius: Radius in meters for geographical search (optional).
+        autocomplete: Search for strings that begin with the specified query (optional).
+        townCode: The cadastral code for the town (optional).
+        atecoCode: ATECO code for the company (optional).
+        cciaa: Chamber of Commerce code (optional).
+        reaCode: REA code (optional).
+        minTurnover: Minimum turnover value (optional).
+        maxTurnover: Maximum turnover value (optional).
+        minEmployees: Minimum number of employees (optional).
+        maxEmployees: Maximum number of employees (optional).
+        sdiCode: SDI code (optional).
+        legalFormCode: Legal form code (optional).
+        shareHolderTaxCode: Tax code of a company member (optional).
+        activityStatus: Status of the company in the Chamber of Commerce (optional), Available values : ATTIVA, CESSATA, REGISTRATA, INATTIVA, SOSPESA, IN_ISCRIZIONE.
+        pec: PEC email address of the company (optional).
+        creationTimestamp: Filter by creation timestamp (optional).
+        lastUpdateTimestamp: Filter by last update timestamp (optional).
     """
-    url = f"https://company.openapi.com/IT-search?companyName={companyName}&limit=10&dataEnrichment=name"
+    url = f"https://company.openapi.com/IT-search?limit={limit}"
+
+    if companyName:
+        if companyName != "*":
+            url += f"&companyName={companyName}"
     if province:
         url += f"&province={province}"
+    if skip is not None:
+        url += f"&skip={skip}"
+    if dataEnrichment:
+        url += f"&dataEnrichment={dataEnrichment}"
+    if sortBy:
+        url += f"&sortBy={sortBy}"
+    if vatGroup is not None:
+        url += f"&vatGroup={str(vatGroup).lower()}"
+    if legalForm:
+        url += f"&legalForm={legalForm}"
+    if startDate:
+        url += f"&startDate={startDate}"
+    if endDate:
+        url += f"&endDate={endDate}"
+    if dryRun is not None:
+        url += f"&dryRun={dryRun}"
+    if lat is not None:
+        url += f"&lat={lat}"
+    if long is not None:
+        url += f"&long={long}"
+    if radius is not None:
+        url += f"&radius={radius}"
+    if autocomplete:
+        url += f"&autocomplete={autocomplete}"
+    if townCode:
+        url += f"&townCode={townCode}"
+    if atecoCode:
+        url += f"&atecoCode={atecoCode}"
+    if cciaa:
+        url += f"&cciaa={cciaa}"
+    if reaCode:
+        url += f"&reaCode={reaCode}"
+    if minTurnover is not None:
+        url += f"&minTurnover={minTurnover}"
+    if maxTurnover is not None:
+        url += f"&maxTurnover={maxTurnover}"
+    if minEmployees is not None:
+        url += f"&minEmployees={minEmployees}"
+    if maxEmployees is not None:
+        url += f"&maxEmployees={maxEmployees}"
+    if sdiCode:
+        url += f"&sdiCode={sdiCode}"
+    if legalFormCode:
+        url += f"&legalFormCode={legalFormCode}"
+    if shareHolderTaxCode:
+        url += f"&shareHolderTaxCode={shareHolderTaxCode}"
+    if activityStatus:
+        url += f"&activityStatus={activityStatus}"
+    if pec:
+        url += f"&pec={pec}"
+    if creationTimestamp is not None:
+        url += f"&creationTimestamp={creationTimestamp}"
+    if lastUpdateTimestamp is not None:
+        url += f"&lastUpdateTimestamp={lastUpdateTimestamp}"
+
+    print(url)
+
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
