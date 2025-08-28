@@ -14,7 +14,7 @@ import asyncio
         "idempotentHint": True
     }
 )
-async def post_risk_WW__kyc_full(firstName: str,lastName: str,entityType: str,name: str, ctx: Context) -> Any:
+async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,name: str, ctx: Context) -> Any:
     """This endpoint allows you to create a full kyc request on a subject (politically exposed person, adverse media, local politicians, legal enforcement, sanctions, whitelists)    
     	name or firstName/lastName combination required
     Args:
@@ -82,14 +82,14 @@ async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "Check if Italian Fiscal Code is real and existent",
+        "title": "Check if Italian Fiscal Code is real and existent in the official database",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkItalianFiscalCode(fiscalCode: str, ctx: Context) -> Any:
-    """Check if an Italian Fiscal Code is real and existent.
+async def check_IT_fiscal_code(fiscalCode: str, ctx: Context) -> Any:
+    """Check if an Italian Fiscal Code is real and existent in the official database.
     Args:
         fiscalCode: fiscal code of an italian person
     """

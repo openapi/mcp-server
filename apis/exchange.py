@@ -4,7 +4,7 @@ from typing import Any
 from mcp_core import make_api_call, mcp
 
 @mcp.tool
-async def getTodayExchangeRates(ctx: Context) -> Any:
+async def get_today_exchange_rates(ctx: Context) -> Any:
     """Obtain world exchange rate based on USD value
     """
     print(f"Esecuzione tool: getTodayExchangeRates")
