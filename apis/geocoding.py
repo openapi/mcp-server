@@ -19,7 +19,7 @@ async def geocode(address: str, ctx: Context) -> Any:
     print(api_call)
     return api_call
 @mcp.tool
-async def reverseGeocode(type: str,id: str,lat: float,long: float, ctx: Context) -> Any:
+async def reverse_geocode(type: str,id: str,lat: float,long: float, ctx: Context) -> Any:
     """Get place information from ID or latitude/longitude:
     To obtain infos via ID make sure to pass the following format:
     {"type": "id", "id": "<id>"}
@@ -31,7 +31,7 @@ async def reverseGeocode(type: str,id: str,lat: float,long: float, ctx: Context)
         lat: the latitude number($float) example: 41.289294
         long: the longitude number($float) example: 13.2349029
     """
-    print(f"Esecuzione tool: reverseGeocode {type}")
+    print(f"Esecuzione tool: reverse_geocode {type}")
     json_payload = {"type": type}
     if id:
         json_payload["id"] = id
