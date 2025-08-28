@@ -85,7 +85,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         response = requests.request(**request_args)
         response.raise_for_status()
         response_data = response.json()
-        if 'data' in response_data:
+        if response_data['data'] and response_data['data'] != {}:
             return response_data['data']
         elif 'element' in response_data:
             return response_data['element']
