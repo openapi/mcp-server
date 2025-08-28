@@ -146,8 +146,8 @@ async def get_company_IT_search(
         province: The province where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
         limit: The maximum number of results to return (optional, default is 10, in dryRun is optional). 
-        dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name),  Available values : start, advanced, pec, address, shareholders, name
-        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list
+        dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name), multiple values are forbidden, Available values : start, advanced, pec, address, shareholders, name
+        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list, multiple values are forbidden
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
         dryRun: Simulates a request by returning only the number of records "count" found and the price "cost" (optional) Available values :0,1.
