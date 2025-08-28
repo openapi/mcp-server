@@ -1,5 +1,5 @@
 print("trust.py importato")
-from memory_store import callback_results,callbackUrl
+from memory_store import callback_results, callbackUrl
 from fastmcp import Context
 from typing import Any
 import asyncio
@@ -8,13 +8,13 @@ import json
 
 @mcp.tool(
     annotations={
-        "title": "checkEmailStart",
+        "title": "check_email_start",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkEmailStart(email: str, ctx: Context) -> Any:
+async def check_email_start(email: str, ctx: Context) -> Any:
     """Retrieves detailed information about an email address (spf, dmark, disposability, frauds)  
     Args:
         email: the email to check
@@ -70,14 +70,14 @@ async def checkEmailStart(email: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "checkEmailAdvanced",
+        "title": "check_email_advanced",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkEmailAdvanced(email: str, ctx: Context) -> Any:
-    """Retrieves advanced information about an email address (spfDetails,dmarcDetails,createdAt,updatedAt,state,message,success,valid,disposable,smtpScore,overallScore,firstName,generic,common,dnsValid,honeypot,deliverability,frequentComplainer,spamTrapScore,catchAll,timedOut,suspect,recentAbuse,fraudScore,suggestedDomain,leaked,sanitizedEmail,identityData,domainAge,firstSeen,riskyTld,spfRecord,dmarcRecord,mxRecords,aRecords)  
+async def check_email_advanced(email: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an email address (spfDetails, dmarcDetails, createdAt, updatedAt, state, message, success, valid, disposable, smtpScore, overallScore, firstName, generic, common, dnsValid, honeypot, deliverability, frequentComplainer, spamTrapScore, catchAll, timedOut, suspect, recentAbuse, fraudScore, suggestedDomain, leaked, sanitizedEmail, identityData, domainAge, firstSeen, riskyTld, spfRecord, dmarcRecord, mxRecords, aRecords)  
     Args:
         email: the email to check
     """
@@ -132,14 +132,14 @@ async def checkEmailAdvanced(email: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "checkMobileStart",
+        "title": "check_mobile_start",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkMobileStart(mobile: str, ctx: Context) -> Any:
-    """Retrieves basic information about a mobile number (requestedNumber,formattedNumber,numberType,isPossible,isValid,regionCode,isValidNumberForRegion,network,originalNetwork,roaming,ported,country,countryPrefix,details)  
+async def check_mobile_start(mobile: str, ctx: Context) -> Any:
+    """Retrieves basic information about a mobile number (requestedNumber, formattedNumber, numberType, isPossible, isValid, regionCode, isValidNumberForRegion, network, originalNetwork, roaming, ported, country, countryPrefix, details)  
     Args:
         mobile: with international prefix es +39
     """
@@ -194,14 +194,14 @@ async def checkMobileStart(mobile: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "checkMobileAdvanced",
+        "title": "check_mobile_advanced",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkMobileAdvanced(mobile: str, ctx: Context) -> Any:
-    """Retrieves advanced information about a mobile number (requestedNumber,formattedNumber,createdAt,updatedAt,state,message,success,valid,active,localFormat,fraudScore,recentAbuse,voip,prepaid,risky,name,identityData,carrier,lineType,country,region,city,accurateCountryCode,zipCode,timezone,dialingCode,doNotCall,leaked,spammer,activeStatus,mcc,mnc,transactionDetails)  
+async def check_mobile_advanced(mobile: str, ctx: Context) -> Any:
+    """Retrieves advanced information about a mobile number (requestedNumber, formattedNumber, createdAt, updatedAt, state, message, success, valid, active, localFormat, fraudScore, recentAbuse, voip, prepaid, risky, name, identityData, carrier, lineType, country, region, city, accurateCountryCode, zipCode, timezone, dialingCode, doNotCall, leaked, spammer, activeStatus, mcc, mnc, transactionDetails)  
     Args:
         mobile: with international prefix es +39
     """
@@ -256,14 +256,14 @@ async def checkMobileAdvanced(mobile: str, ctx: Context) -> Any:
 
 @mcp.tool(
     annotations={
-        "title": "checkIpAdvanced",
+        "title": "check_ip_advanced",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkIpAdvanced(ip: str, ctx: Context) -> Any:
-    """Retrieves advanced information about an ip address (ip,createdAt,updatedAt,state,requestedIp,message,success,proxy,host,isp,organization,asn,countryCode,city,region,timezone,latitude,longitude,zipCode,isCrawler,connectionType,recentAbuse,abuseVelocity,botStatus,frequentAbuser,highRiskAttacks,sharedConnection,dynamicConnection,securityScanner,trustedNetwork,operatingSystem,browser,deviceBrand,deviceModel,transactionDetails,errors,vpn,tor,activeVpn,activeTor,mobile,fraudScore)  
+async def check_ip_advanced(ip: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an ip address (ip, createdAt, updatedAt, state, requestedIp, message, success, proxy, host, isp, organization, asn, countryCode, city, region, timezone, latitude, longitude, zipCode, isCrawler, connectionType, recentAbuse, abuseVelocity, botStatus, frequentAbuser, highRiskAttacks, sharedConnection, dynamicConnection, securityScanner, trustedNetwork, operatingSystem, browser, deviceBrand, deviceModel, transactionDetails, errors, vpn, tor, activeVpn, activeTor, mobile, fraudScore)  
     Args:
         ip: valid ip number
     """
@@ -315,16 +315,17 @@ async def checkIpAdvanced(ip: str, ctx: Context) -> Any:
             ctx.report_progress(progress=(i + 1), total=100)
         ctx.report_progress(progress=100, total=100)
     return response
+
 @mcp.tool(
     annotations={
-        "title": "checkUrlAdvanced",
+        "title": "check_url_advanced",
         "readOnlyHint": True,
         "openWorldHint": False,
         "idempotentHint": True
     }
 )
-async def checkUrlAdvanced(url: str, ctx: Context) -> Any:
-    """Retrieves advanced information about an url address (url,createdAt,updatedAt,state,requestedUrl,message,success,unsafe,domain,ipAddress,countryCode,languageCode,server,contentType,statusCode,pageSize,domainRank,dnsValid,parking,pageTitle,shortLinkRedirect,hostedContent,riskyTld,spfRecord,dmarcRecord,mxRecords,nsRecords,aRecords,errors,riskScore,suspicious,phishing,malware,spamming,adult,category,technologies,domainAge,redirected,scannedUrl,finalUrl)  
+async def check_url_advanced(url: str, ctx: Context) -> Any:
+    """Retrieves advanced information about an url address (url, createdAt, updatedAt, state, requestedUrl, message, success, unsafe, domain, ipAddress, countryCode, languageCode, server, contentType, statusCode, pageSize, domainRank, dnsValid, parking, pageTitle, shortLinkRedirect, hostedContent, riskyTld, spfRecord, dmarcRecord, mxRecords, nsRecords, aRecords, errors, riskScore, suspicious, phishing, malware, spamming, adult, category, technologies, domainAge, redirected, scannedUrl, finalUrl)  
     Args:
         url: valid url address
     """
