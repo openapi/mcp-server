@@ -110,15 +110,13 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
         "idempotentHint": True
     }
 )
-
-
 async def get_company_IT_search(
     ctx: Context,
     companyName: Union[str, None] = None,
     province: Union[str, None] = None,
     skip: Union[int, None] = None,
     limit: int = 10,
-    dataEnrichment: Union[str, None] = None,
+    dataEnrichment: str = "name",
     sortBy: Union[str, None] = None,
     vatGroup: Union[bool, None] = None,
     legalForm: Union[str, None] = None,
@@ -151,10 +149,8 @@ async def get_company_IT_search(
         province: The province where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
         limit: The maximum number of results to return (default is 10).
-        dataEnrichment: Additional data enrichment options for the search (optional). Available values : start, advanced, pec, address, shareholders, name
-        sortBy: The field to sort the results by (optional).
-        vatGroup: Filter by VAT group status (optional).
-        legalForm: Filter by legal form of the company (optional).
+        dataEnrichment: Avoid further queries receiving Additional data enrichment options for the search (default is name),  Available values : start, advanced, pec, address, shareholders, name
+        legalForm: Filter by legal form of the company (optional). For Available values use get_company_IT_legal_forms_list
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
         dryRun: Simulates a request by returning only the number of records found and the price (optional).
@@ -260,3 +256,13 @@ async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context
     """
     url = f"https://company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
+
+@mcp.tool
+async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
+    """Obtain all the legal forms and codes available in italy usefull with search.
+    """
+    print(f"Esecuzione tool: getTodayExchangeRates")
+    
+    url = f"https://company.openapi.com/IT-legalforms/"
+    api_call =  make_api_call(ctx, "GET", url)
+    return api_call
