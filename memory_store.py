@@ -16,7 +16,7 @@ else:
     callbackUrl = None
 
 # Configurazione Memcached
-MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", '10.2.1.3' if DEV_VM else "10.3.0.3" )
+MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", '10.2.1.3' if DEV_VM or K_SERVICE != "mcp-openapi-com" else "10.3.0.3" )
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", 11211))
 memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT))
 
