@@ -17,6 +17,26 @@ from typing import Union
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     """Returns the complete and detailed profile of an Italian company given a VAT number or Tax Code.  
+        - Company Data (Name, VAT Number, Tax Code, CCIAA, and REA)
+        - Managers
+        - Registered Office and other types of offices
+        - Activity Classifications (New ATECO 2025, ATECO history since 2022, NACE, SIC, RAE, and SAE)
+        - Corporate Affiliation
+        - Exporter / Importer Status
+        - Company Size
+        - Company Contacts (Email, phone, fax, website, social media)
+        - Shareholders and their ownership shares
+        - Employees, number, trends, statistics on contract duration and types
+        - Regarding shareholders, it is possible to access the list of the top 10 (based on ownership share size) and view their respective ownership shares.
+        - Liquidity and profitability
+        - Receivables and Payables
+        - EBITDA and EBIT
+        - Cashflow with a 2-year history
+        - Financial fixed assets
+        - Production value and costs
+        - Financial revenues and expenses
+        - Tangible, intangible, and financial assets
+        - Net profit/loss
     Use get_company_IT_search to obtain VAT  
     Args:
         vat_or_taxCode: VAT number or Tax Code of an Italian company
