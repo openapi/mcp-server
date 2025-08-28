@@ -8,7 +8,7 @@ async def geocode(address: str, ctx: Context) -> Any:
     """Retrieve informations about a place supplying address.
     To improve success of results, please specify an address conforming to the following format: [street], [city] [postal code] [country]
     Args:
-        address: optional, can be a 11 char long string
+        address: string
     """
     print(f"Esecuzione tool: geocode {address}")
     

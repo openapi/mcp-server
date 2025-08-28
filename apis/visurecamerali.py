@@ -1,9 +1,8 @@
 print("visurecamerali.py importato")
-from memory_store import callback_results,localDomain  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
-import asyncio
 
 @mcp.tool
 async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: Context) -> Any:
@@ -36,7 +35,7 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
     }
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
-            "url": "https://"+localDomain+"/callbacks",
+            "url": callbackUrl,
             "data": custom_context,
             "method":"JSON",
             "field":"data"
@@ -47,20 +46,10 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
     
     if state == "In erogazione":
         # Salva subito il risultato parziale per il polling
-        callback_results[request_id] = {
-            "result": response,
-            "custom": custom_context
-        }
-
-        ctx.report_progress(progress=1, total=100)
-
+        set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        for i in range(100):  # Poll up to 10 seconds
-            await asyncio.sleep(2)
-            result = callback_results.get(request_id)
-            if result.get("result").get("stato_richiesta") == "Visura evasa":
+        response =  await processPolling(ctx, request_id, ["Visura evasa"],"stato_richiesta")
+        if response.get("result").get("stato_richiesta") == "Visura evasa":
                 response = make_api_call(ctx, "GET", url+"/"+result.get("result").get("id")+"/allegati")
-                break
-            ctx.report_progress(progress=(i + 1), total=100)
-        ctx.report_progress(progress=100, total=100)
     return response
+       
