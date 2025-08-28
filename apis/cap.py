@@ -47,7 +47,27 @@ async def find_IT_istat_by_comune_name(comune: str, ctx: Context) -> Any:
 @mcp.tool
 async def find_IT_municipality_by_istat(istatCode: str, ctx: Context) -> Any:
     """
-    Retrieves detailed data about an Italian municipality using the ISTAT code.
+    Retrieves detailed data about an Italian municipality using the ISTAT code:
+    - istat:istatCode
+    - comune:municipalityName
+    - regione:regionName
+    - provincia:provinceName
+    - prefisso:telephoneLocalPrefix
+    - cod_fisco:cadastralCodeor BelfioreCode of town,
+    - superficie:surfaceArea
+    - num_residenti:numberOfResidents
+    - nome_abitanti:inhabitantsName
+    - patrono.nomepatronSaintName,
+    - patrono.datapatronSaintDate,
+    - municipio:municipalityAddress
+    - istat_old:oldIstatCode
+    - sigla_provincia:provinceAbbreviation
+    - email:emailAddress
+    - pec:certifiedEmailAddress
+    - tel:telephoneNumber
+    - fax:faxNumber
+    - frazioni:fractions
+    - cap:postalCodes    
     """
     print(f"Esecuzione tool: find_IT_municipality_by_istat for {istatCode}")
     url = f"https://cap.openapi.it/comuni_advance/{istatCode}"
