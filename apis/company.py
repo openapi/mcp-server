@@ -113,7 +113,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 async def get_company_IT_search(
     ctx: Context,
     companyName: Union[str, None] = None,
-    province: Union[str, None] = None,
+    provinceCode: Union[str, None] = None,
     skip: Union[int, None, str] = None,
     limit: Union[int, None, str] = None,
     dataEnrichment: str = "name",
@@ -140,14 +140,17 @@ async def get_company_IT_search(
     creationTimestamp: Union[int, None, str] = None,
     lastUpdateTimestamp: Union[int, None, str] = None
 ) -> Any:
-    """Returns a list of italian companies based on the search criteria. Use this tool if you don't know the VAT number of a company.
+    """Returns a list of italian companies based on the search criteria. 
+        Use this tool if you don't know the VAT number of a company.
+        Use this tool with dryRun=1 and no limit parameter to get the count of available results for the matching criterias
+        Use this tool if you need to extract enriched data (max 1000 records paginable with the skip parameter) like name, address, pec, start (all the data in the get_company_IT_start tool) or advanced (all the data in the get_company_IT_advanced tool) based on matching criterias.
     Args:
         companyName: The name or part of it of an Italian company (optional).
-        province: The province where the company is located to restrict the results (optional).
+        provinceCode: The provinceCode where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
-        limit: The maximum number of results to return (optional, default is 10, in dryRun is optional). 
+        limit: The maximum number of results to return (optional, default is 10), if you want to have the total count of records with matching criterias skip this parameter and set dryRun to 1. 
         dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name), multiple values are forbidden, Available values : start, advanced, pec, address, shareholders, name
-        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list, multiple values are forbidden
+        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list tool, multiple values are forbidden, possible values: ["EI","EL","OO","OS","RC","ST","AF","AP","AS","CO","EE","FO","SL","SR","SZ","AL","AN","CC","CF","EC","ED","EN","OC","PA","SF","SO","AA","AC","AI","AM","AT","CR","ES","GE","IF","LL","RS","SI","AR","CS","SA","SC","SD","SG","AE","EP","PF","SN","SP","XX","AU","CE","CI","CL","CN","CZ","DI","RR","SE","SU","AZ","CM","EM","ER","FI","IC","ID","IR","MA","PC","PS","SM","SS","SV"]
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
         dryRun: Simulates a request by returning only the number of records "count" found and the price "cost" (optional) Available values :0,1.
@@ -175,8 +178,8 @@ async def get_company_IT_search(
     if companyName:
         if companyName != "*":
             url += f"&companyName={companyName}"
-    if province:
-        url += f"&province={province}"
+    if provinceCode:
+        url += f"&province={provinceCode}"
     if skip is not None and skip != "null":
         url += f"&skip={skip}"
     if limit is not None and limit != "null":

@@ -23,8 +23,8 @@ async def callbacks_endpoint(request: Request):
     try:
         callback = json.loads(raw_body)
     except Exception:
-        print("Body non è un JSON valido")
-        return {"status": "error", "message": "Body non è un JSON valido"}
+        print("Body not a valid JSON")
+        return {"status": "error", "message": "Body not a valid JSON"}
     
     custom = callback.get("custom") or callback.get("callback").get("data")
     if not custom:
