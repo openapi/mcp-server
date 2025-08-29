@@ -66,7 +66,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         # Salva subito il risultato parziale per il polling
         set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        response = await processPolling(ctx, request_id, ["DONE"])
+        response = await processPolling(ctx, request_id, [not None],"companyDetails")
     return response
 
 @mcp.tool(
@@ -146,7 +146,7 @@ async def get_company_IT_search(
         Use this tool if you need to extract enriched data (max 1000 records paginable with the skip parameter) like name, address, pec, start (all the data in the get_company_IT_start tool) or advanced (all the data in the get_company_IT_advanced tool) based on matching criterias.
     Args:
         companyName: The name or part of it of an Italian company (optional).
-        provinceCode: The provinceCode where the company is located to restrict the results (optional).
+        provinceCode: The 2 letters provinceCode where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
         limit: The maximum number of results to return (optional, default is 10), if you want to have the total count of records with matching criterias skip this parameter and set dryRun to 1. 
         dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name), multiple values are forbidden, Available values : start, advanced, pec, address, shareholders, name
