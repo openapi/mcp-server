@@ -5,10 +5,9 @@ from mcp_core import make_api_call, mcp
 
 @mcp.tool
 async def get_today_exchange_rates(ctx: Context) -> Any:
-    """Obtain world exchange rate based on USD value
+    """Obtain daily world exchange rate based on USD value
     """
     print(f"Esecuzione tool: getTodayExchangeRates")
-    
     url = f"https://exchange.altravia.com/"
     api_call =  make_api_call(ctx, "GET", url)
     return api_call
