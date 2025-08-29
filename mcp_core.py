@@ -3,7 +3,7 @@ from fastmcp import FastMCP, Context
 # from fastapi import FastAPI, Request, APIRouter
 from typing import Any, Optional
 from pydantic import BaseModel
-from memory_store import get_callback_result
+from memory_store import get_callback_result,BASE_URL
 import asyncio
 
 mcp = FastMCP(
@@ -19,20 +19,22 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     if final_states is None:
         final_states = ["DONE"]
     # Riporto il progresso
-    ctx.report_progress(progress=1, total=100)
+    ctx.report_progress(progress=1, total=45)
     # avvia un polling ogni secondo su callback_results 
     result = None
-    for i in range(100):  # Poll up to 10 seconds
+    for i in range(45):  # Poll up to 10 seconds
         await asyncio.sleep(1)
+        print(f"Wait: {i}")
         result = get_callback_result(request_id)
         if result.get("data").get(state_field) in final_states:
-            ctx.report_progress(progress=100, total=100)
+            ctx.report_progress(progress=45, total=45)
             return result
-        ctx.report_progress(progress=(i + 1), total=100)
+        ctx.report_progress(progress=(i + 1), total=45)
+        print(f"Result: {result}")
     # Return the link to the status endpoint
     status_endpoint = f"/status/{request_id}"
-    ctx.report_progress(progress=100, total=100)
-    return {"message":"switch to async endpoint","status_endpoint": status_endpoint}
+    ctx.report_progress(progress=45, total=45)
+    return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
 import requests
 """

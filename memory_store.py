@@ -9,11 +9,15 @@ callback_results = {}
 # #prelevo le variabili ambiente 
 K_SERVICE = os.getenv("K_SERVICE")
 DEV_VM = os.getenv("X-DEV-VM")
+BASE_URL = "https://mcp.openapi.com"
+callbackUrl = None
 if K_SERVICE:
-    callbackUrl = "https://" + K_SERVICE.replace("-", ".") + "/callbacks"
+    BASE_URL = "https://" + K_SERVICE.replace("-", ".")
+    callbackUrl = BASE_URL + "/callbacks"
     callbackUrl = callbackUrl.replace("alpha", "dev") if DEV_VM else callbackUrl
-else:
-    callbackUrl = None
+
+    
+
 
 # Configurazione Memcached
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", '10.2.1.3' if DEV_VM or K_SERVICE != "mcp-openapi-com" else "10.3.0.3" )
