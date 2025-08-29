@@ -113,7 +113,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
 async def get_company_IT_search(
     ctx: Context,
     companyName: Union[str, None] = None,
-    province: Union[str, None] = None,
+    provinceCode: Union[str, None] = None,
     skip: Union[int, None, str] = None,
     limit: Union[int, None, str] = None,
     dataEnrichment: str = "name",
@@ -143,9 +143,9 @@ async def get_company_IT_search(
     """Returns a list of italian companies based on the search criteria. Use this tool if you don't know the VAT number of a company.
     Args:
         companyName: The name or part of it of an Italian company (optional).
-        province: The province where the company is located to restrict the results (optional).
+        provinceCode: The provinceCode where the company is located to restrict the results (optional).
         skip: The number of records to skip for pagination (optional).
-        limit: The maximum number of results to return (optional, default is 10, in dryRun is optional). 
+        limit: The maximum number of results to return (optional, default is 10), if you want to have the total count of records with matching criterias skip this parameter and set dryRun to 1. 
         dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name), multiple values are forbidden, Available values : start, advanced, pec, address, shareholders, name
         legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list, multiple values are forbidden
         startDate: Filter by the start date of the company (optional).
@@ -175,8 +175,8 @@ async def get_company_IT_search(
     if companyName:
         if companyName != "*":
             url += f"&companyName={companyName}"
-    if province:
-        url += f"&province={province}"
+    if provinceCode:
+        url += f"&province={provinceCode}"
     if skip is not None and skip != "null":
         url += f"&skip={skip}"
     if limit is not None and limit != "null":
