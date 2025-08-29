@@ -66,7 +66,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         # Salva subito il risultato parziale per il polling
         set_callback_result(request_id, response, custom_context)
         # avvia un polling ogni secondo su callback_results 
-        response = await processPolling(ctx, request_id, ["DONE"])
+        response = await processPolling(ctx, request_id, [not None],"companyDetails")
     return response
 
 @mcp.tool(
