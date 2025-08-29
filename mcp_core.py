@@ -29,7 +29,10 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
             ctx.report_progress(progress=100, total=100)
             return result
         ctx.report_progress(progress=(i + 1), total=100)
-    return result
+    # Return the link to the status endpoint
+    status_endpoint = f"/status/{request_id}"
+    ctx.report_progress(progress=100, total=100)
+    return {"message":"switch to async endpoint","status_endpoint": status_endpoint}
 
 import requests
 """
