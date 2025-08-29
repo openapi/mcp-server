@@ -175,11 +175,13 @@ async def get_company_IT_search(
     """
     url = f"https://company.openapi.com/IT-search?limit={limit}"
 
+    
     if companyName:
-        if companyName != "*":
+        if companyName != "*" and companyName != "null":
             url += f"&companyName={companyName}"
     if provinceCode:
-        url += f"&province={provinceCode}"
+        if provinceCode != "*" and provinceCode != "null":
+            url += f"&province={provinceCode}"
     if skip is not None and skip != "null":
         url += f"&skip={skip}"
     if limit is not None and limit != "null":
