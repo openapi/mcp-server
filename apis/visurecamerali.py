@@ -2,7 +2,7 @@ print("visurecamerali.py importato")
 from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
+from mcp_core import make_api_call, mcp, processPolling
 
 @mcp.tool
 async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: Context) -> Any:
@@ -50,6 +50,6 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
         # avvia un polling ogni secondo su callback_results 
         response =  await processPolling(ctx, request_id, ["Visura evasa"],"stato_richiesta")
         if response.get("result").get("stato_richiesta") == "Visura evasa":
-                response = make_api_call(ctx, "GET", url+"/"+result.get("result").get("id")+"/allegati")
+                response = make_api_call(ctx, "GET", url+"/"+response.get("result").get("id")+"/allegati")
     return response
        
