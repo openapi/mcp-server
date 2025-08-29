@@ -85,11 +85,14 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         response = requests.request(**request_args)
         response.raise_for_status()
         response_data = response.json()
+        return_data = None;
         if 'data' in response_data:
             if response_data['data'] != {}:
-                return response_data['data']
+                return_data = response_data['data']
         if 'element' in response_data:
-            return response_data['element']
+            return_data = response_data['element']
+        if return_data:
+            return return_data
         return response_data
     except requests.exceptions.HTTPError as e:
         error_details = e.response.text
