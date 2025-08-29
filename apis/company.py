@@ -175,6 +175,7 @@ async def get_company_IT_search(
     """
     url = f"https://company.openapi.com/IT-search?limit={limit}"
 
+    
     if companyName:
         if companyName != "*" and companyName != "null":
             url += f"&companyName={companyName}"
