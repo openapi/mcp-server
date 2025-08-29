@@ -5,7 +5,7 @@ from typing import Dict
 from fastapi import FastAPI, Request, HTTPException
 from memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from apis import company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 
 
 
@@ -45,10 +45,10 @@ async def callbacks_endpoint(request: Request):
 
     return {"status": "ok"}
 
-@app.get("/status/{client_id}")
-async def get_status(client_id: str):
+@app.get("/status/{request_id}")
+async def get_status(request_id: str):
     try:
-        return get_callback_result(client_id)
+        return get_callback_result(request_id)
     except KeyError:
         raise HTTPException(status_code=404, detail="Not Found")
     except Exception as e:
