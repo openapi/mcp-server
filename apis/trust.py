@@ -1,5 +1,5 @@
 print("trust.py importato")
-from memory_store import callback_results, callbackUrl
+from memory_store import callback_results, callbackUrl,SANDBOX_PREFIX
 from fastmcp import Context
 from typing import Any
 import asyncio
@@ -28,7 +28,7 @@ async def check_email_start(email: str, ctx: Context) -> Any:
         "request_id": request_id,
         "email": email
     }
-    url = f"https://trust.openapi.com/email-start/{email}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/email-start/{email}"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -90,7 +90,7 @@ async def check_email_advanced(email: str, ctx: Context) -> Any:
         "request_id": request_id,
         "email": email
     }
-    url = f"https://trust.openapi.com/email-advanced/{email}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/email-advanced/{email}"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -152,7 +152,7 @@ async def check_mobile_start(mobile: str, ctx: Context) -> Any:
         "request_id": request_id,
         "mobile": mobile
     }
-    url = f"https://trust.openapi.com/mobile-start/{mobile}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/mobile-start/{mobile}"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -214,7 +214,7 @@ async def check_mobile_advanced(mobile: str, ctx: Context) -> Any:
         "request_id": request_id,
         "mobile": mobile
     }
-    url = f"https://trust.openapi.com/mobile-advanced/{mobile}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/mobile-advanced/{mobile}"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -276,7 +276,7 @@ async def check_ip_advanced(ip: str, ctx: Context) -> Any:
         "request_id": request_id,
         "ip": ip
     }
-    url = f"https://trust.openapi.com/ip-advanced/{ip}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/ip-advanced/{ip}"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -338,7 +338,7 @@ async def check_url_advanced(url: str, ctx: Context) -> Any:
         "request_id": request_id,
         "url": url
     }
-    url = f"https://trust.openapi.com/url-advanced/{url}"
+    url = f"https://{SANDBOX_PREFIX}trust.openapi.com/url-advanced/{url}"
     json_payload = {
         "callback": {
             "url": callbackUrl,

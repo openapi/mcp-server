@@ -2,6 +2,7 @@ print("geocoding.py importato")
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
+from memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def geocode(address: str, ctx: Context) -> Any:
@@ -12,7 +13,7 @@ async def geocode(address: str, ctx: Context) -> Any:
     """
     print(f"Esecuzione tool: geocode {address}")
     
-    url = f"https://geocoding.openapi.it/geocode"
+    url = f"https://{SANDBOX_PREFIX}geocoding.openapi.it/geocode"
     api_call =  make_api_call(ctx, "POST", url, json_payload={
         "address": address
     })
@@ -39,5 +40,5 @@ async def reverse_geocode(type: str,id: str,lat: float,long: float, ctx: Context
         json_payload["lat"] = lat
     if long:
         json_payload["long"] = long
-    url = f"https://geocoding.openapi.it/reverse"
+    url = f"https://{SANDBOX_PREFIX}geocoding.openapi.it/reverse"
     return make_api_call(ctx, "POST", url, json_payload=json_payload)

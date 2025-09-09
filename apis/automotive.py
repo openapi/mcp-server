@@ -2,6 +2,7 @@ print("automotive.py importato")
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
+from memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def check_license_plate(countryCode: str, type: str, licensePlate: str, ctx: Context) -> Any:
@@ -14,6 +15,6 @@ async def check_license_plate(countryCode: str, type: str, licensePlate: str, ct
     """
     print(f"Esecuzione tool: check_license_plate {licensePlate}")
     
-    url = f"https://automotive.openapi.com/{countryCode}-{type}/{licensePlate}"
+    url = f"https://{SANDBOX_PREFIX}automotive.openapi.com/{countryCode}-{type}/{licensePlate}"
     api_call =  make_api_call(ctx, "GET", url)
     return api_call
