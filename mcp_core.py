@@ -1,5 +1,7 @@
-
 from fastmcp import FastMCP, Context
+from fastmcp.server.dependencies import get_http_headers
+from hashlib import md5
+from fastapi import FastAPI, Request, HTTPException
 # from fastapi import FastAPI, Request, APIRouter
 from typing import Any, Optional
 from pydantic import BaseModel
@@ -15,14 +17,22 @@ class ApiError(BaseModel):
     error: str
     message: str
 
+def getSessionHash(ctx: Context): 
+    session_hash = ctx.request_id+ctx.session_id+ctx.fastmcp.name+(ctx.client_id or "Unknown client")
+    headers = get_http_headers()
+    if headers:
+        session_hash += json.dumps(dict(headers))
+    return md5(session_hash.encode('utf-8')).hexdigest()
+
 async def processPolling(ctx: Context, request_id: str, final_states: Optional[list] = None, state_field: Optional[str] = "state"):
+    timeout = 45
     if final_states is None:
         final_states = ["DONE"]
     # Riporto il progresso
     ctx.report_progress(progress=1, total=45)
     # avvia un polling ogni secondo su callback_results 
     result = None
-    for i in range(45):  # Poll up to 10 seconds
+    for i in range(timeout):  # Poll up to 10 seconds
         await asyncio.sleep(1)
         print(f"Wait: {i}")
         result = get_callback_result(request_id)
@@ -30,13 +40,14 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
             ctx.report_progress(progress=45, total=45)
             return result
         ctx.report_progress(progress=(i + 1), total=45)
-        print(f"Result: {result}")
+        # print(f"Result: {result}")
     # Return the link to the status endpoint
     status_endpoint = f"/status/{request_id}"
     ctx.report_progress(progress=45, total=45)
     return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
 import requests
+import json
 """
 Makes an API call to the specified URL using the provided HTTP method and optional JSON payload.
 
@@ -90,6 +101,8 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         response = requests.request(**request_args)
         response.raise_for_status()
         response_data = response.json()
+        if response.status_code == 204:
+            return {"message": "No results"}
         return_data = None;
         if 'data' in response_data:
             if response_data['data'] != {}:

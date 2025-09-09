@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request, HTTPException
 from memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+import asyncio
 
 
 
@@ -14,6 +15,31 @@ mcp_app = mcp.http_app(path='/')
 
 # Crea l'app FastAPI
 app = FastAPI(lifespan=mcp_app.lifespan)
+
+# Sostituzione del flag globale con asyncio.Event
+initialization_complete = asyncio.Event()
+
+# Middleware per attendere il completamento dell'inizializzazione
+@app.middleware("http")
+async def wait_for_initialization(request: Request, call_next):
+    await initialization_complete.wait()
+    response = await call_next(request)
+    return response
+
+# Middleware per bloccare le richieste prima dell'inizializzazione
+@app.middleware("http")
+async def check_initialization(request: Request, call_next):
+    if not initialization_complete.is_set():
+        raise HTTPException(status_code=503, detail="Server not initialized. Please try again later.")
+    response = await call_next(request)
+    return response
+
+# Funzione per completare l'inizializzazione del server
+def complete_initialization():
+    initialization_complete.set()
+
+# Chiamare questa funzione al termine dell'inizializzazione del server
+complete_initialization()
 
 # Endpoint HTTP REST (fuori da MCP/JSON-RPC)
 @app.post("/callbacks")
