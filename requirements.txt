@@ -5,3 +5,4 @@ pydantic
 mangum
 uvicorn
 pymemcache
+google-cloud-storage

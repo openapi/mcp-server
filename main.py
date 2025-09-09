@@ -2,11 +2,12 @@ import os
 import sys
 import json
 from typing import Dict
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Response
 from memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 import asyncio
+from google.cloud import storage
 
 
 
@@ -69,6 +70,8 @@ async def callbacks_endpoint(request: Request):
     # Salva il risultato associato al client_id (sovrascrive se arriva una nuova callback)
     set_callback_result(request_id, data, custom)
 
+    print(f"Callback: \n{data}\n")
+
     return {"status": "ok"}
 
 @app.get("/status/{request_id}")
@@ -79,6 +82,22 @@ async def get_status(request_id: str):
         raise HTTPException(status_code=404, detail="Not Found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+@app.get("/status/{request_id}/files/{file_name}")
+async def get_file(request_id: str,file_name: str):
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(os.getenv("K_SERVICE"))
+        blob = bucket.blob(f"{request_id}/{file_name}")
+
+        if not blob.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+
+        file_content = blob.download_as_bytes()
+        content_type = blob.content_type or "application/octet-stream"
+        return Response(content=file_content, media_type=content_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving file: {str(e)}")
 
 # Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
 app.mount("/", mcp_app)
