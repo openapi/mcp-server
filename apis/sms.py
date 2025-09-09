@@ -2,6 +2,7 @@ print("sms.py importato")
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp
+from memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
@@ -22,7 +23,7 @@ async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
             "message":"please use minus simbol to separate international prefix and the number"
         }
     
-    url = f"https://ws.messaggisms.com/messages/"
+    url = f"https://{SANDBOX_PREFIX}ws.messaggisms.com/messages/"
     return make_api_call(ctx, "POST", url, json_payload={
         "sender": sender,
         "body": body,
