@@ -2,7 +2,7 @@ print("company.py importato")
 from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp, processPolling
+from mcp_core import make_api_call, mcp, processPolling, getSessionHash
 from typing import Union
 
 
@@ -44,7 +44,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     
     # Usa un request_id
-    request_id = ctx.request_id
+    request_id = getSessionHash(ctx)
     # Serializza il contesto
     custom_context = {
         "request_id": request_id,
@@ -159,7 +159,7 @@ async def get_company_IT_search(
         radius: Radius in meters for geographical search (optional).
         autocomplete: Search for strings that begin with the specified query (optional).
         townCode: The cadastral code for the town (optional).
-        atecoCode: ATECO code for the company (optional).
+        atecoCode: ATECO code for the company (optional). 
         cciaa: Chamber of Commerce code (optional).
         reaCode: REA code (optional).
         minTurnover: Minimum turnover value (optional).
@@ -207,6 +207,7 @@ async def get_company_IT_search(
     if townCode:
         url += f"&townCode={townCode}"
     if atecoCode:
+        atecoCode = atecoCode.replace(".", "")
         url += f"&atecoCode={atecoCode}"
     if cciaa:
         url += f"&cciaa={cciaa}"
