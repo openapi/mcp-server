@@ -2,7 +2,7 @@ print("risk.py importato")
 from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp, processPolling
+from mcp_core import make_api_call, mcp, processPolling, getSessionHash
 import asyncio
 
 
@@ -26,7 +26,7 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     
     # Usa un request_id
-    request_id = ctx.request_id
+    request_id = getSessionHash(ctx)
     # Serializza il contesto
     custom_context = {
         "request_id": request_id,
