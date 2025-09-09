@@ -1,5 +1,5 @@
 print("company.py importato")
-from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl,SANDBOX_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp, processPolling, getSessionHash
@@ -50,7 +50,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         "request_id": request_id,
         "vat_or_taxCode": vat_or_taxCode
     }
-    url = f"https://company.openapi.com/IT-full/{vat_or_taxCode}"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-full/{vat_or_taxCode}"
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
             "url": callbackUrl,
@@ -83,7 +83,7 @@ async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://company.openapi.com/IT-advanced/{vat_or_taxCode}"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-advanced/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -99,7 +99,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://company.openapi.com/IT-start/{vat_or_taxCode}"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-start/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -173,7 +173,7 @@ async def get_company_IT_search(
         creationTimestamp: Filter by creation unix timestamp (optional).
         lastUpdateTimestamp: Filter by last update unix timestamp (optional).
     """
-    url = f"https://company.openapi.com/IT-search?limit={limit}"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-search?limit={limit}"
 
     
     if companyName:
@@ -254,7 +254,7 @@ async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context
         vat_or_taxCode: vatCode or taxCode of a company
         country_code: country code of the company
     """
-    url = f"https://company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -266,6 +266,6 @@ async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
     """
     print(f"Esecuzione tool: get_company_IT_legal_forms_list")
     
-    url = f"https://company.openapi.com/IT-legalforms/"
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-legalforms/"
     api_call =  make_api_call(ctx, "GET", url)
     return api_call
