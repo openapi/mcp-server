@@ -1,5 +1,5 @@
 print("visurecamerali.py importato")
-from memory_store import set_callback_result,callbackUrl  # usa sempre il singleton globale
+from memory_store import set_callback_result,callbackUrl, BASE_URL  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from mcp_core import make_api_call, mcp, processPolling, getSessionHash
@@ -7,6 +7,9 @@ import base64
 import zipfile
 import io
 import json
+from google.cloud import storage
+import os
+import mimetypes
 
 @mcp.tool
 async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: Context) -> Any:
@@ -75,18 +78,35 @@ async def download_italian_company_official_document(document_id:str,document_ur
     document_response = make_api_call(ctx, "GET", url);
     if "file" in document_response:
         # Decode the base64 file content
-        file_content = base64.b64decode(document_response["file"])
+        zip_file_content = base64.b64decode(document_response["file"])
+        request_id = getSessionHash(ctx)
         
         # Unzip the content
-        with zipfile.ZipFile(io.BytesIO(file_content)) as z:
+        with zipfile.ZipFile(io.BytesIO(zip_file_content)) as z:
             if len(z.namelist()) == 1:
                 # If there is only one file, return it directly
                 file_name = z.namelist()[0]
+
+                # Scrive il file in un bucket GCP che si chiama come la variabile K_SERVICE
+                bucket_name = os.getenv("K_SERVICE")
+                # Il path sarà /status/{request_id}/files/{file_name}
+                file_path = f"{request_id}/{file_name}"
+                remote_path = f"/status/{request_id}/files/{file_name}"
+
+                storage_client = storage.Client()
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(file_path)
+
                 with z.open(file_name) as f:
-                    return {
+                    file_content = f.read()
+                    content_type, _ = mimetypes.guess_type(file_name)
+                    blob.upload_from_string(file_content, content_type=content_type or "application/octet-stream")
+
+                return {
                     "file_name": file_name,
-                    "content": base64.b64encode(f.read()).decode('utf-8')
-                    }
+                    "download_link": BASE_URL+remote_path,
+                    "content": base64.b64encode(file_content).decode('utf-8')
+                }
             else:
             # If there are multiple files, return them as a JSON object
                 files = {}
