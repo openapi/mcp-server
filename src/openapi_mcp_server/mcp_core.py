@@ -5,6 +5,8 @@ from typing import Any, Optional
 from pydantic import BaseModel
 from src.openapi_mcp_server.memory_store import get_callback_result,BASE_URL
 import asyncio
+import requests
+import json
 
 mcp = FastMCP(
     name="OpenAPI.com MCP Gateway",
@@ -45,49 +47,43 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     progress_report = ctx.report_progress(progress=45, total=45)
     return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
-import requests
-import json
-"""
-Makes an API call to the specified URL using the provided HTTP method and optional JSON payload.
-
-Args:
-    ctx (Context): The context object containing request-related information, such as headers.
-    method (str): The HTTP method to use for the API call (e.g., 'GET', 'POST', 'PUT', 'DELETE').
-    url (str): The URL of the API endpoint to call.
-    json_payload (Optional[dict], optional): A dictionary containing the JSON payload to send with the request. Defaults to None.
-    **kwargs: Additional keyword arguments to pass to the `requests.request` function (e.g., query parameters, timeout).
-
-Returns:
-    Any: The response data from the API call. If the response contains a 'data' or 'element' key, its value is returned.
-         Otherwise, the entire response JSON is returned. In case of errors, a dictionary with error details is returned.
-
-Raises:
-    ValueError: If the 'Authorization' header is missing or malformed.
-    requests.exceptions.HTTPError: If the HTTP request returns an unsuccessful status code.
-    requests.exceptions.RequestException: For other request-related errors.
-
-Notes:
-    - The function extracts the 'Authorization' header from the request context and ensures it is in the correct format ('Bearer <token>').
-    - If the 'Authorization' header is missing or malformed, an error response is returned.
-    - The function handles HTTP and request exceptions, returning error details in a structured format.
-    - The function logs the API URL being called and attempts to print attributes of the context object for debugging purposes.
-"""
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:
     print(f"Call api url: {url}")
     for attr in dir(ctx):
         if not attr.startswith('__'):
             try:
                 value = getattr(ctx, attr)
+                # print(f"  ctx.{attr} = {value}")
             except Exception as e:
                 print(f"  ctx.{attr} = <errore: {e}>")
-    headers_dict = None
-    headers_dict = getattr(ctx, 'request_context', {}).get('request', {}).get('headers', None)
+    
     try:
         auth_header = None
-        if headers_dict:
-            auth_header = headers_dict.get('authorization') or headers_dict.get('Authorization')
+        
+        # Prova a ottenere l'header Authorization usando il metodo FastMCP
+        headers = get_http_headers()
+        if headers:
+            auth_header = headers.get('authorization') or headers.get('Authorization')
+        
+        # Se non trovato, prova con il context
+        if not auth_header and hasattr(ctx, 'request_context'):
+            request_context = ctx.request_context
+            # Controlla se request_context ha l'attributo request
+            if hasattr(request_context, 'request'):
+                request = request_context.request
+                # Controlla se request ha headers
+                if hasattr(request, 'headers'):
+                    headers_obj = request.headers
+                    # Se headers è un dizionario
+                    if hasattr(headers_obj, 'get'):
+                        auth_header = headers_obj.get('authorization') or headers_obj.get('Authorization')
+                    # Se headers è un oggetto con attributi
+                    elif hasattr(headers_obj, 'authorization'):
+                        auth_header = getattr(headers_obj, 'authorization', None) or getattr(headers_obj, 'Authorization', None)
+        
         if not auth_header or not auth_header.lower().startswith('bearer '):
-            raise ValueError("Header 'Authorization: Bearer <token>' mancante o malformato.")
+            raise ValueError("Missing or malformed Header 'Authorization: Bearer <token>'.")
+            
     except Exception as e:
         return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
@@ -112,6 +108,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         return response_data
     except requests.exceptions.HTTPError as e:
         error_details = e.response.text
-        return ApiError(error="API HTTP Error", message=f"{e.response.status_code}: {error_details}").dict()
+        return e.response.json()
+        return ApiError(error="API HTTP Error", message=f"{e.response.status_code}: {error_details}").model_dump()
     except requests.exceptions.RequestException as e:
         return ApiError(error="API Request Error", message=str(e)).model_dump()

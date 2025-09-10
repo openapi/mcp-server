@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 80
 
 # Comando di avvio
-CMD ["python", "src/openapi_mcp_server/main.py"]
+CMD ["python", "-m", "src.openapi_mcp_server.main"]

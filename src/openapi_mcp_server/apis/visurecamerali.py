@@ -1,4 +1,4 @@
-print("visurecamerali.py importato")
+print("visurecamerali.py Imported")
 from src.openapi_mcp_server.memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
@@ -20,7 +20,7 @@ async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: 
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    print(f"Esecuzione tool: get_official_documents_list per {vat_or_tax_code}")
+    print(f"Running Tool: get_official_documents_list per {vat_or_tax_code}")
     url = f"https://{SANDBOX_PREFIX}visurecamerali.openapi.it/impresa/{vat_or_tax_code}"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
@@ -31,7 +31,7 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
         document_url: url of the requested document
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    print(f"Esecuzione tool: get_italian_company_official_document su {document_url} per {vat_or_tax_code}")
+    print(f"Running Tool: get_italian_company_official_document su {document_url} per {vat_or_tax_code}")
     url = f"https://{document_url}"
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     # Usa un request_id
@@ -74,7 +74,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
         document_id: the value id in return of a previous request.
         document_url: the value id in return of a previous request.
     """
-    print(f"Esecuzione tool: download_italian_company_official_document ")
+    print(f"Running Tool: download_italian_company_official_document ")
     url = f"https://{document_url}/{document_id}/allegati"
     document_response = make_api_call(ctx, "GET", url)
     if "file" in document_response:
