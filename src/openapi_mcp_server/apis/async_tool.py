@@ -1,8 +1,8 @@
-print("async_tool.py importato")
+print("async_tool.py Imported")
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
-from memory_store import get_callback_result
+from src.openapi_mcp_server.mcp_core import mcp
+from src.openapi_mcp_server.memory_store import get_callback_result
 
 @mcp.tool
 async def check_async_status(request_id: str, ctx: Context) -> Any:
@@ -10,6 +10,6 @@ async def check_async_status(request_id: str, ctx: Context) -> Any:
     Args:
         request_id: required, returned by an async downgraded request to the mcp server
     """
-    print(f"Esecuzione tool: check_async_status {request_id}")
+    print(f"Running Tool: check_async_status {request_id}")
     
     return get_callback_result(request_id)

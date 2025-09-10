@@ -1,11 +1,10 @@
 import os
 import sys
 import json
-from typing import Dict
 from fastapi import FastAPI, Request, HTTPException, Response
-from memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
-from mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from .memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
+from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
+from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 import asyncio
 from google.cloud import storage
 
@@ -106,5 +105,5 @@ app.mount("/", mcp_app)
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 80))  # Cloud Run usa PORT, default 80
-    print(f"\n--- Server FastAPI+MCP pronto su http://0.0.0.0:{port} ---", file=sys.stderr)
+    print(f"\n--- Server FastAPI+MCP ready on http://0.0.0.0:{port} ---", file=sys.stderr)
     uvicorn.run(app, host="0.0.0.0", port=port)
