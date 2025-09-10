@@ -13,5 +13,5 @@ COPY . .
 # Espone la porta
 EXPOSE 80
 
-# Comando di avvio (modifica main:app se il file principale ha un nome diverso)
-CMD ["python", "main.py"]
+# Comando di avvio
+CMD ["python", "-m", "src.openapi_mcp_server.main"]

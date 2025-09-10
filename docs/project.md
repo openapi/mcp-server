@@ -127,7 +127,7 @@ async def get_company_full_profile(vat_or_tax_code: str, ctx: Context) -> Any:
     Recupera il profilo completo e dettagliato di un'azienda italiana 
     fornendo la sua Partita IVA o il suo Codice Fiscale.
     """
-    print(f"Esecuzione tool: get_company_full_profile per {vat_or_tax_code}")
+    print(f"Running Tool: get_company_full_profile per {vat_or_tax_code}")
     url = f"https://company.openapi.com/IT-full/{vat_or_tax_code}"
     return make_api_call(ctx, "GET", url)
 
@@ -136,7 +136,7 @@ async def find_cap_by_comune(comune: str, ctx: Context) -> Any:
     """
     Cerca i CAP associati a un dato comune italiano.
     """
-    print(f"Esecuzione tool: find_cap_by_comune per {comune}")
+    print(f"Running Tool: find_cap_by_comune per {comune}")
     url = "https://cap.openapi.com/cerca_comuni"
     params = {"comune": comune}
     return make_api_call(ctx, "GET", url, params=params)
