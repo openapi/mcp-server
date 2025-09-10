@@ -1,11 +1,9 @@
 from fastmcp import FastMCP, Context
 from fastmcp.server.dependencies import get_http_headers
 from hashlib import md5
-from fastapi import FastAPI, Request, HTTPException
-# from fastapi import FastAPI, Request, APIRouter
 from typing import Any, Optional
 from pydantic import BaseModel
-from memory_store import get_callback_result,BASE_URL
+from src.openapi_mcp_server.memory_store import get_callback_result,BASE_URL
 import asyncio
 
 mcp = FastMCP(

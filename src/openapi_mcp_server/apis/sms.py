@@ -1,8 +1,8 @@
 print("sms.py importato")
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp
-from memory_store import SANDBOX_PREFIX
+from src.openapi_mcp_server.mcp_core import make_api_call, mcp
+from src.openapi_mcp_server.memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:

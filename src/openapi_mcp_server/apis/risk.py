@@ -1,8 +1,8 @@
 print("risk.py importato")
-from memory_store import set_callback_result,callbackUrl,SANDBOX_PREFIX  # usa sempre il singleton globale
+from src.openapi_mcp_server.memory_store import set_callback_result,callbackUrl,SANDBOX_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from mcp_core import make_api_call, mcp, processPolling, getSessionHash
+from src.openapi_mcp_server.mcp_core import make_api_call, mcp, processPolling, getSessionHash
 import asyncio
 
 
