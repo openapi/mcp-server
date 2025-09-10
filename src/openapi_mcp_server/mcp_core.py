@@ -27,21 +27,22 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     if final_states is None:
         final_states = ["DONE"]
     # Riporto il progresso
-    ctx.report_progress(progress=1, total=45)
+    progress_report = ctx.report_progress(progress=1, total=45)
     # avvia un polling ogni secondo su callback_results 
     result = None
     for i in range(timeout):  # Poll up to 10 seconds
         await asyncio.sleep(1)
         print(f"Wait: {i}")
         result = get_callback_result(request_id)
-        if result.get("data").get(state_field) in final_states:
-            ctx.report_progress(progress=45, total=45)
-            return result
-        ctx.report_progress(progress=(i + 1), total=45)
+        if(result):
+            if result.get("data").get(state_field) in final_states:
+                progress_report = ctx.report_progress(progress=45, total=45)
+                return result
+        progress_report = ctx.report_progress(progress=(i + 1), total=45)
         # print(f"Result: {result}")
     # Return the link to the status endpoint
     status_endpoint = f"/status/{request_id}"
-    ctx.report_progress(progress=45, total=45)
+    progress_report = ctx.report_progress(progress=45, total=45)
     return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
 import requests
@@ -80,8 +81,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
             except Exception as e:
                 print(f"  ctx.{attr} = <errore: {e}>")
     headers_dict = None
-    if hasattr(ctx, 'request_context') and hasattr(ctx.request_context, 'request'):
-        headers_dict = ctx.request_context.request.headers
+    headers_dict = getattr(ctx, 'request_context', {}).get('request', {}).get('headers', None)
     try:
         auth_header = None
         if headers_dict:
@@ -89,7 +89,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         if not auth_header or not auth_header.lower().startswith('bearer '):
             raise ValueError("Header 'Authorization: Bearer <token>' mancante o malformato.")
     except Exception as e:
-        return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").dict()
+        return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
     headers = {"Authorization": auth_header, **kwargs.pop("headers", {})}
     try:
@@ -114,4 +114,4 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         error_details = e.response.text
         return ApiError(error="API HTTP Error", message=f"{e.response.status_code}: {error_details}").dict()
     except requests.exceptions.RequestException as e:
-        return ApiError(error="API Request Error", message=str(e)).dict()
+        return ApiError(error="API Request Error", message=str(e)).model_dump()
