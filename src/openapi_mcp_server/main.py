@@ -7,6 +7,7 @@ from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 import asyncio
 from google.cloud import storage
+from starlette.datastructures import MutableHeaders
 
 
 
@@ -40,6 +41,23 @@ def complete_initialization():
 
 # Chiamare questa funzione al termine dell'inizializzazione del server
 complete_initialization()
+
+# Middleware per intercettare il token nella querystring e inserirlo nell'header Authorization
+@app.middleware("http")
+async def token_querystring_to_authorization(request: Request, call_next):
+    token = request.query_params.get("token")
+    if token:
+        # Rimuovi eventuali header Authorization già presenti
+        headers = [
+            (k, v)
+            for k, v in request.scope["headers"]
+            if k.lower() != b"authorization"
+        ]
+        # Aggiungi il nuovo header Authorization
+        headers.append((b"authorization", f"Bearer {token}".encode()))
+        request.scope["headers"] = headers
+    response = await call_next(request)
+    return response
 
 # Endpoint HTTP REST (fuori da MCP/JSON-RPC)
 @app.post("/callbacks")
