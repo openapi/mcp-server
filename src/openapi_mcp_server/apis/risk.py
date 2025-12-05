@@ -16,7 +16,7 @@ import asyncio
 )
 async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,name: str, ctx: Context) -> Any:
     """This endpoint allows you to create a full kyc request on a subject (politically exposed person, adverse media, local politicians, legal enforcement, sanctions, whitelists)    
-    	name or firstName/lastName combination required
+    	use name for entityType L,W,VE,AC,NA or firstName/lastName for entityType I
     Args:
         firstName: first name of the person
         lastName: lastName of the person

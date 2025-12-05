@@ -4,7 +4,7 @@ import json
 from fastapi import FastAPI, Request, HTTPException, Response
 from .memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
 import asyncio
 from google.cloud import storage
 from starlette.datastructures import MutableHeaders
