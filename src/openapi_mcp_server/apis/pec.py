@@ -23,5 +23,5 @@ async def check_pec(pec: str, ctx: Context) -> Any:
         pec: the pec address to check
     """  
     
-    url = f"https://{SANDBOX_PREFIX}verifica_pec/{pec}"
+    url = f"https://{SANDBOX_PREFIX}pec.openapi.it/verifica_pec/{pec}"
     return make_api_call(ctx, "GET", url)
