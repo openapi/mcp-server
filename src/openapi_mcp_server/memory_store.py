@@ -6,7 +6,7 @@ from pymemcache.client import base
 import json
 
 callback_results = {}
-
+#configurazione endpoint 
 # ENV VARIABLES: todo better env astraction for envs
 K_SERVICE = os.getenv("K_SERVICE")
 SANDBOX_PREFIX = "test." if K_SERVICE == "test-mcp-openapi-com" else ""

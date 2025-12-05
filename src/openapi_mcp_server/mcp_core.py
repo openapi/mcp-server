@@ -8,6 +8,7 @@ import asyncio
 import requests
 import json
 
+#crea un'istanza del server
 mcp = FastMCP(
     name="OpenAPI.com MCP Gateway",
     instructions="This server provides a unified gateway for various services of openapi.com. using a token as autentication."
@@ -17,6 +18,7 @@ class ApiError(BaseModel):
     error: str
     message: str
 
+#crea un hash univoco per la sessione
 def getSessionHash(ctx: Context): 
     session_hash = ctx.request_id+ctx.session_id+ctx.fastmcp.name+(ctx.client_id or "Unknown client")
     headers = get_http_headers()
@@ -24,6 +26,7 @@ def getSessionHash(ctx: Context):
         session_hash += json.dumps(dict(headers))
     return md5(session_hash.encode('utf-8')).hexdigest()
 
+#funzione che aspetta senza bloccare il codice che il risultato sia disponibile chiamando get_callback_result
 async def processPolling(ctx: Context, request_id: str, final_states: Optional[list] = None, state_field: Optional[str] = "state"):
     timeout = 45
     if final_states is None:
@@ -47,6 +50,7 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     progress_report = ctx.report_progress(progress=45, total=45)
     return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
+#prende i dettagli della richiesta desiderata (method, url, json_payload) e si occupa di aggiungere automaticamente l'header di autenticazione, inviare la richiesta e gestire le risposte e gli errori.
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:
     print(f"Call api url: {url}")
     for attr in dir(ctx):
@@ -56,7 +60,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
                 # print(f"  ctx.{attr} = {value}")
             except Exception as e:
                 print(f"  ctx.{attr} = <errore: {e}>")
-    
+    #tenta di recuperare l'header Authorization da diverse fonti
     try:
         auth_header = None
         
@@ -88,11 +92,13 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
     headers = {"Authorization": auth_header, **kwargs.pop("headers", {})}
+    #Chiamata API Esterna
     try:
         request_args = dict(method=method, url=url, headers=headers, **kwargs)
         if json_payload is not None:
             request_args["json"] = json_payload
         response = requests.request(**request_args)
+        #Gestione della Risposta e Normalizzazione dei Dati
         response.raise_for_status()
         response_data = response.json()
         if response.status_code == 204:
