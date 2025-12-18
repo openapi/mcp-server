@@ -9,7 +9,12 @@ callback_results = {}
 #configurazione endpoint 
 # ENV VARIABLES: todo better env astraction for envs
 K_SERVICE = os.getenv("K_SERVICE")
-SANDBOX_PREFIX = "test." if K_SERVICE == "test-mcp-openapi-com" else ""
+# Estrae il prefisso ambiente da K_SERVICE (es: "dev-mcp-openapi-com" -> "dev.")
+if K_SERVICE and K_SERVICE != "mcp-openapi-com":
+    env_prefix = K_SERVICE.split("-")[0]  # estrae "test", "dev", "alpha"
+    SANDBOX_PREFIX = f"{env_prefix}."
+else:
+    SANDBOX_PREFIX = ""
 DEV_VM = os.getenv("X-DEV-VM")
 BASE_URL = "https://mcp.openapi.com"
 callbackUrl = None
