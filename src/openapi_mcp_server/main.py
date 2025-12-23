@@ -70,7 +70,8 @@ async def callbacks_endpoint(request: Request):
         print("Body not a valid JSON")
         return {"status": "error", "message": "Body not a valid JSON"}
     
-    custom = callback.get("custom") or callback.get("callback").get("data")
+    cb_obj = callback.get("callback")
+    custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
         print("'callback.custom' mancante nei dati ricevuti")
         return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
