@@ -31,12 +31,12 @@ class DocuEngineHelper:
 async def get_docuengine_services(ctx: Context) -> Any:
     """
     Returns the list of all available DocuEngine services with their required parameters.
-    Includes categories like:
-    - Camerali (Visure ordinarie/storiche, Bilanci Ottici/XBRL, Atti Ottici, Statuto, Certificati di Iscrizione/Storico)
-    - Catastali (Planimetria Catastale, Estratto Mappa, Elaborato Planimetrico)
-    - Patronato (Certificato di Matrimonio, Registrazione Contratti Affitto)
+    Categories and services include:
+    - Camerali: Visura Camerale (Ordinaria/Storica for Capitale, Persone, Individuale), Bilancio (Ottico, XBRL, Riclassificato), Statuto, Soci Attivi, Certificati (Iscrizione, Artigiano, Storico).
+    - Catastali: Planimetria Catastale, Estratto Mappa, Elaborato Planimetrico, Registrazione/Proroga/Disdetta Contratti Affitto, Preliminare Compravendita.
+    - Patronato: Certificato/Estratto di Matrimonio, Stato di Famiglia, Residenza (Anagrafica, AIRE, Storico), Visura Targa PRA, NASPI (Regular, COM, Anticipata).
     
-    Use this to discover the document_id and logical parameter names (e.g., 'reaCode', 'cciaa', 'taxCode').
+    Use this to discover the document_id and logical parameter names (e.g., 'reaCode', 'cciaa', 'taxCode', 'ownerName').
     """
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
     return make_api_call(ctx, "GET", url)
@@ -44,17 +44,53 @@ async def get_docuengine_services(ctx: Context) -> Any:
 @mcp.tool()
 async def post_docuengine_request(document_id: str, parameters: Dict[str, Any], ctx: Context) -> Any:
     """
-    Generic tool to request any DocuEngine service (Visure, Bilanci, Planimetrie, etc.).
+    Request any DocuEngine service. 
+    The tool handles document_id lookup and parameter mapping automatically.
     
-    Common examples:
-    - Visura Camerale Ordinaria (Società di Capitale): document_id="663df75d19a52195e23e315c", parameters={"reaCode": "123", "cciaa": "RM"}
-    - Bilancio XBRL: document_id="667c131a9e6f0e447bc265c1", parameters={"taxCode": "..."}
-    - Planimetria Catastale: document_id="68ac694e7a0be68c265a749e", parameters={"province": "RM", "municipality": "Roma", "cadastralSheet": "1", "cadastralParcel": "100", "ownerTaxCode": "...", "ownerName": "..."}
-    - Certificato Di Matrimonio: document_id="67cf18292cbb7e30d3d93e17"
+    Available Services:
+    
+    CHAMBER OF COMMERCE (CAMERALI):
+    - Visura Camerale Ordinaria - Societa' Di Capitale (Ordinary Chamber search for corporations)
+    - Visura Camerale Ordinaria - Societa' Di Persone (Ordinary Chamber search for partnerships)
+    - Visura Camerale Ordinaria - Impresa Individuale (Ordinary Chamber search for sole proprietorships)
+    - Visura Camerale Storica - Societa' Di Capitale (Historical Chamber search for corporations)
+    - Visura Camerale Storica - Societa' Di Persone (Historical Chamber search for partnerships)
+    - Visura Camerale Storica - Impresa Individuale (Historical Chamber search for sole proprietorships)
+    - Visura Camerale Inglese (English language Chamber Search)
+    - Bilancio Ottico (Optical PDF Balance Sheets)
+    - Bilancio XBRL (Structured XBRL Balance Sheets)
+    - Bilancio Riclassificato (Reclassified Balance Sheets)
+    - Statuto (Company Bylaws)
+    - Atto Ottico (Official Deeds or Documents)
+    - Soci Attivi Azienda (Active Shareholders/Partners search)
+    - Certificato Di Iscrizione (Official Registration Certificate)
+    - Certificato Artigiano (Artisan Certificate)
+    - Certificato Storico (Historical Registration Certificate)
+    
+    PATRONATO & CIVIL CERTIFICATES:
+    - Certificato Di Matrimonio (Marriage Certificate)
+    - Estratto Di Matrimonio (Marriage Extract)
+    - Copia Integrale Atto Di Matrimonio (Certified full copy of Marriage Record)
+    - Certificato Stato Di Famiglia (Family Status Certificate)
+    - Certificato Di Residenza Anagrafica (Residency Certificate)
+    - Certificato Di Residenza AIRE (Residency Certificate for Italians living abroad)
+    - Certificato Storico Di Residenza (Historical Residency Certificate)
+    - Visura Targa PRA (Vehicle License Plate search)
+    - NASPI (Unemployment Benefit request - Regular, COM variation, or Advance)
+    - ... Con Marca Da Bollo (Residence/Family certificates with Revenue Stamp)
+    
+    CADASTRAL & REAL ESTATE (CATASTALI):
+    - Registrazione Contratti Affitto (Rental/Lease Agreement registration)
+    - Proroga Contratto Locazione (Rental/Lease Agreement extension)
+    - Disdetta Contratto Di Affitto (Rental/Lease Agreement termination)
+    - Registrazione Preliminare Compravendita (Preliminary Sale Agreement registration)
+    - Planimetria Catastale (Cadastral Floor Plan)
+    - Estratto Mappa Catastale (Cadastral Map Extract)
+    - Elaborato Planimetrico (Planimetric Layout)
     
     Args:
-        document_id: The ID of the document service to request (obtain from get_docuengine_services).
-        parameters: A dictionary of logical parameters for the service (mapped internally to field0, field1, etc.).
+        document_id: The exact Italian Name or ID of the service.
+        parameters: Logical parameters (mapped internally). Call get_docuengine_services for field details.
     """
     print(f"Running Tool: post_docuengine_request id={document_id}, params={parameters}")
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')

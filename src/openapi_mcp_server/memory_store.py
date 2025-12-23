@@ -58,23 +58,15 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
         print(f"Memcached not enabled: {e}")
         callback_results[request_id] = result
 
-# Funzione per salvare i dati in Memcached in modo binary-safe
 def save_to_memcached(client, key, value):
-    try:
-        # Serializza i dati in JSON e codifica in UTF-8
-        binary_value = json.dumps(value).encode('utf-8')
-        client.set(key, binary_value)
-    except Exception as e:
-        print(f"Errore durante il salvataggio in Memcached: {e}")
+    # Serializza i dati in JSON e codifica in UTF-8
+    binary_value = json.dumps(value).encode('utf-8')
+    client.set(key, binary_value)
 
 # Funzione per recuperare i dati da Memcached
 def get_from_memcached(client, key):
-    try:
-        binary_value = client.get(key)
-        if binary_value is not None:
-            # Decodifica i dati da UTF-8 e deserializza da JSON
-            return json.loads(binary_value.decode('utf-8'))
-        return None
-    except Exception as e:
-        print(f"Errore durante il recupero da Memcached: {e}")
-        return None
+    binary_value = client.get(key)
+    if binary_value is not None:
+        # Decodifica i dati da UTF-8 e deserializza da JSON
+        return json.loads(binary_value.decode('utf-8'))
+    return None
