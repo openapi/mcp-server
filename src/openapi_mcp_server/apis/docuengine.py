@@ -202,30 +202,23 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         print("Skipping dynamic registration: No token provided.")
         return False
 
-    urls = [
-        f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents",
-        f"https://{SANDBOX_PREFIX}docuengine.openapi.it/documents",
-        "https://docuengine.openapi.com/documents",
-        "https://docuengine.openapi.it/documents"
-    ]
+    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
     
     headers = {"Authorization": f"Bearer {token}"}
     services = []
     
-    for url in urls:
-        try:
-            print(f"Fetching services from: {url}")
-            response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                response_data = response.json()
-                services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
-                if services and isinstance(services, list):
-                    print(f"Successfully fetched {len(services)} services from {url}")
-                    break
-            else:
-                print(f"Failed to fetch from {url}: {response.status_code} - {response.text}")
-        except Exception as e:
-            print(f"Error fetching from {url}: {e}")
+    try:
+        print(f"Fetching services from: {url}")
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            response_data = response.json()
+            services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
+            if services and isinstance(services, list):
+                print(f"Successfully fetched {len(services)} services from {url}")
+        else:
+            print(f"Failed to fetch from {url}: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Error fetching from {url}: {e}")
 
     if not services or not isinstance(services, list):
         print("No services found to register.")
