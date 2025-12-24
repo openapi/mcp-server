@@ -256,6 +256,24 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         specialized_tool.__doc__ = f"Direct tool for DocuEngine service: {s_name} (ID: {s_id}). {s_desc}"
         return specialized_tool
 
+    def create_patch_tool_fn(s_id, s_name, p_name, t_name):
+        """Creates a specialized PATCH tool for finalizing a request step."""
+        params = [
+            Parameter("request_id", Parameter.KEYWORD_ONLY, annotation=str),
+            Parameter("selected_option", Parameter.KEYWORD_ONLY, annotation=dict),
+            Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context)
+        ]
+        
+        async def specialized_patch_tool(request_id: str, selected_option: dict, ctx: Context):
+            url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
+            return make_api_call(ctx, "PATCH", url, selected_option)
+            
+        specialized_patch_tool.__name__ = t_name
+        specialized_patch_tool.__signature__ = Signature(params)
+        specialized_patch_tool.__annotations__ = {"request_id": str, "selected_option": dict, "ctx": Context}
+        specialized_patch_tool.__doc__ = f"Finalize selection for DocuEngine service: {s_name}. Use this AFTER calling '{p_name}' if it returned a list of options."
+        return specialized_patch_tool
+
     try:
         registered_count = 0
         for service in services:
@@ -264,20 +282,34 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
                 service_name = service.get("name")
                 if not service_id or not service_name: continue
                 
-                tool_name = f"docuengine_{sanitize_name(service_name)}"
+                sanitized = sanitize_name(service_name)
+                tool_name = f"docuengine_{sanitized}"
                 tool_name = re.sub(r'_+', '_', tool_name).strip('_')
                 
                 request_structure = service.get("requestStructure", {})
                 fields = request_structure.get("fields", {})
-                param_desc = service.get("description", "")
+                param_desc = service.get("description", "") or f"Request {service_name}"
                 
+                has_search = service.get("hasSearch", False)
+                if has_search:
+                    param_desc += "\nNOTE: This service requires a search step. Call this tool first, then use the corresponding patch_ tool to finalize."
+                
+                # 1. Register primary tool
                 tool_fn = create_tool_fn(service_id, service_name, param_desc, fields, tool_name)
                 mcp.tool(name=tool_name)(tool_fn)
                 registered_count += 1
+                
+                # 2. If hasSearch, register selection tool with patch_ prefix
+                if has_search:
+                    patch_tool_name = f"patch_{tool_name}"
+                    patch_fn = create_patch_tool_fn(service_id, service_name, tool_name, patch_tool_name)
+                    mcp.tool(name=patch_tool_name)(patch_fn)
+                    registered_count += 1
+                    
             except Exception as e:
                 print(f"Failed to register tool for service '{service.get('name')}': {e}")
         
-        print(f"Successfully registered {registered_count} dynamic DocuEngine tools.")
+        print(f"Successfully registered {registered_count} dynamic DocuEngine tools (including specialized selection tools).")
         return registered_count > 0
     except Exception as e:
         print(f"Error during tool registration loop: {e}")
