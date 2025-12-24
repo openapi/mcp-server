@@ -1,0 +1,1929 @@
+[
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Ordinaria - Societa' Di Capitale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "663df75d19a52195e23e315c",
+    "searchPrice": 0,
+    "documentPrice": 4.9,
+    "totalPrice": 4.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Ordinaria - Societa' Di Persone",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6671a5549e6f0e447bc2659d",
+    "searchPrice": 0,
+    "documentPrice": 3.4,
+    "totalPrice": 3.4
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Ordinaria - Impresa Individuale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6671a5719e6f0e447bc2659e",
+    "searchPrice": 0,
+    "documentPrice": 2.9,
+    "totalPrice": 2.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Storica - Societa' Di Capitale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6671a5a29e6f0e447bc2659f",
+    "searchPrice": 0,
+    "documentPrice": 5.9,
+    "totalPrice": 5.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Storica - Societa' Di Persone",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6671a5bf9e6f0e447bc265a0",
+    "searchPrice": 0,
+    "documentPrice": 4.4,
+    "totalPrice": 4.4
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "reaCode",
+          "nameIT": "numero rea",
+          "type": "rea",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero di Rea dell`azienda"
+        },
+        "field1": {
+          "name": "cciaa",
+          "nameIT": "cciaa",
+          "type": "cciaa",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia della Camera di Commercio dell`azienda"
+        }
+      },
+      "validation": "field0 && field1",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Storica - Impresa Individuale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6671a5d69e6f0e447bc265a1",
+    "searchPrice": 0,
+    "documentPrice": 3.9,
+    "totalPrice": 3.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell`azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Bilancio Ottico",
+    "options": null,
+    "hasSearch": true,
+    "isSync": false,
+    "id": "667443c29e6f0e447bc265aa",
+    "searchPrice": 0.1,
+    "documentPrice": 4.4,
+    "totalPrice": 4.5
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell`azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Bilancio XBRL",
+    "options": null,
+    "hasSearch": true,
+    "isSync": false,
+    "id": "667c131a9e6f0e447bc265c1",
+    "searchPrice": 0.1,
+    "documentPrice": 4.4,
+    "totalPrice": 4.5
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell`azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Visura Camerale Inglese",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "66840ce41a241a5d1be0f9e5",
+    "searchPrice": 0,
+    "documentPrice": 6.5,
+    "totalPrice": 6.5
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell`azienda"
+        },
+        "field1": {
+          "name": "actGroupCode",
+          "nameIT": "codice gruppo atto",
+          "type": "optionCode",
+          "required": false,
+          "options": [
+            {
+              "code": "A01",
+              "description": "ATTO COSTITUTIVO"
+            },
+            {
+              "code": "A02",
+              "description": "TRASFERIMENTO SEDE DA ALTRO REGISTRO IMPRESE"
+            },
+            {
+              "code": "A03",
+              "description": "ISTITUZIONE/MODIFICA/CESSAZIONE SEDE SECONDARIA"
+            },
+            {
+              "code": "A04",
+              "description": "MODIFICHE ATTO COSTITUTIVO/PATTI SOCIALI (societa' di persone, consorzi, geie)"
+            },
+            {
+              "code": "A05",
+              "description": "MODIFICHE ATTO COSTITUTIVO (societa' di capitali e cooperative)"
+            },
+            {
+              "code": "A06",
+              "description": "NOMINA/CONFERMA AMMINISTRATORI"
+            },
+            {
+              "code": "A07",
+              "description": "CESSAZIONE AMMINISTRATORI"
+            },
+            {
+              "code": "A08",
+              "description": "NOMINA/CONFERMA/CESSAZIONE SINDACI"
+            },
+            {
+              "code": "A09",
+              "description": "NOMINA LIQUIDATORI"
+            },
+            {
+              "code": "A10",
+              "description": "MODIFICA POTERI/ REVOCA LIQUIDATORI"
+            },
+            {
+              "code": "A11",
+              "description": "DELEGA/REVOCA POTERI CONSIGLIO DI AMMINISTRAZIONE"
+            },
+            {
+              "code": "A12",
+              "description": "PROCURE"
+            },
+            {
+              "code": "A13",
+              "description": "SCIOGLIMENTO CON/SENZA  LIQUIDAZIONE"
+            },
+            {
+              "code": "A14",
+              "description": "CANCELLAZIONE DAL REGISTRO DELLE  IMPRESE"
+            },
+            {
+              "code": "A15",
+              "description": "PROCEDURE CONCORSUALI"
+            },
+            {
+              "code": "A16A17",
+              "description": "FUSIONI/SCISSIONI"
+            },
+            {
+              "code": "A18",
+              "description": "TRASFERIMENTO QUOTE S.R.L."
+            },
+            {
+              "code": "A19",
+              "description": "COMUNICAZIONE SOCIO UNICO DI S.R.L E RICOSTITUZIONE PLURALITA' DEI SOCI"
+            },
+            {
+              "code": "A20",
+              "description": "TRASFERIMENTO D'AZIENDA"
+            },
+            {
+              "code": "A22",
+              "description": "PATTI  PARASOCIALI"
+            },
+            {
+              "code": "A23",
+              "description": "CONVERSIONE IN EURO DEL CAPITALE SOCIALE"
+            },
+            {
+              "code": "A99",
+              "description": "ALTRI ATTI"
+            },
+            {
+              "code": "X_5xx",
+              "description": "COMUNICAZIONE ELENCO SOCI"
+            }
+          ],
+          "help": "Inserire il codice del gruppo di atto richiesto"
+        },
+        "field2": {
+          "name": "requestDateSince",
+          "nameIT": "data richiesta dal",
+          "type": "date",
+          "required": false,
+          "options": null,
+          "help": "Inserire una data a partire dalla quale filtrare la richiesta di atti"
+        },
+        "field3": {
+          "name": "requestDateTo",
+          "nameIT": "data richiesta al",
+          "type": "date",
+          "required": false,
+          "options": null,
+          "help": "Inserire una data fino a cui filtrare la richiesta di atti"
+        },
+        "field4": {
+          "name": "documentDateSince",
+          "nameIT": "data documento dal",
+          "type": "date",
+          "required": false,
+          "options": null,
+          "help": "Inserire una data a partire dalla quale filtrare i documenti degli atti"
+        },
+        "field5": {
+          "name": "documentDateTo",
+          "nameIT": "data documento al",
+          "type": "date",
+          "required": false,
+          "options": null,
+          "help": "Inserire una data fino a cui filtrare i documenti degli atti"
+        }
+      },
+      "validation": "field0 || (field0 && (field1 || field2 || field3 || field4 || field5))",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Atto Ottico",
+    "options": null,
+    "hasSearch": true,
+    "isSync": false,
+    "id": "6687eea71a241a5d1be0f9f9",
+    "searchPrice": 0.6,
+    "documentPrice": 4.9,
+    "totalPrice": 5.5
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell'azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Statuto",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6687eed51a241a5d1be0f9fa",
+    "searchPrice": 0,
+    "documentPrice": 4.9,
+    "totalPrice": 4.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell`azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Bilancio Riclassificato",
+    "options": null,
+    "hasSearch": true,
+    "isSync": false,
+    "id": "669533fe6d4f51cbde8da353",
+    "searchPrice": 0.1,
+    "documentPrice": 4.9,
+    "totalPrice": 5
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "firstSpouseName",
+          "nameIT": "nome primo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome del primo coniuge"
+        },
+        "field1": {
+          "name": "firstSpouseSurname",
+          "nameIT": "cognome primo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il cognome del primo coniuge"
+        },
+        "field2": {
+          "name": "firstSpouseBirthDate",
+          "nameIT": "data nascita primo coniuge",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data di nascita del primo coniuge"
+        },
+        "field3": {
+          "name": "firstSpouseBirthTown",
+          "nameIT": "comune nascita primo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune di nascita del primo coniuge"
+        },
+        "field4": {
+          "name": "secondSpouseName",
+          "nameIT": "nome secondo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome del secondo coniuge"
+        },
+        "field5": {
+          "name": "secondSpouseSurname",
+          "nameIT": "cognome secondo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il cognome del secondo coniuge"
+        },
+        "field6": {
+          "name": "secondSpouseBirthDate",
+          "nameIT": "data nascita secondo coniuge",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data di nascita del secondo coniuge"
+        },
+        "field7": {
+          "name": "secondSpouseBirthTown",
+          "nameIT": "comune mascita secondo coniuge",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune di nascita del secondo coniuge"
+        },
+        "field8": {
+          "name": "celebrationTown",
+          "nameIT": "comune celebrazione matrimonio",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune di celebrazione del matrimonio"
+        },
+        "field9": {
+          "name": "registrationTown",
+          "nameIT": "comune trascrizione matrimonio",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il comune di trascrizione del matrimonio (solo in caso di matrimonio celebrato in altro comune ad esempio all'estero e trascritto successivamente in italia)"
+        },
+        "field10": {
+          "name": "celebrationDate",
+          "nameIT": "date celebrazione matrimonio",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data di celebrazione del matrimonio"
+        },
+        "field11": {
+          "name": "spouseDelegation",
+          "nameIT": "delega coniuge",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Caricare la delega di uno dei due coniugi"
+        },
+        "field12": {
+          "name": "spouseDocument",
+          "nameIT": "documento identita' coniuge",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Caricare il documento d'identita' di uno dei due coniugi"
+        },
+        "field13": {
+          "name": "notes",
+          "nameIT": "note",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Note aggiuntive"
+        }
+      },
+      "validation": "(field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field8 && field10 && field11 && field12) || (field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field8 && field9 && field10 && field11 && field12) || (field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field8 && field10 && field11 && field12 && field13) || (field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field8 && field9 && field10 && field11 && field12 && field13)",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Patronato",
+    "name": "Certificato Di Matrimonio",
+    "options": [
+      {
+        "name": "urgenza",
+        "price": 4
+      },
+      {
+        "name": "assistenza_dedicata",
+        "price": 10
+      }
+    ],
+    "hasSearch": false,
+    "isSync": false,
+    "id": "67cf18292cbb7e30d3d93e17",
+    "providers": [
+      {
+        "companyName": "Servizi Informativi Srls",
+        "email": "a.venanzoni@openapi.com",
+        "secondaryEmail": null,
+        "phone": "0909420029",
+        "address": "Via dei Mille 2432FC - 98123 Messina",
+        "password": "524c39d58edefc304740925fbd47352869611058a616f4f25268179ad23978bb"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 23.4,
+    "totalPrice": 23.4
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "territorialOffice",
+          "nameIT": "ufficio territoriale",
+          "type": "territorialOffice",
+          "required": true,
+          "options": null,
+          "help": "Ufficio Territoriale presso cui registrare il contratto e competente per i successivi adempimenti"
+        },
+        "field1": {
+          "name": "rentalContractType",
+          "nameIT": "tipologia contratto locazione",
+          "type": "optionCode",
+          "required": true,
+          "options": [
+            {
+              "code": "L1",
+              "description": "Locazione di immobile ad uso abitativo"
+            },
+            {
+              "code": "L2",
+              "description": "Locazione agevolata di immobile ad uso abitativo"
+            },
+            {
+              "code": "L3",
+              "description": "Locazione di immobile ad uso abitativo (contratto assoggettato ad IVA)"
+            },
+            {
+              "code": "L4",
+              "description": "Locazione finanziaria di immobile ad uso abitativo"
+            },
+            {
+              "code": "S1",
+              "description": "Locazione di immobile ad uso diverso dall'abitativo"
+            },
+            {
+              "code": "S2",
+              "description": "Locazione di immobile strumentale con locatore soggetto ad IVA"
+            },
+            {
+              "code": "S3",
+              "description": "Locazione Finanziaria di immobile ad uso diverso dall'abitativo"
+            },
+            {
+              "code": "T1",
+              "description": "Affitto di fondo rustico"
+            },
+            {
+              "code": "T2",
+              "description": "Affitto di fondo rustico agevolato"
+            },
+            {
+              "code": "T3",
+              "description": "Affitto di terreni ed aree non edificabili, cave e torbiere"
+            },
+            {
+              "code": "T4",
+              "description": "Affitto di terreni edificabili o non edificabili destinati a parcheggio (contratto assoggettato ad IVA)"
+            }
+          ],
+          "help": "Selezionare la tipologia di contratto di locazione"
+        },
+        "field2": {
+          "name": "contractStartDate",
+          "nameIT": "data inizio contratto",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data da cui parte la decorrenza del contratto"
+        },
+        "field3": {
+          "name": "contractEndDate",
+          "nameIT": "data fine contratto",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data in cui finisce la decorrenza del contratto"
+        },
+        "field4": {
+          "name": "contractPages",
+          "nameIT": "numero pagine contratto",
+          "type": "integer",
+          "required": true,
+          "options": {
+            "min": 1
+          },
+          "help": "Inserire il numero di pagine del contratto"
+        },
+        "field5": {
+          "name": "contractCopies",
+          "nameIT": "copie contratto",
+          "type": "integer",
+          "required": true,
+          "options": {
+            "min": 1
+          },
+          "help": "Inserire il numero di copie del contratto da registrare"
+        },
+        "field6": {
+          "name": "annualFee",
+          "nameIT": "canone annuo",
+          "type": "float",
+          "required": true,
+          "options": {
+            "min": 0
+          },
+          "help": "Inserire l'importo del canone annuo (es. 100.50) o, in caso di contratti di durata inferiore a un anno, l'importo relativo all'intera durata"
+        },
+        "field7": {
+          "name": "contractDate",
+          "nameIT": "data contratto",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "help": "Inserire la data di stipula del contratto"
+        },
+        "field8": {
+          "name": "contractFile",
+          "nameIT": "file contratto",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Allegare contratto di locazione firmato da tutte le parti"
+        },
+        "field9": {
+          "name": "province",
+          "nameIT": "provincia immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia dove e' presente l'immobile"
+        },
+        "field10": {
+          "name": "town",
+          "nameIT": "comune immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune dove e' presente l'immobile"
+        },
+        "field11": {
+          "name": "address",
+          "nameIT": "indirizzo immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire l'indirizzo (con civico) dell'immobile"
+        },
+        "field12": {
+          "name": "cadastralSheet",
+          "nameIT": "foglio catastale",
+          "type": "cadastralSheet",
+          "required": true,
+          "options": null,
+          "help": "Inserire il foglio catastale dell'immobile"
+        },
+        "field13": {
+          "name": "cadastralParcel",
+          "nameIT": "particella catastale",
+          "type": "cadastralParcel",
+          "required": true,
+          "options": null,
+          "help": "Inserire la particella catastale dell'immobile"
+        },
+        "field14": {
+          "name": "cadastralSub",
+          "nameIT": "subalterno catastale",
+          "type": "cadastralSub",
+          "required": true,
+          "options": null,
+          "help": "Inserire il subalterno catastale dell'immobile"
+        },
+        "field15": {
+          "name": "cadastralIncome",
+          "nameIT": "rendita catastale",
+          "type": "float",
+          "required": true,
+          "options": null,
+          "help": "Inserire la rendita catastale dell'immobile"
+        },
+        "field16": {
+          "name": "cadastralCategory",
+          "nameIT": "categoria catastale",
+          "type": "optionCode",
+          "required": true,
+          "options": [
+            {
+              "code": "A1",
+              "description": "A/1 Abitazioni di tipo signorile"
+            },
+            {
+              "code": "A2",
+              "description": "A/2 Abitazioni di tipo civile"
+            },
+            {
+              "code": "A3",
+              "description": "A/3 Abitazioni di tipo economico"
+            },
+            {
+              "code": "A4",
+              "description": "A/4 Abitazioni di tipo popolare"
+            },
+            {
+              "code": "A5",
+              "description": "A/5 Abitazioni di tipo ultrapopolare"
+            },
+            {
+              "code": "A6",
+              "description": "A/6 Abitazioni di tipo rurale"
+            },
+            {
+              "code": "A7",
+              "description": "A/7 Abitazioni in villini"
+            },
+            {
+              "code": "A8",
+              "description": "A/8 Abitazioni in ville"
+            },
+            {
+              "code": "A9",
+              "description": "A/9 Castelli, palazzi di eminenti pregi artistici o storici"
+            },
+            {
+              "code": "A10",
+              "description": "A/10 Uffici e studi privati"
+            },
+            {
+              "code": "A11",
+              "description": "A/11 Abitazioni ed alloggi tipici dei luoghi"
+            },
+            {
+              "code": "B1",
+              "description": "B/1 Collegi e convitti, educandati; ricoveri; orfanotrofi; ospizi; conventi; seminari; caserme"
+            },
+            {
+              "code": "B2",
+              "description": "B/2 Case di cura ed ospedali (senza fine di lucro)"
+            },
+            {
+              "code": "B3",
+              "description": "B/3 Prigioni e riformatori"
+            },
+            {
+              "code": "B4",
+              "description": "B/4 Uffici pubblici"
+            },
+            {
+              "code": "B5",
+              "description": "B/5 Scuole e laboratori scientifici"
+            },
+            {
+              "code": "B6",
+              "description": "B/6 Biblioteche, pinacoteche, musei, gallerie, accademie che non hanno sede in edifici della categoria A/9"
+            },
+            {
+              "code": "B7",
+              "description": "B/7 Cappelle ed oratori non destinati all’esercizio pubblico del culto"
+            },
+            {
+              "code": "B8",
+              "description": "B/8 Magazzini sotterranei per depositi di derrate"
+            },
+            {
+              "code": "C1",
+              "description": "C/1 Negozi e botteghe"
+            },
+            {
+              "code": "C2",
+              "description": "C/2 Magazzini e locali di deposito"
+            },
+            {
+              "code": "C3",
+              "description": "C/3 Laboratori per arti e mestieri"
+            },
+            {
+              "code": "C4",
+              "description": "C/4 Fabbricati e locali per esercizi sportivi"
+            },
+            {
+              "code": "C5",
+              "description": "C/5 Stabilimenti balneari e di acque curative"
+            },
+            {
+              "code": "C6",
+              "description": "C/6 Stalle, scuderie, rimesse, autorimesse"
+            },
+            {
+              "code": "C7",
+              "description": "C/7 Tettoie chiuse od aperte"
+            },
+            {
+              "code": "D1",
+              "description": "D/1 Opifici"
+            },
+            {
+              "code": "D2",
+              "description": "D/2 Alberghi e pensioni (con fini di lucro)"
+            },
+            {
+              "code": "D3",
+              "description": "D/3 Teatri, cinematografi, sale per concerti e spettacoli e simili (con fine di lucro)"
+            },
+            {
+              "code": "D4",
+              "description": "D/4 Case di cura ed ospedali (con fine di lucro)"
+            },
+            {
+              "code": "D5",
+              "description": "D/5 Istituto di credito, cambio e assicurazione (con fine di lucro)"
+            },
+            {
+              "code": "D6",
+              "description": "D/6 Fabbricati e locali per esercizi sportivi (con fine di lucro)"
+            },
+            {
+              "code": "D7",
+              "description": "D/7 Fabbricati costruiti o adattati per le speciali esigenze di un'attivita' industriale e non suscettibili di destinazione diversa senza radicali trasformazioni"
+            },
+            {
+              "code": "D8",
+              "description": "D/8 Fabbricati costruiti o adattati per le speciali esigenze di un'attivita' commerciale e non suscettibili di destinazione diversa senza radicali trasformazioni"
+            },
+            {
+              "code": "D9",
+              "description": "D/9 Edifici galleggianti o sospesi assicurati a punti fissi del suolo, ponti privati soggetti a pedaggio"
+            },
+            {
+              "code": "D10",
+              "description": "D/10 Fabbricati per funzioni produttive connesse alle attivita' agricole"
+            },
+            {
+              "code": "E1",
+              "description": "E/1 Stazioni per servizi di trasporto, terrestri, marittimi ed aerei"
+            },
+            {
+              "code": "E2",
+              "description": "E/2 Ponti comunali e provinciali soggetti a pedaggio"
+            },
+            {
+              "code": "E3",
+              "description": "E/3 Costruzioni e fabbricati per speciali esigenze pubbliche"
+            },
+            {
+              "code": "E4",
+              "description": "E/4 Recinti chiusi per speciali esigenze pubbliche"
+            },
+            {
+              "code": "E5",
+              "description": "E/5 Fabbricati costituenti fortificazioni e loro dipendenze"
+            },
+            {
+              "code": "E6",
+              "description": "E/6 Fari, semafori, torri per rendere d'uso pubblico l'orologio comunale"
+            },
+            {
+              "code": "E7",
+              "description": "E/7 Fabbricati destinati all'esercizio pubblico dei culti"
+            },
+            {
+              "code": "E8",
+              "description": "E/8 Fabbricati e costruzioni nei cimiteri, esclusi i colombari, i sepolcri e le tombe di famiglia"
+            },
+            {
+              "code": "E9",
+              "description": "E/9 Edifici a destinazione particolare non compresi nelle categorie precedenti del gruppo E"
+            },
+            {
+              "code": "F1",
+              "description": "F/1 Aree urbane"
+            },
+            {
+              "code": "F2",
+              "description": "F/2 Unita' collabenti"
+            },
+            {
+              "code": "F3",
+              "description": "F/3 Unita' in corso di costruzione"
+            },
+            {
+              "code": "F4",
+              "description": "F/4 Unita' in corso di definizione"
+            },
+            {
+              "code": "F5",
+              "description": "F/5 Lastrici solari"
+            }
+          ],
+          "help": "Selezionare la categoria catastale dell'immobile"
+        },
+        "field17": {
+          "name": "taxRegime",
+          "nameIT": "regime fiscale",
+          "type": "optionCode",
+          "required": true,
+          "options": [
+            {
+              "code": "ORDINARIO",
+              "description": "Regime Ordinario IRPEF"
+            },
+            {
+              "code": "CEDOLARE",
+              "description": "Regime a Cedolare Secca"
+            }
+          ],
+          "help": "Selezionare il regime fiscale"
+        },
+        "field18": {
+          "name": "applicantName",
+          "nameIT": "nome richiedente",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome completo del richiedente"
+        },
+        "field19": {
+          "name": "applicantPhone",
+          "nameIT": "telefono richiedente",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire un contatto telefonico del richiedente in caso di richiesta informazioni aggiuntive"
+        },
+        "field20": {
+          "name": "applicantEmail",
+          "nameIT": "email richiedente",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "help": "Inserire un'email del richiedente in caso di richiesta informazioni aggiuntive"
+        },
+        "field21": {
+          "name": "privateApplicantTaxCode",
+          "nameIT": "codice fiscale richiedente privato",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del richiedente privato"
+        },
+        "field22": {
+          "name": "legalApplicantTaxCode",
+          "nameIT": "codice fiscale richiedente giuridico",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del richiedente giuridico (ad esempio azienda)"
+        },
+        "field23": {
+          "name": "ibanCode",
+          "nameIT": "codice iban",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice IBAN per assolvere l'imposta di registro e quella di bollo (obbligatorio se contratto in regime ordinario)"
+        },
+        "field24": {
+          "name": "accountHolderName",
+          "nameIT": "nome titolare conto",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il nome completo del titotale del conto associato all'IBAN (obbligatorio se contratto in regime ordinario)"
+        },
+        "field25": {
+          "name": "landlordName",
+          "nameIT": "nome locatore",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome completo del locatore"
+        },
+        "field26": {
+          "name": "landlordTaxCode",
+          "nameIT": "codice fiscale locatore",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale del locatore"
+        },
+        "field27": {
+          "name": "landlordDocument",
+          "nameIT": "documento locatore",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Allegare un documento del locatore"
+        },
+        "field28": {
+          "name": "landlordPercentage",
+          "nameIT": "percentuale possesso locatore",
+          "type": "float",
+          "required": false,
+          "options": null,
+          "help": "Inserire la percentuale di possesso del locatore (obbligatorio se contratto in regime di cedolare secca)"
+        },
+        "field29": {
+          "name": "secondLandlordName",
+          "nameIT": "nome secondo locatore",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il nome completo del secondo locatore (solo se presente)"
+        },
+        "field30": {
+          "name": "secondLandlordTaxCode",
+          "nameIT": "codice fiscale secondo locatore",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del secondo locatore (solo se presente)"
+        },
+        "field31": {
+          "name": "secondLandlordDocument",
+          "nameIT": "documento secondo locatore",
+          "type": "file",
+          "required": false,
+          "options": null,
+          "help": "Allegare un documento del secondo locatore (solo se presente)"
+        },
+        "field32": {
+          "name": "secondLandlordPercentage",
+          "nameIT": "percentuale possesso secondo locatore",
+          "type": "float",
+          "required": false,
+          "options": null,
+          "help": "Inserire la percentuale di possesso del secondo locatore (obbligatorio se contratto in regime di cedolare secca e solo se presente)"
+        },
+        "field33": {
+          "name": "thirdLandlordName",
+          "nameIT": "nome terzo locatore",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il nome completo del terzo locatore (solo se presente)"
+        },
+        "field34": {
+          "name": "thirdLandlordTaxCode",
+          "nameIT": "codice fiscale terzo locatore",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del terzo locatore (solo se presente)"
+        },
+        "field35": {
+          "name": "thirdLandlordDocument",
+          "nameIT": "documento terzo locatore",
+          "type": "file",
+          "required": false,
+          "options": null,
+          "help": "Allegare un documento del terzo locatore (solo se presente)"
+        },
+        "field36": {
+          "name": "thirdLandlordPercentage",
+          "nameIT": "percentuale possesso terzo locatore",
+          "type": "float",
+          "required": false,
+          "options": null,
+          "help": "Inserire la percentuale di possesso del terzo locatore (obbligatorio se contratto in regime di cedolare secca e solo se presente)"
+        },
+        "field37": {
+          "name": "conductorName",
+          "nameIT": "nome conduttore",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome completo del conduttore"
+        },
+        "field38": {
+          "name": "conductorTaxCode",
+          "nameIT": "codice fiscale conduttore",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale del conduttore"
+        },
+        "field39": {
+          "name": "conductorDocument",
+          "nameIT": "documento conduttore",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Allegare un documento del conduttore"
+        },
+        "field40": {
+          "name": "secondConductorName",
+          "nameIT": "nome secondo conduttore",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il nome completo del secondo conduttore (solo se presente)"
+        },
+        "field41": {
+          "name": "secondConductorTaxCode",
+          "nameIT": "codice fiscale secondo conduttore",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del secondo conduttore (solo se presente)"
+        },
+        "field42": {
+          "name": "secondConductorDocument",
+          "nameIT": "documento secondo conduttore",
+          "type": "file",
+          "required": false,
+          "options": null,
+          "help": "Allegare un documento del secondo conduttore (solo se presente)"
+        },
+        "field43": {
+          "name": "thirdConductorName",
+          "nameIT": "nome terzo conduttore",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il nome completo del terzo conduttore (solo se presente)"
+        },
+        "field44": {
+          "name": "thirdConductorTaxCode",
+          "nameIT": "codice fiscale terzo conduttore",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del terzo conduttore (solo se presente)"
+        },
+        "field45": {
+          "name": "thirdConductorDocument",
+          "nameIT": "documento terzo conduttore",
+          "type": "file",
+          "required": false,
+          "options": null,
+          "help": "Allegare un documento del terzo conduttore (solo se presente)"
+        }
+      },
+      "validation": "(field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field8 && field9 && field10 && field11 && field12 && field13 && field14 && field15 && field16 && field17 && field18 && field19 && field20) && (field21 || field22) && ((field25 && field26 && field27 && field28 && field37 && field38 && field39) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field37 && field38 && field39) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field33 && field34 && field35 && field36 && field37 && field38 && field39) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field33 && field34 && field35 && field36 && field37 && field38 && field39 && field40 && field41 && field42) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field33 && field34 && field35 && field36 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45) || (field25 && field26 && field27 && field28 && field37 && field38 && field39 && field40 && field41 && field42) || (field25 && field26 && field27 && field28 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field37 && field38 && field39 && field40 && field41 && field42) || (field25 && field26 && field27 && field28 && field29 && field30 && field31 && field32 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45) || (field23 && field24 && field25 && field26 && field27 && field37 && field38 && field39) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field37 && field38 && field39) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field33 && field34 && field35 && field37 && field38 && field39) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field33 && field34 && field35 && field37 && field38 && field39 && field40 && field41 && field42) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field33 && field34 && field35 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45) || (field23 && field24 && field25 && field26 && field27 && field37 && field38 && field39 && field40 && field41 && field42) || (field23 && field24 && field25 && field26 && field27 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field37 && field38 && field39 && field40 && field41 && field42) || (field23 && field24 && field25 && field26 && field27 && field29 && field30 && field31 && field37 && field38 && field39 && field40 && field41 && field42 && field43 && field44 && field45))",
+      "help": "A seconda del regime fiscale scelto vanno inseriti dei campi oppure no. Con la cedolare secca per ogni locatore presente è obbligatorio inserire la sua percentuale di possesso, altrimenti può essere saltato. In regime ordinario invece sono obbligatori il codice Iban e il nome dell'intestatario del conto",
+      "searchHelp": null
+    },
+    "category": "Patronato",
+    "name": "Registrazione Contratti Affitto",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "67d837b02cbb7e30d3d93e69",
+    "providers": [
+      {
+        "companyName": "Servizi Informativi Srls",
+        "email": "a.venanzoni@openapi.com",
+        "secondaryEmail": null,
+        "phone": "0909420029",
+        "address": "Via dei Mille 2432FC - 98123 Messina",
+        "password": "524c39d58edefc304740925fbd47352869611058a616f4f25268179ad23978bb"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 12.9,
+    "totalPrice": 12.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "name",
+          "nameIT": "nome",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il nome del soggetto"
+        },
+        "field1": {
+          "name": "surname",
+          "nameIT": "cognome",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il cognome del soggetto"
+        },
+        "field2": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale del soggetto"
+        }
+      },
+      "validation": "field0 && field1 && field2",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Eventi Negativi Persona",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "680a53e1cc53f5932b285b81",
+    "searchPrice": 0,
+    "documentPrice": null,
+    "totalPrice": 0
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale o la partita iva dell'azienda"
+        },
+        "field1": {
+          "name": "shippingAddress",
+          "nameIT": "indirizzo spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire l'ndirizzo completo di spedizione (via, civico, comune, CAP). La spedizione e' inclusa nel prezzo"
+        },
+        "field2": {
+          "name": "phone",
+          "nameIT": "telefono",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire un contatto telefonico in caso di richiesta informazioni aggiuntive o per la consegna del Certificato"
+        },
+        "field3": {
+          "name": "shipmentRecipient",
+          "nameIT": "destinatario spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il destinatario della spedizione"
+        }
+      },
+      "validation": "(field0) || (field0 && field1 && field2 && field3)",
+      "help": "Se viene scelta stampa_filigranata/spedizione come opzione e' necessario compilare i campi per la spedizione",
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Certificato Di Iscrizione",
+    "options": [
+      {
+        "name": "urgenza",
+        "price": 6.7
+      },
+      {
+        "name": "stampa_filigranata/spedizione",
+        "price": 7.9
+      },
+      {
+        "name": "vigenza",
+        "price": 0
+      },
+      {
+        "name": "inglese",
+        "price": 3
+      }
+    ],
+    "hasSearch": false,
+    "isSync": false,
+    "id": "689c99942d09c0a9bcb946e8",
+    "providers": [
+      {
+        "companyName": "Openapi Spa",
+        "email": "pratiche0@patronato.com",
+        "secondaryEmail": null,
+        "phone": null,
+        "address": "Viale Filippo Tommaso Marinetti 221 - 00143 Rome"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 13.7,
+    "totalPrice": 13.7
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale o la partita iva dell'azienda"
+        },
+        "field1": {
+          "name": "shippingAddress",
+          "nameIT": "indirizzo spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire l'ndirizzo completo di spedizione (via, civico, comune, CAP). La spedizione e' inclusa nel prezzo"
+        },
+        "field2": {
+          "name": "phone",
+          "nameIT": "telefono",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire un contatto telefonico in caso di richiesta informazioni aggiuntive o per la consegna del Certificato"
+        },
+        "field3": {
+          "name": "shipmentRecipient",
+          "nameIT": "destinatario spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il destinatario della spedizione"
+        }
+      },
+      "validation": "(field0) || (field0 && field1 && field2 && field3)",
+      "help": "Se viene scelta stampa_filigranata/spedizione come opzione e' necessario compilare i campi per la spedizione",
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Certificato Artigiano",
+    "options": [
+      {
+        "name": "urgenza",
+        "price": 6.7
+      },
+      {
+        "name": "stampa_filigranata/spedizione",
+        "price": 7.9
+      },
+      {
+        "name": "vigenza",
+        "price": 0
+      }
+    ],
+    "hasSearch": false,
+    "isSync": false,
+    "id": "689cb8852d09c0a9bcb946f3",
+    "providers": [
+      {
+        "companyName": "Openapi Spa",
+        "email": "pratiche0@patronato.com",
+        "secondaryEmail": null,
+        "phone": null,
+        "address": "Viale Filippo Tommaso Marinetti 221 - 00143 Rome"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 13.7,
+    "totalPrice": 13.7
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale o la partita iva dell'azienda"
+        },
+        "field1": {
+          "name": "shippingAddress",
+          "nameIT": "indirizzo spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire l'ndirizzo completo di spedizione (via, civico, comune, CAP). La spedizione e' inclusa nel prezzo"
+        },
+        "field2": {
+          "name": "phone",
+          "nameIT": "telefono",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire un contatto telefonico in caso di richiesta informazioni aggiuntive o per la consegna del Certificato"
+        },
+        "field3": {
+          "name": "shipmentRecipient",
+          "nameIT": "destinatario spedizione",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire il destinatario della spedizione"
+        }
+      },
+      "validation": "(field0) || (field0 && field1 && field2 && field3)",
+      "help": "Se viene scelta stampa_filigranata/spedizione come opzione e' necessario compilare i campi per la spedizione",
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Certificato Storico",
+    "options": [
+      {
+        "name": "urgenza",
+        "price": 6.7
+      },
+      {
+        "name": "stampa_filigranata/spedizione",
+        "price": 7.9
+      },
+      {
+        "name": "vigenza",
+        "price": 0
+      }
+    ],
+    "hasSearch": false,
+    "isSync": false,
+    "id": "689cb8972d09c0a9bcb946f5",
+    "providers": [
+      {
+        "companyName": "Openapi Spa",
+        "email": "pratiche0@patronato.com",
+        "secondaryEmail": null,
+        "phone": null,
+        "address": "Viale Filippo Tommaso Marinetti 221 - 00143 Rome"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 16.7,
+    "totalPrice": 16.7
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "ownerType",
+          "nameIT": "tipologia proprietario",
+          "type": "optionCode",
+          "required": true,
+          "options": [
+            {
+              "code": "P",
+              "description": "Privato"
+            },
+            {
+              "code": "A",
+              "description": "Azienda"
+            }
+          ],
+          "help": "Seleziona se l'immobile e' intestato ad un privato o ad una azienda"
+        },
+        "field1": {
+          "name": "ownerName",
+          "nameIT": "nome proprietario",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire nome e cognome o ragione sociale (in caso di azienda) del proprietario dell'immobile"
+        },
+        "field2": {
+          "name": "ownerTaxCode",
+          "nameIT": "codice fiscale proprietario",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale o la partita iva (in caso di azienda) del proprietario dell'immobile"
+        },
+        "field3": {
+          "name": "province",
+          "nameIT": "provincia immobile",
+          "type": "cadastralProvince",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia dove e' presente l'immobile"
+        },
+        "field4": {
+          "name": "municipality",
+          "nameIT": "comune immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune dove e' presente l'immobile"
+        },
+        "field5": {
+          "name": "cadastralSheet",
+          "nameIT": "foglio catastale",
+          "type": "cadastralSheet",
+          "required": true,
+          "options": null,
+          "help": "Inserire il foglio catastale dell'immobile"
+        },
+        "field6": {
+          "name": "cadastralParcel",
+          "nameIT": "particella catastale",
+          "type": "cadastralParcel",
+          "required": true,
+          "options": null,
+          "help": "Inserire la particella catastale dell'immobile"
+        },
+        "field7": {
+          "name": "cadastralSub",
+          "nameIT": "subalterno catastale",
+          "type": "cadastralSub",
+          "required": false,
+          "options": null,
+          "help": "Inserire il subalterno catastale dell'immobile"
+        },
+        "field8": {
+          "name": "legalRepresentativeName",
+          "nameIT": "nome rappresentante legale",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire nome e cognome del rappresentante legale dell'impresa (obbligatorio in caso di immobile intestato ad azienda)"
+        },
+        "field9": {
+          "name": "legalRepresentativeTaxCode",
+          "nameIT": "codice fiscale rappresentante legale",
+          "type": "taxCode",
+          "required": false,
+          "options": null,
+          "help": "Inserire il codice fiscale del rappresentante legale dell'impresa (obbligatorio in caso di immobile intestato ad azienda)"
+        },
+        "field10": {
+          "name": "documentType",
+          "nameIT": "tipologia documento",
+          "type": "optionCode",
+          "required": true,
+          "options": [
+            {
+              "code": "CI",
+              "description": "Carta d'identita'"
+            },
+            {
+              "code": "PS",
+              "description": "Passaporto"
+            },
+            {
+              "code": "PA",
+              "description": "Patente"
+            }
+          ],
+          "help": "Selezionare la tipologia del documento del proprietario o del rappresentante legale (in caso di azienda)"
+        },
+        "field11": {
+          "name": "documentNumber",
+          "nameIT": "numero documento",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il numero identificativo del documento del proprietario o del rappresentante legale (in caso di azienda)"
+        },
+        "field12": {
+          "name": "document",
+          "nameIT": "documento",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "Caricare una copia fronte retro del documento del proprietario o del rappresentante legale (in caso di azienda)"
+        },
+        "field13": {
+          "name": "delegationFile",
+          "nameIT": "delega",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "help": "https://docs.openapi.it/docuengine/delega_catasto.pdf"
+        }
+      },
+      "validation": "(field0 && field1 && field2 && field3 && field4 && field5 && field6 && field10 && field11 && field12 && field13) || (field0 && field1 && field2 && field3 && field4 && field5 && field6 && field7 && field10 && field11 && field12 && field13)  || (field0 && field1 && field2 && field3 && field4 && field5 && field6 && field8 && field9 && field10 && field11 && field12 && field13) || (field0 && field1 && field2 && field3 && field4 && field5 && field6 &&field7 && field8 && field9 && field10 && field11 && field12 && field13)",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Catastali",
+    "name": "Planimetria Catastale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "68ac694e7a0be68c265a749e",
+    "providers": [
+      {
+        "companyName": "Albert srl",
+        "email": "alberto.venanz@gmail.com",
+        "secondaryEmail": "a.venanzoni@openapi.com",
+        "phone": null,
+        "address": null,
+        "password": "1a6decdc76cea4b5484726e6f3cac8d1a51ea15cf65b280a77c8b00db4a78d90",
+        "delegation": null,
+        "card": true
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 6.9,
+    "totalPrice": 6.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "province",
+          "nameIT": "provincia immobile",
+          "type": "cadastralProvince",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia dove e' presente l'immobile"
+        },
+        "field1": {
+          "name": "municipality",
+          "nameIT": "comune immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune dove e' presente l'immobile"
+        },
+        "field2": {
+          "name": "section",
+          "nameIT": "sezione amministrativa",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire la sezione amministrativa"
+        },
+        "field3": {
+          "name": "cadastralSheet",
+          "nameIT": "foglio catastale",
+          "type": "cadastralSheet",
+          "required": true,
+          "options": null,
+          "help": "Inserire il foglio catastale dell'immobile"
+        },
+        "field4": {
+          "name": "cadastralParcel",
+          "nameIT": "particella catastale",
+          "type": "cadastralParcel",
+          "required": true,
+          "options": null,
+          "help": "Inserire la particella catastale dell'immobile"
+        },
+        "field5": {
+          "name": "entireSheet",
+          "nameIT": "intero foglio",
+          "type": "optionCode",
+          "required": false,
+          "options": [
+            {
+              "code": "S",
+              "description": "Si"
+            },
+            {
+              "code": "N",
+              "description": "No"
+            }
+          ],
+          "help": "Selezionare se si desidera estrapolare l'intero foglio catastale"
+        },
+        "field6": {
+          "name": "size",
+          "nameIT": "formato",
+          "type": "optionCode",
+          "required": false,
+          "options": [
+            {
+              "code": "A3",
+              "description": "Formato A3"
+            },
+            {
+              "code": "A4",
+              "description": "Formato A4"
+            }
+          ],
+          "help": "Selezionare come si desidera il formato"
+        }
+      },
+      "validation": "(field0 && field1 && field2 && field3 && field4 && field5 && field6) || (field0 && field1 && field3 && field4 && field5 && field6) || (field0 && field1 && field2 && field3 && field4 && field6) || (field0 && field1 && field2 && field3 && field4 && field5) || (field0 && field1 && field2 && field3 && field4) || (field0 && field1 && field3 && field4 && field5) || (field0 && field1 && field3 && field4 && field6) || (field0 && field1 && field3 && field4)",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Catastali",
+    "name": "Estratto Mappa Catastale",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "68adc5807a0be68c265a74a7",
+    "providers": [
+      {
+        "companyName": "Openapi Spa",
+        "email": "pratiche0@patronato.com",
+        "secondaryEmail": null,
+        "phone": null,
+        "address": "Viale Filippo Tommaso Marinetti 221 - 00143 Rome"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 9.3,
+    "totalPrice": 9.3
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "province",
+          "nameIT": "provincia immobile",
+          "type": "cadastralProvince",
+          "required": true,
+          "options": null,
+          "help": "Inserire la provincia dove e' presente l'immobile"
+        },
+        "field1": {
+          "name": "municipality",
+          "nameIT": "comune immobile",
+          "type": "string",
+          "required": true,
+          "options": null,
+          "help": "Inserire il comune dove e' presente l'immobile"
+        },
+        "field2": {
+          "name": "section",
+          "nameIT": "sezione amministrativa",
+          "type": "string",
+          "required": false,
+          "options": null,
+          "help": "Inserire la sezione amministrativa"
+        },
+        "field3": {
+          "name": "cadastralSheet",
+          "nameIT": "foglio catastale",
+          "type": "cadastralSheet",
+          "required": true,
+          "options": null,
+          "help": "Inserire il foglio catastale dell'immobile"
+        },
+        "field4": {
+          "name": "cadastralParcel",
+          "nameIT": "particella catastale",
+          "type": "cadastralParcel",
+          "required": true,
+          "options": null,
+          "help": "Inserire la particella catastale dell'immobile"
+        },
+        "field5": {
+          "name": "cadastralSub",
+          "nameIT": "subalterno catastale",
+          "type": "cadastralSub",
+          "required": false,
+          "options": null,
+          "help": "Inserire il subalterno catastale dell'immobile"
+        }
+      },
+      "validation": "(field0 && field1 && field2 && field3 && field4 && field5) || (field0 && field1 && field3 && field4) || (field0 && field1 && field2 && field3 && field4) || (field0 && field1 && field3 && field4 && field5)",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Catastali",
+    "name": "Elaborato Planimetrico",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "68adc58f7a0be68c265a74a9",
+    "providers": [
+      {
+        "companyName": "Openapi Spa",
+        "email": "pratiche0@patronato.com",
+        "secondaryEmail": null,
+        "phone": null,
+        "address": "Viale Filippo Tommaso Marinetti 221 - 00143 Rome"
+      }
+    ],
+    "searchPrice": 0,
+    "documentPrice": 8.9,
+    "totalPrice": 8.9
+  },
+  {
+    "requestStructure": {
+      "fields": {
+        "field0": {
+          "name": "taxCode",
+          "nameIT": "codice fiscale",
+          "type": "taxCode",
+          "required": true,
+          "options": null,
+          "help": "Inserire il codice fiscale dell'azienda"
+        }
+      },
+      "validation": "field0",
+      "help": null,
+      "searchHelp": null
+    },
+    "category": "Camerali",
+    "name": "Soci Attivi Azienda",
+    "options": null,
+    "hasSearch": false,
+    "isSync": false,
+    "id": "6932c9602a2ea4883e6ebba9",
+    "searchPrice": 0,
+    "documentPrice": 2.3,
+    "totalPrice": 2.3
+  }
+]
