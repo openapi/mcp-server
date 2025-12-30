@@ -182,11 +182,7 @@ async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}/documents"
     return make_api_call(ctx, "GET", url)
 
-@mcp.tool()
-async def select_docuengine_option(request_id: str, selected_option: Dict[str, Any], ctx: Context) -> Any:
-    """Completes a DocuEngine request that requires a search step."""
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
-    return make_api_call(ctx, "PATCH", url, selected_option)
+
 
 def init_dynamic_tools(token: Optional[str] = None) -> bool:
     """Dynamically registers a specialized MCP tool for each DocuEngine service."""
@@ -258,20 +254,32 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
 
     def create_patch_tool_fn(s_id, s_name, p_name, t_name):
         """Creates a specialized PATCH tool for finalizing a request step."""
+        # Define common selection parameters that are typically returned in search results
         params = [
             Parameter("request_id", Parameter.KEYWORD_ONLY, annotation=str),
-            Parameter("selected_option", Parameter.KEYWORD_ONLY, annotation=dict),
+            Parameter("id", Parameter.KEYWORD_ONLY, annotation=str),
+            Parameter("year", Parameter.KEYWORD_ONLY, default=None, annotation=Optional[str]),
             Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context)
         ]
         
-        async def specialized_patch_tool(request_id: str, selected_option: dict, ctx: Context):
+        async def specialized_patch_tool(request_id: str, id: str, year: Optional[str] = None, ctx: Context = None):
+            # Build the selection payload from provided parameters
+            selected_option = {"id": id}
+            if year is not None:
+                selected_option["year"] = year
+            
             url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
             return make_api_call(ctx, "PATCH", url, selected_option)
             
         specialized_patch_tool.__name__ = t_name
         specialized_patch_tool.__signature__ = Signature(params)
-        specialized_patch_tool.__annotations__ = {"request_id": str, "selected_option": dict, "ctx": Context}
-        specialized_patch_tool.__doc__ = f"Finalize selection for DocuEngine service: {s_name}. Use this AFTER calling '{p_name}' if it returned a list of options."
+        specialized_patch_tool.__annotations__ = {"request_id": str, "id": str, "year": Optional[str], "ctx": Context}
+        specialized_patch_tool.__doc__ = f"""Finalize selection for DocuEngine service: {s_name}.
+        
+Use this AFTER calling '{p_name}' when it returns a list of options.
+Provide the 'id' from your chosen option, and 'year' if applicable (e.g., for balance sheets).
+        
+Example: If the search returned options with 'id' and 'year' fields, pass those values here."""
         return specialized_patch_tool
 
     try:
@@ -288,11 +296,40 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
                 
                 request_structure = service.get("requestStructure", {})
                 fields = request_structure.get("fields", {})
-                param_desc = service.get("description", "") or f"Request {service_name}"
+                category = service.get("category", "General")
+                search_price = service.get("searchPrice", 0)
+                doc_price = service.get("documentPrice", 0)
+                total_price = service.get("totalPrice", 0)
+                is_sync = service.get("isSync", False)
                 
+                # Build enhanced description
+                param_desc = f"[{category}] {service_name}"
+                
+                # Add base description if available
+                base_desc = service.get("description", "")
+                if base_desc:
+                    param_desc += f"\n{base_desc}"
+                
+                # Add pricing info
+                if total_price > 0:
+                    param_desc += f"\n💰 Price: €{total_price:.2f}"
+                    if search_price > 0:
+                        param_desc += f" (search: €{search_price:.2f}, document: €{doc_price:.2f})"
+                
+                # Add sync/async info
+                if is_sync:
+                    param_desc += "\n⚡ Synchronous service (instant response)"
+                
+                # List required parameters
+                required_params = [field_info.get("name") for field_key, field_info in fields.items() 
+                                 if field_info.get("required", False) and field_info.get("name")]
+                if required_params:
+                    param_desc += f"\n📋 Required: {', '.join(required_params)}"
+                
+                # Add search step note
                 has_search = service.get("hasSearch", False)
                 if has_search:
-                    param_desc += "\nNOTE: This service requires a search step. Call this tool first, then use the corresponding patch_ tool to finalize."
+                    param_desc += f"\n🔍 Two-step process: This returns search results. Use 'patch_{tool_name}' to select and finalize."
                 
                 # 1. Register primary tool
                 tool_fn = create_tool_fn(service_id, service_name, param_desc, fields, tool_name)
