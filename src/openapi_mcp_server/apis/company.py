@@ -269,3 +269,133 @@ async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
     url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-legalforms/"
     api_call =  make_api_call(ctx, "GET", url)
     return api_call
+
+# ============================================================================
+# WORLDWIDE / EUROPEAN COUNTRIES ENDPOINTS (GENERIC)
+# ============================================================================
+
+@mcp.tool(
+    annotations={
+        "title": "European/Worldwide basic company data",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) -> Any:
+    """Returns basic company information for a company in the specified country.
+    Returns: companyName, vatCode, address, activityStatus, and other basic details.
+    
+    Args:
+        vatCode: VAT code or company registration number (e.g., DE123456789, FR12345678901234)
+        country_code: Two-letter country code (e.g., DE, ES, PT, GB, BE, AT, CH, PL, FR)
+    """
+    country_code = country_code.upper()
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/{country_code}-start/{vatCode}"
+    return make_api_call(ctx, "GET", url)
+
+@mcp.tool(
+    annotations={
+        "title": "European/Worldwide advanced company data",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_EU_advanced(vatCode: str, country_code: str, ctx: Context) -> Any:
+    """Returns advanced company information for a company in the specified country.
+    Returns: Detailed company data including financial highlights or extended registry info where available.
+    
+    Args:
+        vatCode: VAT code or company registration number
+        country_code: Two-letter country code (e.g., FR, DE, ES, etc.)
+    """
+    country_code = country_code.upper()
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/{country_code}-advanced/{vatCode}"
+    return make_api_call(ctx, "GET", url)
+
+# ============================================================================
+# WORLDWIDE SPECIFIC ENDPOINTS
+# ============================================================================
+
+@mcp.tool(
+    annotations={
+        "title": "Worldwide basic company data",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_WW_start(vatCode: str, country_code: str, ctx: Context) -> Any:
+    """Returns basic company information for a company worldwide.
+    Args:
+        vatCode: VAT code or company registration number
+        country_code: Two-letter country code of the country
+    """
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-start/{country_code}/{vatCode}"
+    return make_api_call(ctx, "GET", url)
+
+@mcp.tool(
+    annotations={
+        "title": "Worldwide advanced company data",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_WW_advanced(vatCode: str, country_code: str, ctx: Context) -> Any:
+    """Returns advanced company information for a company worldwide.
+    Args:
+        vatCode: VAT code or company registration number
+        country_code: Two-letter country code of the country
+    """
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-advanced/{country_code}/{vatCode}"
+    return make_api_call(ctx, "GET", url)
+
+# ============================================================================
+# FRANCE SPECIFIC ENDPOINTS
+# ============================================================================
+
+@mcp.tool(
+    annotations={
+        "title": "Search French companies by advanced criteria",
+        "readOnlyHint": True,
+        "openWorldHint": False,
+        "idempotentHint": True
+    }
+)
+async def get_company_FR_search(
+    ctx: Context,
+    companyName: Union[str, None] = None,
+    provinceCode: Union[str, None] = None,
+    skip: Union[int, None, str] = None,
+    limit: Union[int, None, str] = None,
+    dataEnrichment: str = "name",
+    dryRun: Union[int, None, str] = None,
+    nafCode: Union[str, None] = None,
+    activityStatus: Union[str, None] = None
+) -> Any:
+    """Returns a list of French companies based on the search criteria.
+    Args:
+        companyName: The name or part of it of a French company (optional).
+        provinceCode: The department code or region to restrict search (optional).
+        skip: The number of records to skip for pagination (optional).
+        limit: The maximum number of results to return (optional, default 10).
+        dataEnrichment: Enrichment options: start, advanced, name (default is name).
+        dryRun: Set to 1 to only get count and cost (optional).
+        nafCode: NAF Activity Code for the company (optional).
+        activityStatus: Status of the company (optional).
+    """
+    url = f"https://{SANDBOX_PREFIX}company.openapi.com/FR-search?limit={limit if limit else 10}"
+    
+    if companyName: url += f"&companyName={companyName}"
+    if provinceCode: url += f"&province={provinceCode}"
+    if skip: url += f"&skip={skip}"
+    if dataEnrichment: url += f"&dataEnrichment={dataEnrichment}"
+    if dryRun: url += f"&dryRun={dryRun}"
+    if nafCode: url += f"&nafCode={nafCode}"
+    if activityStatus: url += f"&activityStatus={activityStatus}"
+
+    return make_api_call(ctx, "GET", url)
+
+
