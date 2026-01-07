@@ -288,6 +288,12 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
             try:
                 service_id = service.get("id")
                 service_name = service.get("name")
+                category = service.get("category", "")
+                
+                # Skip services that are not in the "camerali" category
+                if category.lower() != "camerali":
+                    continue
+                
                 if not service_id or not service_name: continue
                 
                 sanitized = sanitize_name(service_name)
@@ -296,7 +302,6 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                 
                 request_structure = service.get("requestStructure", {})
                 fields = request_structure.get("fields", {})
-                category = service.get("category", "General")
                 search_price = service.get("searchPrice", 0)
                 doc_price = service.get("documentPrice", 0)
                 total_price = service.get("totalPrice", 0)
