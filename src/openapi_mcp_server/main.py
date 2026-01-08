@@ -5,6 +5,10 @@ from fastapi import FastAPI, Request, HTTPException, Response
 from .memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+
+# Tenta l'inizializzazione dei tool dinamici (se è presente un token in ambiente)
+docuengine.init_dynamic_tools()
+
 import asyncio
 from google.cloud import storage
 from starlette.datastructures import MutableHeaders
@@ -42,6 +46,9 @@ def complete_initialization():
 # Chiamare questa funzione al termine dell'inizializzazione del server
 complete_initialization()
 
+# Lock per evitare registrazioni multiple simultanee
+registration_lock = asyncio.Lock()
+
 # Middleware per intercettare il token nella querystring e inserirlo nell'header Authorization
 @app.middleware("http")
 async def token_querystring_to_authorization(request: Request, call_next):
@@ -56,6 +63,23 @@ async def token_querystring_to_authorization(request: Request, call_next):
         # Aggiungi il nuovo header Authorization
         headers.append((b"authorization", f"Bearer {token}".encode()))
         request.scope["headers"] = headers
+    else:
+        # Se non c'è in querystring, prova a prenderlo dagli header per la registrazione JIT
+        auth = request.headers.get("Authorization")
+        if auth and auth.lower().startswith("bearer "):
+            token = auth[7:]
+
+    # JIT Registration: Se abbiamo un token e i tool non sono registrati, procedi
+    if token and not getattr(app.state, "dynamic_tools_registered", False):
+        async with registration_lock:
+            if not getattr(app.state, "dynamic_tools_registered", False):
+                print(f"JIT Registration: initializing dynamic tools with detected token (starts with: {token[:8]}...)")
+                success = docuengine.init_dynamic_tools(token)
+                if success:
+                    app.state.dynamic_tools_registered = True
+                else:
+                    print("JIT Registration failed. Will retry on next request if token is provided.")
+
     response = await call_next(request)
     return response
 
@@ -70,7 +94,8 @@ async def callbacks_endpoint(request: Request):
         print("Body not a valid JSON")
         return {"status": "error", "message": "Body not a valid JSON"}
     
-    custom = callback.get("custom") or callback.get("callback").get("data")
+    cb_obj = callback.get("callback")
+    custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
         print("'callback.custom' mancante nei dati ricevuti")
         return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
