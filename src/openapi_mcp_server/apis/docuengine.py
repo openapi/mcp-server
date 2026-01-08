@@ -1,5 +1,6 @@
 print("docuengine.py Imported")
 from fastmcp import Context
+import os
 from typing import Any, Dict, List, Optional
 from src.openapi_mcp_server.mcp_core import make_api_call, mcp, processPolling, getSessionHash
 from src.openapi_mcp_server.memory_store import SANDBOX_PREFIX, set_callback_result, callbackUrl
@@ -26,53 +27,119 @@ class DocuEngineHelper:
                 mapped_search[name] = value
                 
         return mapped_search
+    
+    @staticmethod
+    def validate_params(service_data: Dict[str, Any], input_params: Dict[str, Any]) -> tuple[bool, Optional[str]]:
+        """
+        Validates input parameters against service requestStructure.
+        Returns (is_valid, error_message).
+        """
+        import re
+        from datetime import datetime
+        
+        request_structure = service_data.get("requestStructure", {})
+        fields = request_structure.get("fields", {})
+        validation_rule = request_structure.get("validation")
+        
+        # Build name to field mapping
+        name_to_field = {}
+        for field_key, field_info in fields.items():
+            name = field_info.get("name")
+            if name:
+                name_to_field[name] = (field_key, field_info)
+        
+        # 1. Validate individual field types and options
+        for param_name, param_value in input_params.items():
+            if param_name not in name_to_field:
+                continue  # Allow extra params (they'll be ignored in mapping)
+            
+            field_key, field_info = name_to_field[param_name]
+            field_type = field_info.get("type", "string")
+            
+            # Type validation
+            if field_type == "taxCode" and param_value:
+                if not isinstance(param_value, str) or not re.match(r'^[A-Z0-9]{11,16}$', param_value.upper()):
+                    return False, f"Field '{param_name}' must be a valid tax code (11-16 alphanumeric characters)"
+            
+            elif field_type == "email" and param_value:
+                if not isinstance(param_value, str) or '@' not in param_value:
+                    return False, f"Field '{param_name}' must be a valid email address"
+            
+            elif field_type == "date" and param_value:
+                if isinstance(param_value, str):
+                    try:
+                        datetime.fromisoformat(param_value.replace('Z', '+00:00'))
+                    except:
+                        return False, f"Field '{param_name}' must be a valid date (ISO format: YYYY-MM-DD)"
+            
+            elif field_type == "integer" and param_value is not None:
+                try:
+                    int(param_value)
+                except:
+                    return False, f"Field '{param_name}' must be an integer"
+            
+            elif field_type == "float" and param_value is not None:
+                try:
+                    float(param_value)
+                except:
+                    return False, f"Field '{param_name}' must be a number"
+            
+            # Options validation
+            options = field_info.get("options")
+            if options and isinstance(options, list) and param_value:
+                valid_codes = [o.get("code") for o in options if isinstance(o, dict) and o.get("code")]
+                if param_value not in valid_codes:
+                    return False, f"Field '{param_name}' must be one of: {', '.join(valid_codes)}"
+        
+        # 2. Validate required fields and validation logic
+        if validation_rule:
+            field_presence = {}
+            for field_key, field_info in fields.items():
+                param_name = field_info.get("name")
+                field_presence[field_key] = param_name in input_params and input_params[param_name] not in [None, "", []]
+            
+            try:
+                eval_rule = validation_rule
+                for field_key, is_present in field_presence.items():
+                    eval_rule = eval_rule.replace(field_key, str(is_present))
+                
+                if not eval(eval_rule):
+                    return False, f"Validation failed: {validation_rule}. Please check required field combinations."
+            except Exception:
+                pass
+        
+        return True, None
 
 @mcp.tool()
 async def get_docuengine_services(ctx: Context) -> Any:
     """
     Returns the list of all available DocuEngine services with their required parameters.
-    Includes categories like:
-    - Camerali (Visure ordinarie/storiche, Bilanci Ottici/XBRL, Atti Ottici, Statuto, Certificati di Iscrizione/Storico)
-    - Catastali (Planimetria Catastale, Estratto Mappa, Elaborato Planimetrico)
-    - Patronato (Certificato di Matrimonio, Registrazione Contratti Affitto)
-    
-    Use this to discover the document_id and logical parameter names (e.g., 'reaCode', 'cciaa', 'taxCode').
     """
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
     return make_api_call(ctx, "GET", url)
 
-@mcp.tool()
-async def post_docuengine_request(document_id: str, parameters: Dict[str, Any], ctx: Context) -> Any:
+async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any], ctx: Context) -> Any:
     """
-    Generic tool to request any DocuEngine service (Visure, Bilanci, Planimetrie, etc.).
-    
-    Common examples:
-    - Visura Camerale Ordinaria (Società di Capitale): document_id="663df75d19a52195e23e315c", parameters={"reaCode": "123", "cciaa": "RM"}
-    - Bilancio XBRL: document_id="667c131a9e6f0e447bc265c1", parameters={"taxCode": "..."}
-    - Planimetria Catastale: document_id="68ac694e7a0be68c265a749e", parameters={"province": "RM", "municipality": "Roma", "cadastralSheet": "1", "cadastralParcel": "100", "ownerTaxCode": "...", "ownerName": "..."}
-    - Certificato Di Matrimonio: document_id="67cf18292cbb7e30d3d93e17"
-    
-    Args:
-        document_id: The ID of the document service to request (obtain from get_docuengine_services).
-        parameters: A dictionary of logical parameters for the service (mapped internally to field0, field1, etc.).
+    Internal helper to request any DocuEngine service. 
     """
     print(f"Running Tool: post_docuengine_request id={document_id}, params={parameters}")
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     request_id = getSessionHash(ctx)
     
-    # 1. chiamo il server per la lista dei servizi
     services_response = make_api_call(ctx, "GET", f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents")
     
     if isinstance(services_response, dict) and "error" in services_response:
         return services_response
-    # estraggo la lista dei servizi
     services_list = services_response if isinstance(services_response, list) else []
-    # cerco il servizio con l'id passato
     service_data = next((s for s in services_list if s.get("id") == document_id), None)
     
     if not service_data:
         return {"error": "Invalid document_id", "message": f"Service with ID {document_id} not found."}
-    # mappo i parametri passati in quelli richiesti dal servizio    
+    
+    is_valid, error_message = DocuEngineHelper.validate_params(service_data, parameters)
+    if not is_valid:
+        return {"error": "Validation Error", "message": error_message}
+    
     search_payload = DocuEngineHelper.map_params(service_data, parameters)
   
     custom_context = {
@@ -97,8 +164,6 @@ async def post_docuengine_request(document_id: str, parameters: Dict[str, Any], 
     }
     
     response = make_api_call(ctx, "POST", url, json_payload)
-    
-    # se lo stato è WAIT allora devo fare polling
     if response.get("state") == "WAIT":
         set_callback_result(request_id, response, custom_context)
         response = await processPolling(ctx, request_id, ["DONE", "CANCELLED"], "state")
@@ -116,3 +181,178 @@ async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
     """Returns the download links for the documents produced by a request."""
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}/documents"
     return make_api_call(ctx, "GET", url)
+
+
+
+def init_dynamic_tools(token: Optional[str] = None) -> bool:
+    """Dynamically registers a specialized MCP tool for each DocuEngine service."""
+    import requests
+    import re
+    import keyword
+    from inspect import Parameter, Signature
+    
+    print("Initializing dynamic DocuEngine tools...")
+    
+    token = (token or os.getenv("OPENAPI_TOKEN", "")).strip()
+    if not token:
+        print("Skipping dynamic registration: No token provided.")
+        return False
+
+    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
+    
+    headers = {"Authorization": f"Bearer {token}"}
+    services = []
+    
+    try:
+        print(f"Fetching services from: {url}")
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            response_data = response.json()
+            services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
+            if services and isinstance(services, list):
+                print(f"Successfully fetched {len(services)} services from {url}")
+        else:
+            print(f"Failed to fetch from {url}: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Error fetching from {url}: {e}")
+
+    if not services or not isinstance(services, list):
+        print("No services found to register.")
+        return False
+
+    def sanitize_name(name):
+        return re.sub(r'[^a-z0-9_]', '_', name.lower())
+
+    def create_tool_fn(s_id, s_name, s_desc, s_fields, t_name):
+        params = []
+        for field_key, field_info in s_fields.items():
+            param_name = field_info.get("name")
+            if not param_name or keyword.iskeyword(param_name):
+                continue
+            
+            field_type = field_info.get("type", "string")
+            type_map = {"string": str, "taxCode": str, "email": str, "date": str, "integer": int, "float": float}
+            param_type = type_map.get(field_type, str)
+            
+            is_required = field_info.get("required", False)
+            default = Parameter.empty if is_required else None
+            
+            params.append(Parameter(param_name, Parameter.KEYWORD_ONLY, default=default, annotation=param_type if is_required else Optional[param_type]))
+        
+        params.append(Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context))
+        
+        async def specialized_tool(**kwargs):
+            ctx = kwargs.pop("ctx")
+            parameters = {k: v for k, v in kwargs.items() if v is not None}
+            return await _post_docuengine_request(s_id, parameters, ctx)
+        
+        specialized_tool.__name__ = t_name
+        specialized_tool.__signature__ = Signature(params)
+        specialized_tool.__annotations__ = {p.name: p.annotation for p in params}
+        specialized_tool.__doc__ = f"Direct tool for DocuEngine service: {s_name} (ID: {s_id}). {s_desc}"
+        return specialized_tool
+
+    def create_patch_tool_fn(s_id, s_name, p_name, t_name):
+        """Creates a specialized PATCH tool for finalizing a request step."""
+        # Define common selection parameters that are typically returned in search results
+        params = [
+            Parameter("request_id", Parameter.KEYWORD_ONLY, annotation=str),
+            Parameter("id", Parameter.KEYWORD_ONLY, annotation=str),
+            Parameter("year", Parameter.KEYWORD_ONLY, default=None, annotation=Optional[str]),
+            Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context)
+        ]
+        
+        async def specialized_patch_tool(request_id: str, id: str, year: Optional[str] = None, ctx: Context = None):
+            # Build the selection payload from provided parameters
+            selected_option = {"id": id}
+            if year is not None:
+                selected_option["year"] = year
+            
+            url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
+            return make_api_call(ctx, "PATCH", url, selected_option)
+            
+        specialized_patch_tool.__name__ = t_name
+        specialized_patch_tool.__signature__ = Signature(params)
+        specialized_patch_tool.__annotations__ = {"request_id": str, "id": str, "year": Optional[str], "ctx": Context}
+        specialized_patch_tool.__doc__ = f"""Finalize selection for DocuEngine service: {s_name}.
+        
+Use this AFTER calling '{p_name}' when it returns a list of options.
+Provide the 'id' from your chosen option, and 'year' if applicable (e.g., for balance sheets).
+        
+Example: If the search returned options with 'id' and 'year' fields, pass those values here."""
+        return specialized_patch_tool
+
+    try:
+        registered_count = 0
+        for service in services:
+            try:
+                service_id = service.get("id")
+                service_name = service.get("name")
+                category = service.get("category", "")
+                
+                # Skip services that are not in the "camerali" category
+                if category.lower() != "camerali":
+                    continue
+                
+                if not service_id or not service_name: continue
+                
+                sanitized = sanitize_name(service_name)
+                tool_name = f"docuengine_{sanitized}"
+                tool_name = re.sub(r'_+', '_', tool_name).strip('_')
+                
+                request_structure = service.get("requestStructure", {})
+                fields = request_structure.get("fields", {})
+                search_price = service.get("searchPrice", 0)
+                doc_price = service.get("documentPrice", 0)
+                total_price = service.get("totalPrice", 0)
+                is_sync = service.get("isSync", False)
+                
+                # Build enhanced description
+                param_desc = f"[{category}] {service_name}"
+                
+                # Add base description if available
+                base_desc = service.get("description", "")
+                if base_desc:
+                    param_desc += f"\n{base_desc}"
+                
+                # Add pricing info
+                if total_price > 0:
+                    param_desc += f"\n💰 Price: €{total_price:.2f}"
+                    if search_price > 0:
+                        param_desc += f" (search: €{search_price:.2f}, document: €{doc_price:.2f})"
+                
+                # Add sync/async info
+                if is_sync:
+                    param_desc += "\n⚡ Synchronous service (instant response)"
+                
+                # List required parameters
+                required_params = [field_info.get("name") for field_key, field_info in fields.items() 
+                                 if field_info.get("required", False) and field_info.get("name")]
+                if required_params:
+                    param_desc += f"\n📋 Required: {', '.join(required_params)}"
+                
+                # Add search step note
+                has_search = service.get("hasSearch", False)
+                if has_search:
+                    param_desc += f"\n🔍 Two-step process: This returns search results. Use 'patch_{tool_name}' to select and finalize."
+                
+                # 1. Register primary tool
+                tool_fn = create_tool_fn(service_id, service_name, param_desc, fields, tool_name)
+                mcp.tool(name=tool_name)(tool_fn)
+                registered_count += 1
+                
+                # 2. If hasSearch, register selection tool with patch_ prefix
+                if has_search:
+                    patch_tool_name = f"patch_{tool_name}"
+                    patch_fn = create_patch_tool_fn(service_id, service_name, tool_name, patch_tool_name)
+                    mcp.tool(name=patch_tool_name)(patch_fn)
+                    registered_count += 1
+                    
+            except Exception as e:
+                print(f"Failed to register tool for service '{service.get('name')}': {e}")
+        
+        print(f"Successfully registered {registered_count} dynamic DocuEngine tools (including specialized selection tools).")
+        return registered_count > 0
+    except Exception as e:
+        print(f"Error during tool registration loop: {e}")
+        return False
