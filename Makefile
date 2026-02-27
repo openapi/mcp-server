@@ -43,7 +43,7 @@ PORT := 8080
 ## Targets
 ## =======
 
-.PHONY: start check-env test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox
+.PHONY: start check-env test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox try-claude try-claude-sandbox
 
 ## Check that python3 and uv are available, with OS-specific install hints
 check-env:
@@ -83,3 +83,11 @@ test-codex: check-env .install.stamp
 ## Run integration tests via OpenAI Codex CLI - sandbox (requires: OPENAI_API_KEY, OPENAPI_SANDBOX_TOKEN)
 test-codex-sandbox: check-env .install.stamp
 	@SANDBOX=1 bash tests/integration/run-vs-codex.sh
+
+## Start local MCP server and open Claude interactively - production (requires: export OPENAPI_TOKEN=your_token)
+try-claude: check-env .install.stamp
+	@bash scripts/try-claude.sh
+
+## Start local MCP server and open Claude interactively - sandbox (requires: export OPENAPI_SANDBOX_TOKEN=your_token)
+try-claude-sandbox: check-env .install.stamp
+	@SANDBOX=1 bash scripts/try-claude.sh
