@@ -84,7 +84,7 @@ echo "Token valid."
 cat > "$MCP_CONFIG" <<EOF
 {
   "mcpServers": {
-    "openapi": {
+    "openapi-local": {
       "type": "http",
       "url": "http://localhost:8080/mcp/",
       "headers": {
@@ -99,6 +99,11 @@ EOF
 
 echo "Starting MCP server..."
 cd "$ROOT_DIR"
+
+# Clear Python bytecode cache so any newly added modules (e.g. info.py)
+# are always loaded fresh rather than served from stale .pyc files.
+find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
 K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_server.main:app \
     --host 0.0.0.0 --port 8080 --log-level warning &
 SERVER_PID=$!

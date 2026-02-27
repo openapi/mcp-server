@@ -53,7 +53,7 @@ fi
 cat > "$MCP_CONFIG" <<EOF
 {
   "mcpServers": {
-    "openapi": {
+    "openapi-local": {
       "type": "http",
       "url": "http://localhost:8080/mcp/",
       "headers": {
