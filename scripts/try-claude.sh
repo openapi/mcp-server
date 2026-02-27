@@ -7,9 +7,10 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 # Isolated workspace: Claude starts in an empty temp dir so it doesn't
 # pick up files or context from the project codebase.
 WORK_DIR="$(mktemp -d /tmp/openapi-try-XXXXXX)"
-MCP_CONFIG="$WORK_DIR/.mcp.json"
 
 SERVER_PID=""
+MCP_REGISTERED=0
+MCP_SERVER_NAME="openapi-local"
 
 # Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and test.* endpoints
 SANDBOX="${SANDBOX:-0}"
@@ -24,8 +25,14 @@ else
 fi
 
 cleanup() {
+    if [ "$MCP_REGISTERED" = "1" ]; then
+        claude mcp remove --scope user "$MCP_SERVER_NAME" 2>/dev/null || true
+        echo "MCP server '$MCP_SERVER_NAME' removed from user settings."
+    fi
     rm -rf "$WORK_DIR"
-    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null || true
+    fi
     echo ""
     echo "MCP server stopped. Session ended."
 }
@@ -79,29 +86,13 @@ else
 fi
 echo "Token valid."
 
-# --- write temporary MCP config ---
-
-cat > "$MCP_CONFIG" <<EOF
-{
-  "mcpServers": {
-    "openapi-local": {
-      "type": "http",
-      "url": "http://localhost:8080/mcp/",
-      "headers": {
-        "Authorization": "Bearer ${TOKEN}"
-      }
-    }
-  }
-}
-EOF
-
 # --- start server in background ---
 
 echo "Starting MCP server..."
 cd "$ROOT_DIR"
 
-# Clear Python bytecode cache so any newly added modules (e.g. info.py)
-# are always loaded fresh rather than served from stale .pyc files.
+# Clear Python bytecode cache so any newly added modules are always
+# loaded fresh rather than served from stale .pyc files.
 find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_server.main:app \
@@ -120,6 +111,22 @@ for i in $(seq 1 30); do
         exit 1
     fi
 done
+
+# --- register MCP server in user-level Claude settings ---
+# Using --scope user writes to ~/.claude/settings.json so Claude picks it
+# up regardless of which directory it starts in. Removed on EXIT.
+
+echo "Registering MCP server in user settings..."
+# Remove stale entry from a previous crashed session, if any.
+claude mcp remove --scope user "$MCP_SERVER_NAME" 2>/dev/null || true
+claude mcp add \
+    --transport http \
+    --scope user \
+    -H "Authorization: Bearer ${TOKEN}" \
+    "$MCP_SERVER_NAME" \
+    "http://localhost:8080/mcp/"
+MCP_REGISTERED=1
+echo "Registered: $MCP_SERVER_NAME → http://localhost:8080/mcp/"
 
 echo ""
 echo "MCP tools active — openapi.com APIs are available in this session."
