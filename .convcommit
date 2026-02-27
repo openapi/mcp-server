@@ -1,0 +1,22 @@
+type:fix
+type:build
+type:~chore
+type:docs
+type:merge
+type:feat
+type:style
+type:refactor
+type:perf
+type:test
+type:ci
+type:revert
+type:security
+type:deps
+type:wip
+type:init
+scope:_
+scope:~
+message:_
+message:~_
+scope:devex
+message:introducing Makefile and start utility
