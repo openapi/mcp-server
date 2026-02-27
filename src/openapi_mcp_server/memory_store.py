@@ -2,12 +2,20 @@
 # Singleton in-memory store for callback results
 import os
 from typing import Dict
+# TODO: Remove legacy dependency — pymemcache is tied to the Google Cloud VPC-internal Memcached
+# instance (hardcoded IPs 10.2.1.3 / 10.3.0.3). Replace with an environment-agnostic cache
+# abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
+# (e.g. via redis-py + CACHE_URL env var) or any other backend for production.
+# Remove pymemcache from requirements.txt and pyproject.toml when done.
 from pymemcache.client import base
 import json
 
 callback_results = {}
-#configurazione endpoint 
-# ENV VARIABLES: todo better env astraction for envs
+
+# TODO: Remove legacy dependency — K_SERVICE is a Google Cloud Run reserved env var injected
+# automatically by the platform. It encodes the service name which is used here to derive:
+# sandbox/production prefix, BASE_URL and callback URL. Replace with explicit env vars:
+#   SANDBOX_PREFIX, BASE_URL, CALLBACK_URL so the app works on any platform.
 K_SERVICE = os.getenv("K_SERVICE")
 # Estrae il prefisso ambiente da K_SERVICE (es: "dev-mcp-openapi-com" -> "dev.")
 if K_SERVICE and K_SERVICE != "mcp-openapi-com":
@@ -15,15 +23,22 @@ if K_SERVICE and K_SERVICE != "mcp-openapi-com":
     SANDBOX_PREFIX = f"{env_prefix}."
 else:
     SANDBOX_PREFIX = ""
+
+# TODO: Remove legacy dependency — X-DEV-VM is an internal convention for a specific GCP VM.
+# Replace with a standard ENVIRONMENT=dev|staging|production env var.
 DEV_VM = os.getenv("X-DEV-VM")
 BASE_URL = "https://mcp.openapi.com"
 callbackUrl = None
 if K_SERVICE:
+    # TODO: Remove legacy dependency — BASE_URL derived from K_SERVICE (Cloud Run naming convention).
+    # Replace with an explicit BASE_URL env var.
     BASE_URL = "https://" + K_SERVICE.replace("-", ".")
     callbackUrl = BASE_URL + "/callbacks"
     callbackUrl = callbackUrl.replace("alpha", "dev") if DEV_VM else callbackUrl
 
-# Configurazione Memcached
+# TODO: Remove legacy dependency — Memcached IPs (10.2.1.3, 10.3.0.3) are hardcoded VPC-internal
+# addresses specific to the current GCP deployment. For local dev use the in-process dict fallback
+# already present below. For production replace with CACHE_URL=redis://... or similar.
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", '10.2.1.3' if DEV_VM or K_SERVICE != "mcp-openapi-com" else "10.3.0.3" )
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", 11211))
 memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT))

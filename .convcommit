@@ -25,3 +25,5 @@ scope:testing
 message:nintroducing integration test
 message:
 message:
+scope:env
+message:introducing refactoring point to remove cloudbuild dependency
