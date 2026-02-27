@@ -43,7 +43,7 @@ PORT := 8080
 ## Targets
 ## =======
 
-.PHONY: start check-env
+.PHONY: start check-env test
 
 ## Check that python3 and uv are available, with OS-specific install hints
 check-env:
@@ -58,4 +58,8 @@ check-env:
 
 ## Setup the local environment and start the server
 start: check-env .install.stamp
-	$(UV) run uvicorn openapi_mcp_server.main:app --host $(HOST) --port $(PORT)
+	PYTHONPATH=src $(UV) run uvicorn openapi_mcp_server.main:app --host $(HOST) --port $(PORT)
+
+## Run integration tests (requires: export OPENAPI_TOKEN=your_token)
+test: check-env .install.stamp
+	@bash tests/integration/run.sh

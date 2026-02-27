@@ -1,0 +1,3 @@
+# Replace the pattern below with the expected company name for VAT 02120220419
+# Example: if the company is "ACME SRL", put "ACME"
+OPENAPI
