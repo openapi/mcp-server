@@ -122,9 +122,9 @@ claude mcp remove --scope user "$MCP_SERVER_NAME" 2>/dev/null || true
 claude mcp add \
     --transport http \
     --scope user \
-    -H "Authorization: Bearer ${TOKEN}" \
     "$MCP_SERVER_NAME" \
-    "http://localhost:8080/mcp/"
+    "http://localhost:8080/mcp/" \
+    --header "Authorization: Bearer ${TOKEN}"
 MCP_REGISTERED=1
 echo "Registered: $MCP_SERVER_NAME → http://localhost:8080/mcp/"
 
