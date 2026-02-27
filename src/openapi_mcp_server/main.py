@@ -88,19 +88,30 @@ async def token_querystring_to_authorization(request: Request, call_next):
     response = await call_next(request)
     return response
 
-# OAuth discovery endpoints — return a clear JSON so MCP clients don't
-# misinterpret a plain "Not Found" as a malformed OAuth response.
-_OAUTH_NOT_SUPPORTED = {"error": "oauth_not_supported", "message": "This server does not support OAuth. Use a pre-configured Bearer token in the Authorization header."}
+# Middleware: intercept OAuth discovery requests before routing.
+# The catch-all Starlette mount at "/" would otherwise return plain "Not Found"
+# which MCP clients fail to parse as JSON. We return a proper JSON 404 so
+# clients understand OAuth is not supported and fall back to Bearer token auth.
+_OAUTH_NOT_SUPPORTED_BODY = json.dumps({
+    "error": "oauth_not_supported",
+    "message": "This server does not support OAuth. Use a pre-configured Bearer token in the Authorization header."
+}).encode()
 
-@app.get("/.well-known/oauth-authorization-server")
-async def oauth_authorization_server():
-    from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=404, content=_OAUTH_NOT_SUPPORTED)
+_OAUTH_DISCOVERY_PATHS = {
+    "/.well-known/oauth-authorization-server",
+    "/.well-known/oauth-protected-resource",
+    "/.well-known/openid-configuration",
+}
 
-@app.get("/.well-known/oauth-protected-resource")
-async def oauth_protected_resource():
-    from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=404, content=_OAUTH_NOT_SUPPORTED)
+@app.middleware("http")
+async def reject_oauth_discovery(request: Request, call_next):
+    if request.url.path.rstrip("/") in {p.rstrip("/") for p in _OAUTH_DISCOVERY_PATHS}:
+        return Response(
+            content=_OAUTH_NOT_SUPPORTED_BODY,
+            status_code=404,
+            media_type="application/json",
+        )
+    return await call_next(request)
 
 # Endpoint HTTP REST (fuori da MCP/JSON-RPC)
 @app.post("/callbacks")
