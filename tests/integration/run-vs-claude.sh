@@ -93,7 +93,7 @@ for case_dir in "$CASES_DIR"/*/; do
     name=$(basename "$case_dir")
     prompt=$(cat "$case_dir/prompt.txt")
 
-    response=$(cd "$ROOT_DIR" && unset CLAUDECODE && claude --print "$prompt" 2>&1)
+    response=$(cd "$ROOT_DIR" && unset CLAUDECODE && claude --print --dangerously-skip-permissions "$prompt" 2>&1)
 
     failed=0
     while IFS= read -r pattern; do

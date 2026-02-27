@@ -1,1 +1,1 @@
-Using the available MCP tools, look up the Italian company with VAT number 02120220419 and tell me the company name.
+Call the get_company_IT_start tool with the parameter 02120220419 and return the companyName field from the response.
