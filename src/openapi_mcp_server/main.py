@@ -88,6 +88,20 @@ async def token_querystring_to_authorization(request: Request, call_next):
     response = await call_next(request)
     return response
 
+# OAuth discovery endpoints — return a clear JSON so MCP clients don't
+# misinterpret a plain "Not Found" as a malformed OAuth response.
+_OAUTH_NOT_SUPPORTED = {"error": "oauth_not_supported", "message": "This server does not support OAuth. Use a pre-configured Bearer token in the Authorization header."}
+
+@app.get("/.well-known/oauth-authorization-server")
+async def oauth_authorization_server():
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=404, content=_OAUTH_NOT_SUPPORTED)
+
+@app.get("/.well-known/oauth-protected-resource")
+async def oauth_protected_resource():
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=404, content=_OAUTH_NOT_SUPPORTED)
+
 # Endpoint HTTP REST (fuori da MCP/JSON-RPC)
 @app.post("/callbacks")
 async def callbacks_endpoint(request: Request):
