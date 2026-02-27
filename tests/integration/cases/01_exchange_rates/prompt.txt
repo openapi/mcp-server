@@ -1,1 +1,1 @@
-Using the available MCP tools, fetch today's exchange rates and report the value of USD and EUR.
+Fetch today's exchange rates and tell me the current value of 1 EUR in USD and GBP.
