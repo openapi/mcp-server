@@ -47,7 +47,33 @@ if ! command -v claude >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! command -v openapi >/dev/null 2>&1; then
+    echo "ERROR: 'openapi' CLI not found."
+    echo "       Install it: cargo install openapi-cli-rs"
+    exit 1
+fi
+
 echo "Mode: $MODE_LABEL"
+
+# --- validate token against the live API ---
+
+echo "Validating token..."
+if [ "$SANDBOX" = "1" ]; then
+    VALIDATION_OUTPUT=$(OPENAPI_SANDBOX_TOKEN="$TOKEN" openapi -S exchange-rate get 2>&1) || {
+        echo "ERROR: Token validation failed (sandbox)."
+        echo "       $VALIDATION_OUTPUT"
+        echo "       Check that OPENAPI_SANDBOX_TOKEN is correct."
+        exit 1
+    }
+else
+    VALIDATION_OUTPUT=$(OPENAPI_TOKEN="$TOKEN" openapi exchange-rate get 2>&1) || {
+        echo "ERROR: Token validation failed (production)."
+        echo "       $VALIDATION_OUTPUT"
+        echo "       Check that OPENAPI_TOKEN is correct."
+        exit 1
+    }
+fi
+echo "Token valid."
 
 # --- write temporary MCP config ---
 
