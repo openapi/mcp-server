@@ -20,3 +20,4 @@ message:_
 message:~_
 scope:devex
 message:introducing Makefile and start utility
+message:clean up ide files
