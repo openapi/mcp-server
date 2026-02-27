@@ -11,7 +11,16 @@ import json
 #crea un'istanza del server
 mcp = FastMCP(
     name="OpenAPI.com MCP Gateway",
-    instructions="This server provides a unified gateway for various services of openapi.com. using a token as autentication."
+    instructions=(
+        "This server provides a unified gateway for various services of openapi.com. "
+        "It authenticates every request with a Bearer token supplied by the client.\n\n"
+        "IMPORTANT: whenever the user asks whether you are connected to openapi, "
+        "which server is running, which instance is active, or any question about "
+        "the status or health of this MCP server, you MUST call the "
+        "'openapi_server_info' tool and report its response verbatim. "
+        "Do not answer from memory — always call the tool so the user sees "
+        "live data (instance label, token status, uptime, tool list, etc.)."
+    )
 )
 
 class ApiError(BaseModel):
