@@ -10,6 +10,16 @@ PASS=0
 FAIL=0
 SERVER_PID=""
 
+# Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and test.* endpoints
+SANDBOX="${SANDBOX:-0}"
+if [ "$SANDBOX" = "1" ]; then
+    TOKEN="${OPENAPI_SANDBOX_TOKEN:-}"
+    K_SERVICE_VALUE="test-openapi-mcp-server"
+else
+    TOKEN="${OPENAPI_TOKEN:-}"
+    K_SERVICE_VALUE=""
+fi
+
 cleanup() {
     rm -f "$MCP_CONFIG"
     [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
@@ -18,9 +28,15 @@ trap cleanup EXIT
 
 # --- pre-flight checks ---
 
-if [ -z "${OPENAPI_TOKEN:-}" ]; then
-    echo "ERROR: OPENAPI_TOKEN is not set."
-    echo "       Export it before running: export OPENAPI_TOKEN=your_token"
+if [ -z "$TOKEN" ]; then
+    if [ "$SANDBOX" = "1" ]; then
+        echo "ERROR: OPENAPI_SANDBOX_TOKEN is not set."
+        echo "       export OPENAPI_SANDBOX_TOKEN=your_sandbox_token"
+    else
+        echo "ERROR: OPENAPI_TOKEN is not set."
+        echo "       export OPENAPI_TOKEN=your_token"
+        echo "       For sandbox mode: SANDBOX=1 export OPENAPI_SANDBOX_TOKEN=your_token"
+    fi
     exit 1
 fi
 
@@ -29,6 +45,8 @@ if ! command -v claude >/dev/null 2>&1; then
     echo "       Install Claude Code: https://claude.ai/code"
     exit 1
 fi
+
+[ "$SANDBOX" = "1" ] && echo "Mode: SANDBOX" || echo "Mode: PRODUCTION"
 
 # --- write temporary MCP config ---
 
@@ -39,7 +57,7 @@ cat > "$MCP_CONFIG" <<EOF
       "type": "http",
       "url": "http://localhost:8080/mcp/",
       "headers": {
-        "Authorization": "Bearer ${OPENAPI_TOKEN}"
+        "Authorization": "Bearer ${TOKEN}"
       }
     }
   }
@@ -50,7 +68,7 @@ EOF
 
 echo "Starting MCP server..."
 cd "$ROOT_DIR"
-PYTHONPATH=src uv run uvicorn openapi_mcp_server.main:app \
+K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_server.main:app \
     --host 0.0.0.0 --port 8080 --log-level warning &
 SERVER_PID=$!
 
@@ -75,11 +93,10 @@ for case_dir in "$CASES_DIR"/*/; do
     name=$(basename "$case_dir")
     prompt=$(cat "$case_dir/prompt.txt")
 
-    response=$(cd "$ROOT_DIR" && claude --print "$prompt" 2>&1)
+    response=$(cd "$ROOT_DIR" && unset CLAUDECODE && claude --print "$prompt" 2>&1)
 
     failed=0
     while IFS= read -r pattern; do
-        # skip blank lines and comments
         [[ -z "$pattern" || "$pattern" == \#* ]] && continue
         if ! echo "$response" | grep -qi "$pattern"; then
             echo "[FAIL] $name — expected pattern not found: '$pattern'"

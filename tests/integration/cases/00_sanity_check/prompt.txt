@@ -1,0 +1,1 @@
+Reply with exactly this sentence and nothing else: "The integration test framework is working."

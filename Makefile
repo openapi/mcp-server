@@ -43,7 +43,7 @@ PORT := 8080
 ## Targets
 ## =======
 
-.PHONY: start check-env test
+.PHONY: start check-env test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox
 
 ## Check that python3 and uv are available, with OS-specific install hints
 check-env:
@@ -60,6 +60,26 @@ check-env:
 start: check-env .install.stamp
 	PYTHONPATH=src $(UV) run uvicorn openapi_mcp_server.main:app --host $(HOST) --port $(PORT)
 
-## Run integration tests (requires: export OPENAPI_TOKEN=your_token)
+## Run integration tests via Claude Code - production (requires: export OPENAPI_TOKEN=your_token)
 test: check-env .install.stamp
-	@bash tests/integration/run.sh
+	@bash tests/integration/run-vs-claude.sh
+
+## Run integration tests via Claude Code - sandbox (requires: export OPENAPI_SANDBOX_TOKEN=your_token)
+test-sandbox: check-env .install.stamp
+	@SANDBOX=1 bash tests/integration/run-vs-claude.sh
+
+## Run integration tests via OpenAI - production (requires: OPENAI_API_KEY, OPENAPI_TOKEN, MCP_URL)
+test-openai: check-env .install.stamp
+	@bash tests/integration/run-vs-openai.sh
+
+## Run integration tests via OpenAI - sandbox (requires: OPENAI_API_KEY, OPENAPI_SANDBOX_TOKEN, MCP_URL)
+test-openai-sandbox: check-env .install.stamp
+	@SANDBOX=1 bash tests/integration/run-vs-openai.sh
+
+## Run integration tests via OpenAI Codex CLI - production (requires: OPENAI_API_KEY, OPENAPI_TOKEN)
+test-codex: check-env .install.stamp
+	@bash tests/integration/run-vs-codex.sh
+
+## Run integration tests via OpenAI Codex CLI - sandbox (requires: OPENAI_API_KEY, OPENAPI_SANDBOX_TOKEN)
+test-codex-sandbox: check-env .install.stamp
+	@SANDBOX=1 bash tests/integration/run-vs-codex.sh
