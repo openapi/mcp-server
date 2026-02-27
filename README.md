@@ -1,90 +1,90 @@
 # mcp.openapi.com MCP Gateway
 
-Questo progetto implementa un server **Model Context Protocol (MCP)** che funge da gateway sicuro e unificato per l’accesso a servizi autenticati di openapi.com. Il server è progettato per essere integrato con ambienti AI come VS Code, Claude Desktop e altri host MCP.
+This project implements a **Model Context Protocol (MCP)** server that acts as a secure, unified gateway for accessing authenticated openapi.com services. The server is designed to integrate with AI environments such as VS Code, Claude Desktop, and other MCP hosts.
 
-## Caratteristiche
+## Features
 
-- **Proxy sicuro**: Pass-through del Bearer Token fornito dal client, senza gestione diretta di credenziali sensibili.
-- **Estendibile**: Aggiungi facilmente nuovi tool/API creando moduli in [`/apis/`](apis/).
-- **Compatibile MCP**: Progettato secondo le best practice del protocollo MCP.
-- **Modulare**: Tutta la logica di chiamata API e la registrazione dei tool è centralizzata in [`mcp_core.py`](mcp_core.py).
+- **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
+- **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](apis/).
+- **MCP-compatible**: Designed according to MCP protocol best practices.
+- **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](mcp_core.py).
 
 ---
 
-## Prerequisiti
+## Prerequisites
 
 - Python 3.9+
-- [uv](https://github.com/astral-sh/uv) (per la gestione delle dipendenze)
-- Connessione Internet
-- **(Opzionale)** [Docker](https://www.docker.com/) per esecuzione containerizzata
+- [uv](https://github.com/astral-sh/uv) (for dependency management)
+- Internet connection
+- **(Optional)** [Docker](https://www.docker.com/) for containerized execution
 
 ---
 
-## Installazione (Ambiente Locale)
+## Installation (Local Environment)
 
-1. **Clona il repository**  
+1. **Clone the repository**
    ```bash
-   git clone <URL_DEL_REPO>
+   git clone <REPO_URL>
    cd mcp.openapi.com
    ```
 
-2. **Crea e attiva un ambiente virtuale**  
+2. **Create and activate a virtual environment**
    ```bash
    uv venv
    source .venv/bin/activate
    ```
 
-3. **Installa le dipendenze**  
+3. **Install dependencies**
    ```bash
    uv pip install -r requirements.txt
-   # oppure, se usi uv:
+   # or, using uv:
    uv add "fastmcp" requests pydantic
    ```
 
 ---
 
-## Avvio del Server
+## Starting the Server
 
 ```bash
 python main.py
 ```
 
-Il server sarà disponibile su `http://0.0.0.0:8080`.
+The server will be available at `http://0.0.0.0:8080`.
 
 ---
 
-## Esecuzione con Docker
+## Running with Docker
 
-1. **Costruisci l'immagine Docker**
+1. **Build the Docker image**
    ```bash
    docker build -t mcp-openapi .
    ```
 
-2. **Avvia il container**
+2. **Start the container**
    ```bash
    docker run -it --rm -p 8080:8080 mcp-openapi
    ```
 
-Il server sarà accessibile su `http://localhost:8080`.
+The server will be accessible at `http://localhost:8080`.
 
 ---
 
-## Debug e Sviluppo
+## Debug and Development
 
-- Il server stampa a console dettagli su ogni richiesta, inclusi header e parametri.
-- Per vedere i log, avvia il server da terminale:
+- The server prints details of every request to the console, including headers and parameters.
+- To view logs, start the server from a terminal:
   ```bash
   python main.py
   ```
-- Puoi modificare la funzione `make_api_call` in [`mcp_core.py`](mcp_core.py) per aggiungere ulteriori print/logging.
-- Usa strumenti come [httpie](https://httpie.io/) o `curl` per testare manualmente gli endpoint:
+- You can modify the `make_api_call` function in [`mcp_core.py`](mcp_core.py) to add additional print statements or logging.
+- Use tools like [httpie](https://httpie.io/) or `curl` to manually test endpoints:
   ```bash
-  curl -H "Authorization: Bearer IL_TUO_TOKEN" http://localhost:8080/mcp/
+  curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/mcp/
   ```
 
-### Hot Reload (opzionale)
+### Hot Reload (optional)
 
-Per sviluppo rapido, puoi usare [watchdog](https://pypi.org/project/watchdog/) o [entr](https://eradman.com/entrproject/) per riavviare il server ad ogni modifica:
+For rapid development, you can use [watchdog](https://pypi.org/project/watchdog/) or [entr](https://eradman.com/entrproject/) to restart the server on every file change:
 ```bash
 pip install watchdog
 watchmedo auto-restart --pattern="*.py" -- python main.py
@@ -92,82 +92,114 @@ watchmedo auto-restart --pattern="*.py" -- python main.py
 
 ---
 
-## Configurazione MCP Client (VS Code)
+## MCP Client Configuration (VS Code)
 
-1. **Genera un Bearer Token**  
-   Dal portale https://console.openapi.com/oauth, crea un token con gli scope necessari.
+1. **Generate a Bearer Token**
+   From the portal https://console.openapi.com/oauth, create a token with the required scopes.
 
-2. **Crea il file `.vscode/mcp.json`**  
-   Esempio:
+2. **Create the `.vscode/mcp.json` file**
+   Example:
    ```json
    {
      "servers": {
        "openapi.com": {
          "type": "http",
-         "url": "http://INDIRIZZO_IP_DEL_TUO_SERVER:8080/mcp/",
+         "url": "http://YOUR_SERVER_IP:8080/mcp/",
          "headers": {
-           "Authorization": "Bearer IL_TUO_BEARER_TOKEN_DI_PRODUZIONE"
+           "Authorization": "Bearer YOUR_PRODUCTION_BEARER_TOKEN"
          }
        }
      }
    }
    ```
 
-3. **Testa l’integrazione**  
-   - Ricarica VS Code.
-   - Apri la chat Copilot e digita `@workspace`.
-   - Usa i tool esposti dal server MCP.
+3. **Test the integration**
+   - Reload VS Code.
+   - Open the Copilot chat and type `@workspace`.
+   - Use the tools exposed by the MCP server.
 
 ---
 
-## Struttura del Progetto
+## Project Structure
 
-- [`main.py`](main.py): Entry point FastAPI + MCP server.
-- [`mcp_core.py`](mcp_core.py): Inizializzazione MCP, helper per chiamate API, error handling.
-- [`/apis/`](apis/): Moduli Python che definiscono i tool MCP (uno per API/ambito).
-- [`requirements.txt`](requirements.txt): Dipendenze Python.
-- [`docs/`](docs/): Documentazione e configurazioni di esempio.
-- [`Dockerfile`](Dockerfile): Build e avvio container Docker.
+- [`main.py`](main.py): FastAPI + MCP server entry point.
+- [`mcp_core.py`](mcp_core.py): MCP initialization, API call helpers, error handling.
+- [`/apis/`](apis/): Python modules defining MCP tools (one per API/scope).
+- [`requirements.txt`](requirements.txt): Python dependencies.
+- [`docs/`](docs/): Documentation and example configurations.
+- [`Dockerfile`](Dockerfile): Docker container build and start.
 
 ---
 
-## Aggiungere Nuovi Tool/API
+## Adding New Tools/APIs
 
-1. Crea o modifica un file in [`/apis/`](apis/), seguendo il pattern:
+1. Create or modify a file in [`/apis/`](apis/), following this pattern:
    ```python
    from fastmcp import Context
    from typing import Any
    from mcp_core import make_api_call, mcp
 
    @mcp.tool
-   async def nome_tool(parametri..., ctx: Context) -> Any:
-       # ...logica...
+   async def tool_name(parameters..., ctx: Context) -> Any:
+       # ...logic...
        return make_api_call(ctx, "GET", url, params=params)
    ```
-2. Riavvia il server per applicare le modifiche.
+2. Restart the server to apply the changes.
 
 ---
 
-## Note di Sicurezza
+## Security Notes
 
-- **Mai** inserire credenziali o token hardcoded nel codice.
-- Il server si aspetta che il Bearer Token sia fornito dal client tramite header HTTP.
-- Tutte le chiamate API sono proxyate con il token fornito dal client.
+- **Never** hardcode credentials or tokens in the code.
+- The server expects the Bearer Token to be provided by the client via HTTP headers.
+- All API calls are proxied using the token provided by the client.
 
 ---
 
-## Risorse Utili
+## Useful Resources
 
-- [Documentazione MCP](https://github.com/anthropics/model-context-protocol)
+- [MCP Documentation](https://github.com/anthropics/model-context-protocol)
 - [fastmcp](https://pypi.org/project/fastmcp/)
 - [openapi.com](https://openapi.com/)
 
 ---
 
-## Licenza
+## Contributing
 
-MIT
+Contributions are always welcome! Whether you want to report bugs, suggest new features, improve documentation, or contribute code, your help is appreciated.
 
----
+See [docs/contributing.md](docs/contributing.md) for detailed instructions on how to get started. Please make sure to follow this project's [docs/code-of-conduct.md](docs/code-of-conduct.md) to help maintain a welcoming and collaborative environment.
 
-Se hai domande o problemi, apri una issue!
+## Authors
+
+Meet the project authors:
+
+- Simone Desantis ([@SimoneDesantis](https://github.com/SimoneDesantis))
+- Marco Prosperi ([@MarcoProsperi](https://github.com/MarcoProsperi))
+- Francesco Bianco ([@francescobianco](https://github.com/frabcescobianco))
+- Openapi Team ([@openapi-it](https://github.com/openapi-it))
+
+## Partners
+
+Meet our partners using Openapi or contributing to this SDK:
+
+- [Blank](https://www.blank.app/)
+- [Credit Safe](https://www.creditsafe.com/)
+- [Deliveroo](https://deliveroo.it/)
+- [Gruppo MOL](https://molgroupitaly.it/it/)
+- [Jakala](https://www.jakala.com/)
+- [Octotelematics](https://www.octotelematics.com/)
+- [OTOQI](https://otoqi.com/)
+- [PWC](https://www.pwc.com/)
+- [QOMODO S.R.L.](https://www.qomodo.me/)
+- [SOUNDREEF S.P.A.](https://www.soundreef.com/)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+The MIT License is a permissive open-source license that allows you to freely use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, provided that the original copyright notice and this permission notice are included in all copies or substantial portions of the software.
+
+In short, you are free to use this SDK in your personal, academic, or commercial projects, with minimal restrictions. The project is provided "as-is", without any warranty of any kind, either expressed or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+For more details, see the full license text at the [MIT License page](https://choosealicense.com/licenses/mit/).
