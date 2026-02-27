@@ -55,7 +55,7 @@ cat > "$MCP_CONFIG" <<EOF
   "mcpServers": {
     "openapi-local": {
       "type": "http",
-      "url": "http://localhost:8080/mcp/",
+      "url": "http://localhost:8080",
       "headers": {
         "Authorization": "Bearer ${TOKEN}"
       }

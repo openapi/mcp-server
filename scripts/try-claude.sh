@@ -4,13 +4,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Isolated workspace: Claude starts in an empty temp dir so it doesn't
-# pick up files or context from the project codebase.
+# Isolated workspace: an empty git repo so Claude Code recognises it as a
+# project root and picks up the .mcp.json we write there.
 WORK_DIR="$(mktemp -d /tmp/openapi-try-XXXXXX)"
 
 SERVER_PID=""
-MCP_REGISTERED=0
-MCP_SERVER_NAME="openapi-local"
 
 # Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and test.* endpoints
 SANDBOX="${SANDBOX:-0}"
@@ -25,10 +23,6 @@ else
 fi
 
 cleanup() {
-    if [ "$MCP_REGISTERED" = "1" ]; then
-        claude mcp remove --scope user "$MCP_SERVER_NAME" 2>/dev/null || true
-        echo "MCP server '$MCP_SERVER_NAME' removed from user settings."
-    fi
     rm -rf "$WORK_DIR"
     if [ -n "$SERVER_PID" ]; then
         kill "$SERVER_PID" 2>/dev/null || true
@@ -112,21 +106,26 @@ for i in $(seq 1 30); do
     fi
 done
 
-# --- register MCP server in user-level Claude settings ---
-# Using --scope user writes to ~/.claude/settings.json so Claude picks it
-# up regardless of which directory it starts in. Removed on EXIT.
+# --- prepare isolated workspace ---
+# git init makes Claude Code treat this dir as a project root so it
+# picks up .mcp.json from here (not from the mcp-server codebase).
+# The .mcp.json format with "headers" bypasses Claude Code's OAuth flow.
 
-echo "Registering MCP server in user settings..."
-# Remove stale entry from a previous crashed session, if any.
-claude mcp remove --scope user "$MCP_SERVER_NAME" 2>/dev/null || true
-claude mcp add \
-    --transport http \
-    --scope user \
-    "$MCP_SERVER_NAME" \
-    "http://localhost:8080/mcp/" \
-    --header "Authorization: Bearer ${TOKEN}"
-MCP_REGISTERED=1
-echo "Registered: $MCP_SERVER_NAME → http://localhost:8080/mcp/"
+git -C "$WORK_DIR" init -q
+
+cat > "$WORK_DIR/.mcp.json" <<EOF
+{
+  "mcpServers": {
+    "openapi-local": {
+      "type": "http",
+      "url": "http://localhost:8080",
+      "headers": {
+        "Authorization": "Bearer ${TOKEN}"
+      }
+    }
+  }
+}
+EOF
 
 echo ""
 echo "MCP tools active — openapi.com APIs are available in this session."
@@ -135,7 +134,6 @@ echo "Press Ctrl+C or type /exit to stop."
 echo ""
 
 # --- open Claude interactively from the isolated temp workspace ---
-# cd into the empty temp dir so Claude has no access to the project codebase.
 
 unset CLAUDECODE 2>/dev/null || true
 cd "$WORK_DIR"
