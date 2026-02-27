@@ -5,11 +5,19 @@ from fastmcp import Context
 from typing import Any
 import sys
 import os
+import socket
 import platform
 from datetime import datetime, timezone
 
-# Recorded at import time so uptime can be computed
-_SERVER_START = datetime.now(timezone.utc)
+# All instance identity fields are captured once at startup.
+# Each running process (local dev, staging, Cloud Run) will show
+# different values, making instances distinguishable at a glance.
+_SERVER_START    = datetime.now(timezone.utc)
+_INSTANCE_HOST   = socket.gethostname()
+_INSTANCE_USER   = os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
+_INSTANCE_PID    = os.getpid()
+# Human-readable label: "alice@macbook-pro" locally, pod name on k8s/Cloud Run
+_INSTANCE_LABEL  = f"{_INSTANCE_USER}@{_INSTANCE_HOST}"
 
 try:
     from importlib.metadata import version as _pkg_version
@@ -21,17 +29,35 @@ _SERVER_VERSION = "0.2.0"
 _SERVER_NAME    = "OpenAPI.com MCP Gateway"
 
 
+def _mask_token(token: str) -> str:
+    """Show only the first 8 and last 4 chars; mask the rest."""
+    if len(token) <= 12:
+        return token[:4] + "..." + token[-2:]
+    return token[:8] + "..." + token[-4:]
+
+
 @mcp.tool
 async def openapi_server_info(ctx: Context) -> Any:
     """
     Returns diagnostic information about this MCP server instance.
-    Use this tool to verify that the MCP server is reachable and correctly configured.
+    Use this tool to verify that the MCP server is reachable and correctly configured,
+    and to identify which instance is responding (local dev, staging, production, etc.).
     No external API calls are made — all data comes from the running process itself.
     """
     now = datetime.now(timezone.utc)
     uptime_seconds = int((now - _SERVER_START).total_seconds())
 
     sandbox_mode = bool(SANDBOX_PREFIX)
+
+    # Token presence and masked preview — never expose the full token
+    prod_token    = os.environ.get("OPENAPI_TOKEN", "")
+    sandbox_token = os.environ.get("OPENAPI_SANDBOX_TOKEN", "")
+    token_info = {
+        "OPENAPI_TOKEN":         "set" if prod_token    else "not set",
+        "OPENAPI_SANDBOX_TOKEN": "set" if sandbox_token else "not set",
+        "active_token_preview":  _mask_token(sandbox_token if sandbox_mode else prod_token)
+                                 if (sandbox_token if sandbox_mode else prod_token) else None,
+    }
 
     # Collect registered tool names from the MCP instance
     try:
@@ -41,15 +67,24 @@ async def openapi_server_info(ctx: Context) -> Any:
 
     return {
         "server": {
-            "name":    _SERVER_NAME,
-            "version": _SERVER_VERSION,
-            "mode":    "sandbox" if sandbox_mode else "production",
-            "base_url": BASE_URL,
+            "name":        _SERVER_NAME,
+            "version":     _SERVER_VERSION,
+            "mode":        "sandbox" if sandbox_mode else "production",
+            "base_url":    BASE_URL,
+            "description": mcp.instructions,
         },
+        "instance": {
+            "label":      _INSTANCE_LABEL,
+            "host":       _INSTANCE_HOST,
+            "user":       _INSTANCE_USER,
+            "pid":        _INSTANCE_PID,
+            "started_at": _SERVER_START.isoformat(),
+        },
+        "token": token_info,
         "runtime": {
-            "python":  sys.version,
+            "python":   sys.version,
             "platform": platform.platform(),
-            "fastmcp": _FASTMCP_VERSION,
+            "fastmcp":  _FASTMCP_VERSION,
         },
         "uptime": {
             "started_at":     _SERVER_START.isoformat(),
@@ -57,9 +92,9 @@ async def openapi_server_info(ctx: Context) -> Any:
             "uptime_seconds": uptime_seconds,
         },
         "session": {
-            "request_id": ctx.request_id,
-            "session_id": ctx.session_id,
-            "client_id":  ctx.client_id or "unknown",
+            "request_id":   ctx.request_id,
+            "session_id":   ctx.session_id,
+            "client_id":    ctx.client_id or "unknown",
             "session_hash": getSessionHash(ctx),
         },
         "tools": {
