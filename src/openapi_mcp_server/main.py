@@ -10,6 +10,11 @@ from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, ge
 docuengine.init_dynamic_tools()
 
 import asyncio
+# TODO: Remove legacy dependency — google-cloud-storage is used only to serve downloaded files
+# from a GCS bucket named after K_SERVICE. Replace the /status/{id}/files/{name} endpoint with
+# a storage-agnostic solution: local filesystem for dev (e.g. /tmp), pluggable via a
+# STORAGE_BACKEND env var (local | s3 | gcs). Remove google-cloud-storage from requirements.txt
+# and pyproject.toml when done.
 from google.cloud import storage
 from starlette.datastructures import MutableHeaders
 
@@ -128,6 +133,9 @@ async def get_status(request_id: str):
 @app.get("/status/{request_id}/files/{file_name}")
 async def get_file(request_id: str,file_name: str):
     try:
+        # TODO: Remove legacy dependency — GCS bucket name is taken from K_SERVICE (Cloud Run env var).
+        # Replace with a storage-agnostic file retrieval: read from local disk (STORAGE_PATH env var)
+        # for dev, or from a configurable bucket/prefix via STORAGE_BACKEND / STORAGE_BUCKET env vars.
         storage_client = storage.Client()
         bucket = storage_client.bucket(os.getenv("K_SERVICE"))
         blob = bucket.blob(f"{request_id}/{file_name}")
@@ -147,6 +155,9 @@ app.mount("/", mcp_app)
 
 if __name__ == "__main__":
     import uvicorn
+    # TODO: Remove legacy dependency — PORT env var defaulting to 80 follows Google Cloud Run
+    # convention. Standard default should be 8080 (or configurable). Update Dockerfile EXPOSE
+    # and Makefile accordingly when decoupled.
     port = int(os.environ.get("PORT", 80))  # Cloud Run usa PORT, default 80
     print(f"\n--- Server FastAPI+MCP ready on http://0.0.0.0:{port} ---", file=sys.stderr)
     uvicorn.run(app, host="0.0.0.0", port=port)

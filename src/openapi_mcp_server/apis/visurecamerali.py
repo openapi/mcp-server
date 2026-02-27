@@ -7,6 +7,11 @@ import base64
 import zipfile
 import io
 import json
+# TODO: Remove legacy dependency — google-cloud-storage is used to store downloaded document
+# files in a GCS bucket. Replace with a storage-agnostic abstraction: write to local filesystem
+# (e.g. /tmp or STORAGE_PATH env var) for dev/portable deployments, and optionally support
+# S3-compatible backends (boto3 + STORAGE_BACKEND env var) for other clouds.
+# Remove google-cloud-storage from requirements.txt and pyproject.toml when done.
 from google.cloud import storage
 import os
 import mimetypes
@@ -82,7 +87,9 @@ async def download_italian_company_official_document(document_id:str,document_ur
         zip_file_content = base64.b64decode(document_response["file"])
         request_id = getSessionHash(ctx)
 
-        # Scrive il file in un bucket GCP che si chiama come la variabile K_SERVICE
+        # TODO: Remove legacy dependency — bucket name taken from K_SERVICE (Google Cloud Run env var).
+        # Replace with STORAGE_BUCKET env var and abstract the upload behind a storage interface
+        # so it can use local disk, S3, GCS, or Azure Blob interchangeably.
         bucket_name = os.getenv("K_SERVICE")
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
