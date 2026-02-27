@@ -31,6 +31,18 @@ initialization_complete = asyncio.Event()
 
 # Middleware per attendere il completamento dell'inizializzazione
 @app.middleware("http")
+async def enrich_404(request: Request, call_next):
+    response = await call_next(request)
+    if response.status_code == 404:
+        body = json.dumps({
+            "error": "not_found",
+            "method": request.method,
+            "path": request.url.path,
+        }).encode()
+        return Response(content=body, status_code=404, media_type="application/json")
+    return response
+
+@app.middleware("http")
 async def wait_for_initialization(request: Request, call_next):
     await initialization_complete.wait()
     response = await call_next(request)
