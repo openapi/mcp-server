@@ -3,7 +3,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-MCP_CONFIG="$ROOT_DIR/.mcp.json"
+
+# Isolated workspace: Claude starts in an empty temp dir so it doesn't
+# pick up files or context from the project codebase.
+WORK_DIR="$(mktemp -d /tmp/openapi-try-XXXXXX)"
+MCP_CONFIG="$WORK_DIR/.mcp.json"
 
 SERVER_PID=""
 
@@ -20,7 +24,7 @@ else
 fi
 
 cleanup() {
-    rm -f "$MCP_CONFIG"
+    rm -rf "$WORK_DIR"
     [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
     echo ""
     echo "MCP server stopped. Session ended."
@@ -114,10 +118,13 @@ done
 
 echo ""
 echo "MCP tools active — openapi.com APIs are available in this session."
+echo "Working directory: $WORK_DIR"
 echo "Press Ctrl+C or type /exit to stop."
 echo ""
 
-# --- open Claude interactively with MCP already configured ---
+# --- open Claude interactively from the isolated temp workspace ---
+# cd into the empty temp dir so Claude has no access to the project codebase.
 
 unset CLAUDECODE 2>/dev/null || true
+cd "$WORK_DIR"
 claude
