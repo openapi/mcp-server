@@ -39,10 +39,21 @@ def _mask_token(token: str) -> str:
 @mcp.tool
 async def openapi_server_info(ctx: Context) -> Any:
     """
-    Returns diagnostic information about this MCP server instance.
-    Use this tool to verify that the MCP server is reachable and correctly configured,
-    and to identify which instance is responding (local dev, staging, production, etc.).
-    No external API calls are made — all data comes from the running process itself.
+    Call this tool whenever the user asks:
+    - "are you connected to openapi?" / "sei connesso a openapi?"
+    - "which server / instance is running?"
+    - "what is your status?" / "are the tools working?"
+    - any question about connectivity, health, or identity of this MCP server.
+
+    Returns live diagnostic data directly from the running process — no external
+    API calls are made. The response includes:
+    - server name, version, and mode (sandbox vs production)
+    - instance identity: user@hostname, PID, and startup timestamp so different
+      running instances (local dev, staging, Cloud Run) are immediately distinguishable
+    - token status: whether OPENAPI_TOKEN / OPENAPI_SANDBOX_TOKEN are set in the
+      server environment, with a masked preview of the active token
+    - list of all MCP tools currently registered and available
+    - session identifiers for the current request
     """
     now = datetime.now(timezone.utc)
     uptime_seconds = int((now - _SERVER_START).total_seconds())
