@@ -1,0 +1,3 @@
+# Verifies that claude --print works and pattern matching is functional.
+# This test does NOT use the MCP server.
+integration test framework is working
