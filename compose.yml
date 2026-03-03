@@ -1,0 +1,70 @@
+# =============================================================================
+# mcp.openapi.com MCP Gateway — Docker Compose
+# =============================================================================
+# Default setup: production-like image built from ./docker/latest/
+#
+# DEVELOPMENT / DEBUG
+# To enable Python remote debugging with VS Code, switch the Dockerfile:
+#
+#   dockerfile: ./docker/dev/Dockerfile
+#
+# The dev image adds debugpy (port 5678), mounts the source tree for live
+# code changes, and sets PYDEVD_DISABLE_FILE_VALIDATION=1.
+# See the "Debug and Development" section in README.md for the full procedure.
+# =============================================================================
+
+services:
+  mcp:
+    container_name: mcp-openapi-com
+    build:
+      context: .
+      # Switch to ./docker/dev/Dockerfile to enable debugpy + live-reload:
+      # dockerfile: ./docker/dev/Dockerfile
+      dockerfile: ./docker/latest/Dockerfile
+    environment:
+      - PORT=8080
+      # Runtime credentials — use a .env file (gitignored) rather than
+      # hardcoding values here.  Example:
+      #   SERVICES_CREDENTIALS={}
+    ports:
+      - "8080:8080"
+      # Uncomment when using ./docker/dev/Dockerfile (debugpy listener):
+      # - "5678:5678"
+    # Uncomment the volume block below when using ./docker/dev/Dockerfile.
+    # It bind-mounts ./src into the container so code changes take effect
+    # without rebuilding the image.
+    # volumes:
+    #   - type: bind
+    #     source: ./src
+    #     target: /app/src
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # MCP Inspector — visual tool for inspecting and debugging the MCP server
+  # ---------------------------------------------------------------------------
+  # Open in the browser:
+  #   http://localhost:6274
+  #
+  # Once open, connect to the MCP server using these settings:
+  #   Transport : Streamable HTTP
+  #   Server URL: http://mcp:8080
+  #
+  # The inspector proxy (port 6277) runs inside the Docker network and reaches
+  # the mcp service via its Docker hostname — no need to expose extra ports.
+  #
+  # Pre-configured deep-link (one click):
+  #   http://localhost:6274?transport=streamable-http&serverUrl=http://mcp:8080
+  # ---------------------------------------------------------------------------
+  mcp-inspector:
+    image: ghcr.io/modelcontextprotocol/inspector:latest
+    container_name: mcp-inspector
+    environment:
+      - HOST=0.0.0.0
+      # Disable automatic browser opening inside the container (headless).
+      - MCP_AUTO_OPEN_ENABLED=false
+    ports:
+      - "6274:6274"   # Web UI
+      - "6277:6277"   # Proxy backend (bridges browser ↔ MCP server)
+    depends_on:
+      - mcp
+    restart: unless-stopped
