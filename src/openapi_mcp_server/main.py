@@ -1,7 +1,9 @@
 import os
 import sys
 import json
+import asyncio
 from fastapi import FastAPI, Request, HTTPException, Response
+from starlette.middleware.cors import CORSMiddleware
 from .memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
 from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
@@ -9,7 +11,6 @@ from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, ge
 # Tenta l'inizializzazione dei tool dinamici (se è presente un token in ambiente)
 docuengine.init_dynamic_tools()
 
-import asyncio
 # TODO: Remove legacy dependency — google-cloud-storage is used only to serve downloaded files
 # from a GCS bucket named after K_SERVICE. Replace the /status/{id}/files/{name} endpoint with
 # a storage-agnostic solution: local filesystem for dev (e.g. /tmp), pluggable via a
@@ -25,6 +26,18 @@ mcp_app = mcp.http_app(path='/')
 
 # Crea l'app FastAPI
 app = FastAPI(lifespan=mcp_app.lifespan)
+
+# CORS — required for the MCP Inspector (and any browser-based MCP client) to
+# read the Mcp-Session-Id response header.  Without expose_headers the browser
+# silently drops the header, causing "Missing session ID" errors in the inspector.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["mcp-session-id"],
+)
 
 # Sostituzione del flag globale con asyncio.Event
 initialization_complete = asyncio.Event()
