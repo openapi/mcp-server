@@ -83,12 +83,14 @@ parse_mcp_response() {
 # $1 = JSON payload
 # $2 = session ID (optional)
 # Writes response headers to $_TMPDIR/last_headers.txt
+# --max-time 15: prevents curl from hanging on an open SSE stream.
 mcp_post() {
     local payload="$1"
     local session="${2:-}"
     local hfile="$_TMPDIR/last_headers.txt"
     local args=(
         -s
+        --max-time 15
         -D "$hfile"
         -X POST "$BASE_URL/"
         -H "Content-Type: application/json"
@@ -197,23 +199,23 @@ assert_contains "tools/call → status ok in payload"     "$CALL_BODY" 'status'
 section "REST Endpoints"
 
 # POST /callbacks with a missing required field → error JSON
-CB_BODY=$(curl -s -X POST "$BASE_URL/callbacks" \
+CB_BODY=$(curl -s --max-time 10 -X POST "$BASE_URL/callbacks" \
     -H "Content-Type: application/json" \
     -d '{"unexpected_field": true}')
 assert_contains "POST /callbacks (bad body) → error field" "$CB_BODY" '"error"'
 
 # GET /status/<unknown-id> → 404
-STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+STATUS_CODE=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" \
     "$BASE_URL/status/nonexistent-smoke-test-id-$(date +%s)")
 assert_eq "GET /status/<unknown> → 404" "$STATUS_CODE" "404"
 
 # GET /.well-known/oauth-authorization-server → JSON error (not plain 404)
-OAUTH_BODY=$(curl -s "$BASE_URL/.well-known/oauth-authorization-server")
+OAUTH_BODY=$(curl -s --max-time 10 "$BASE_URL/.well-known/oauth-authorization-server")
 assert_contains "GET /.well-known/oauth-authorization-server → oauth_not_supported" \
     "$OAUTH_BODY" '"oauth_not_supported"'
 
 # GET /.well-known/oauth-protected-resource → same guard
-OAUTH2_BODY=$(curl -s "$BASE_URL/.well-known/oauth-protected-resource")
+OAUTH2_BODY=$(curl -s --max-time 10 "$BASE_URL/.well-known/oauth-protected-resource")
 assert_contains "GET /.well-known/oauth-protected-resource → oauth_not_supported" \
     "$OAUTH2_BODY" '"oauth_not_supported"'
 
