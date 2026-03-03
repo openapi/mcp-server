@@ -41,7 +41,10 @@ if K_SERVICE:
 # already present below. For production replace with CACHE_URL=redis://... or similar.
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", 'X.X.X.X' if DEV_VM or K_SERVICE != "mcp-openapi-com" else "X.X.X.X" )
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", 11211))
-memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT))
+# connect_timeout / timeout = 1 s: when Memcached is unreachable (e.g. local dev,
+# Docker without the VPC network) the client fails fast and the except block
+# falls back to the in-process dict, keeping every endpoint responsive.
+memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT), connect_timeout=1, timeout=1)
 
 # Funzioni aggiornate per supportare Memcached
 def get_callback_result(request_id: str):
