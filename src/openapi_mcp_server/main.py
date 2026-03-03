@@ -27,18 +27,6 @@ mcp_app = mcp.http_app(path='/')
 # Crea l'app FastAPI
 app = FastAPI(lifespan=mcp_app.lifespan)
 
-# CORS — required for the MCP Inspector (and any browser-based MCP client) to
-# read the Mcp-Session-Id response header.  Without expose_headers the browser
-# silently drops the header, causing "Missing session ID" errors in the inspector.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["mcp-session-id"],
-)
-
 # Sostituzione del flag globale con asyncio.Event
 initialization_complete = asyncio.Event()
 
@@ -198,6 +186,19 @@ async def get_file(request_id: str,file_name: str):
         return Response(content=file_content, media_type=content_type)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving file: {str(e)}")
+
+# CORS — must be added LAST (after all @app.middleware decorators) so it becomes
+# the outermost middleware.  Starlette uses insert(0)+reversed() to build the
+# stack, meaning the last-added middleware executes first on every request.
+# expose_headers is required for the browser to read the Mcp-Session-Id header.
+# allow_credentials must NOT be True when allow_origins=["*"].
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["mcp-session-id"],
+)
 
 # Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
 app.mount("/", mcp_app)
