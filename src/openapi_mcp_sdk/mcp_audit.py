@@ -4,11 +4,11 @@ MCP protocol-level audit logger.
 Intercepts JSON-RPC POST bodies and emits a one-line human-readable log entry
 for every MCP action without exposing any parameter values (no PII leakage).
 
-Uniform layout (same schema as HTTP access logs):
-  [TAG]              IP              - "action" key=value
-  [MCP]              X.X.X.X   - "connect" client=claude-ai/1.0.0 protocol=2025-11-25
-  [MCP]              X.X.X.X   - "tool call" name=company_search_it
-  [MCP]              X.X.X.X   - "tools/list"
+Uniform layout across all log lines:
+  [TAG]              IP "Action" key=value
+  [MCP]              X.X.X.X "Connect" client=claude-ai/1.0.0 protocol=2025-11-25
+  [MCP]              X.X.X.X "Tool call" name=company_search_it
+  [MCP]              X.X.X.X "Tools list"
 """
 
 import json
@@ -19,20 +19,20 @@ _log = logging.getLogger("openapi_mcp_sdk.audit")
 
 # Maps JSON-RPC method → display label (None = suppress at INFO, log at DEBUG only)
 _LABELS: dict[str, str | None] = {
-    "initialize":                   "connect",
-    "notifications/initialized":    "initialized",
-    "notifications/cancelled":      "cancelled",
+    "initialize":                   "Connect",
+    "notifications/initialized":    "Initialized",
+    "notifications/cancelled":      "Cancelled",
     "notifications/progress":       None,
     "ping":                         None,
-    "tools/list":                   "tools/list",
-    "tools/call":                   "tool call",
-    "resources/list":               "resources/list",
-    "resources/read":               "resource read",
-    "resources/subscribe":          "resource subscribe",
-    "prompts/list":                 "prompts/list",
-    "prompts/get":                  "prompt get",
-    "completion/complete":          "completion",
-    "logging/setLevel":             "set log level",
+    "tools/list":                   "Tools list",
+    "tools/call":                   "Tool call",
+    "resources/list":               "Resources list",
+    "resources/read":               "Resource read",
+    "resources/subscribe":          "Resource subscribe",
+    "prompts/list":                 "Prompts list",
+    "prompts/get":                  "Prompt get",
+    "completion/complete":          "Completion",
+    "logging/setLevel":             "Set log level",
 }
 
 _TAG = "[MCP]"
@@ -50,10 +50,10 @@ def _emit(body: bytes, client_ip: str) -> None:
 
     method: str = data["method"]
     params: dict = data.get("params") or {}
-    label = _LABELS.get(method, method)   # unknown methods shown verbatim
+    label = _LABELS.get(method, method.capitalize())
 
     if label is None:
-        _log.debug("%-18s %-15s - \"%s\"", _TAG, client_ip, method)
+        _log.debug('%-18s %s "%s"', _TAG, client_ip, method)
         return
 
     if method == "initialize":
@@ -61,22 +61,22 @@ def _emit(body: bytes, client_ip: str) -> None:
         name    = info.get("name", "unknown")
         version = info.get("version", "")
         proto   = (params.get("protocolVersion") or "")
-        _log.info("%-18s %-15s - \"connect\" client=%s/%s protocol=%s", _TAG, client_ip, name, version, proto)
+        _log.info('%-18s %s "Connect" client=%s/%s protocol=%s', _TAG, client_ip, name, version, proto)
 
     elif method == "tools/call":
-        _log.info("%-18s %-15s - \"tool call\" name=%s", _TAG, client_ip, params.get("name", "?"))
+        _log.info('%-18s %s "Tool call" name=%s', _TAG, client_ip, params.get("name", "?"))
 
     elif method == "resources/read":
-        _log.info("%-18s %-15s - \"resource read\" uri=%s", _TAG, client_ip, params.get("uri", "?"))
+        _log.info('%-18s %s "Resource read" uri=%s', _TAG, client_ip, params.get("uri", "?"))
 
     elif method == "prompts/get":
-        _log.info("%-18s %-15s - \"prompt get\" name=%s", _TAG, client_ip, params.get("name", "?"))
+        _log.info('%-18s %s "Prompt get" name=%s', _TAG, client_ip, params.get("name", "?"))
 
     elif method == "notifications/cancelled":
-        _log.info("%-18s %-15s - \"cancelled\" id=%s", _TAG, client_ip, data.get("id", "?"))
+        _log.info('%-18s %s "Cancelled" id=%s', _TAG, client_ip, data.get("id", "?"))
 
     else:
-        _log.info("%-18s %-15s - \"%s\"", _TAG, client_ip, label)
+        _log.info('%-18s %s "%s"', _TAG, client_ip, label)
 
 
 class McpAuditMiddleware:

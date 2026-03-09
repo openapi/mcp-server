@@ -1,0 +1,32 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "default": {
+            "()": "uvicorn.logging.DefaultFormatter",
+            "fmt": "%(levelprefix)s %(message)s",
+            "use_colors": null
+        },
+        "sanitized_access": {
+            "()": "openapi_mcp_sdk.main._SanitizedAccessFormatter",
+            "fmt": "%(levelprefix)s [HTTP] %(client_addr)s - \"%(request_line)s\" %(status_code)s"
+        }
+    },
+    "handlers": {
+        "default": {
+            "formatter": "default",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stderr"
+        },
+        "access": {
+            "formatter": "sanitized_access",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout"
+        }
+    },
+    "loggers": {
+        "uvicorn":        {"handlers": ["default"], "level": "INFO", "propagate": false},
+        "uvicorn.error":  {"handlers": ["default"], "level": "INFO", "propagate": false},
+        "uvicorn.access": {"handlers": ["access"],  "level": "INFO", "propagate": false}
+    }
+}

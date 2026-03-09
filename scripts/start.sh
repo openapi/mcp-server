@@ -29,7 +29,7 @@ trap cleanup EXIT INT TERM
 find src/ -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 # ── start uvicorn ──────────────────────────────────────────────────────────
-PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$PORT" &
+PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$PORT" --log-config scripts/log_config.json &
 SERVER_PID=$!
 
 # ── wait for server to accept connections ──────────────────────────────────
