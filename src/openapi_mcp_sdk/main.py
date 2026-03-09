@@ -5,6 +5,7 @@ import asyncio
 from fastapi import FastAPI, Request, HTTPException, Response
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp, Scope, Receive, Send, Message
+from .mcp_audit import McpAuditMiddleware
 from .memory_store import get_callback_result, set_callback_result
 from .mcp_core import mcp # Import MCP instance with tools already registered in mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Import tool modules (side-effect: triggers @mcp.tool registration)
@@ -152,8 +153,9 @@ class RejectOAuthDiscoveryMiddleware:
 # add_middleware inserts at position 0 each time, so the LAST call here becomes
 # the outermost wrapper (executed first on every request).
 # Desired execution order (outer → inner):
-#   CORS → RejectOAuth → TokenQuerystring → Enrich404 → FastAPI router
-app.add_middleware(Enrich404Middleware)           # innermost — closest to the router
+#   CORS → RejectOAuth → TokenQuerystring → Enrich404 → McpAudit → FastAPI router
+app.add_middleware(McpAuditMiddleware)            # innermost — logs MCP JSON-RPC actions
+app.add_middleware(Enrich404Middleware)           # wraps 404s in JSON
 app.add_middleware(TokenQuerystringMiddleware)    # injects auth header + JIT registration
 app.add_middleware(RejectOAuthDiscoveryMiddleware) # short-circuits OAuth discovery paths
 # CORS must be outermost so it runs before anything else on every request,
