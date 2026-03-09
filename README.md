@@ -1,31 +1,66 @@
-# mcp.openapi.com MCP Gateway
+# openapi-mcp-sdk
 
-This project implements a **Model Context Protocol (MCP)** server that acts as a secure, unified gateway for accessing authenticated openapi.com services. The server is designed to integrate with AI environments such as VS Code, Claude Desktop, and other MCP hosts.
+**`openapi-mcp-sdk`** is the official [openapi.com](https://openapi.com/) MCP SDK.
+It ships as a Python package on [PyPI](https://pypi.org/project/openapi-mcp-sdk/) and
+can be used in two ways:
+
+- **Ready-to-use server** — run the MCP gateway directly from the package with a
+  single command, no cloning or setup required.
+- **Python library** — import `openapi_mcp_server` in your own project to build a
+  custom MCP server that wraps openapi.com APIs with your own logic, tools, or auth
+  layer on top.
+
+---
 
 ## Features
 
 - **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
-- **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](apis/).
+- **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](src/openapi_mcp_server/apis/).
 - **MCP-compatible**: Designed according to MCP protocol best practices.
-- **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](mcp_core.py).
+- **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](src/openapi_mcp_server/mcp_core.py).
 
 ---
 
 ## Quick Start — run from PyPI (recommended)
 
-No need to clone the repository. The server is published on [PyPI](https://pypi.org/project/mcp-openapi-com/) and can be started with a single command using [`uvx`](https://github.com/astral-sh/uv):
+No cloning, no virtual environment. Start the server in one command:
 
 ```bash
-uvx mcp-openapi-com
+uvx openapi-mcp-sdk server
 ```
 
-The server starts immediately at `http://localhost:8080`. No installation, no virtual environment, no cloning.
+The server starts immediately at `http://localhost:8080`.
+
+### Other runtimes
+
+```bash
+# pipx (ephemeral run, no install needed — similar to uvx)
+pipx run openapi-mcp-sdk server
+
+# pip (installs the package, then run the command)
+pip install openapi-mcp-sdk && openapi-mcp-sdk server
+
+# pip3 on systems where python3 is the default
+pip3 install openapi-mcp-sdk && openapi-mcp-sdk server
+```
+
+### CLI reference
+
+```
+openapi-mcp-sdk <command>
+
+Commands:
+  server   Start the MCP server (HTTP/SSE, default port 8080)
+  ping     Ping the openapi.com APIs and report latency       [coming soon]
+  token    Generate or inspect an openapi.com Bearer token    [coming soon]
+```
 
 ---
 
 ## Local launcher script
 
-Copy the block below, paste it into your terminal, and press Enter. It will create a `mcp-server.sh` file in the current directory and launch the server:
+Copy the block below, paste it into your terminal, and press Enter. It will
+create a `mcp-server.sh` file in the current directory and launch the server:
 
 ```bash
 cat > mcp-server.sh << 'EOF'
@@ -38,7 +73,7 @@ cat > mcp-server.sh << 'EOF'
 export PORT="${PORT:-8080}"
 export SERVICES_CREDENTIALS="${SERVICES_CREDENTIALS:-{}}"
 
-uvx mcp-openapi-com
+uvx openapi-mcp-sdk server
 EOF
 bash mcp-server.sh
 ```
