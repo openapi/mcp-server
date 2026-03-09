@@ -153,12 +153,12 @@ class TokenQuerystringMiddleware:
         if token and not getattr(app.state, "dynamic_tools_registered", False):
             async with registration_lock:
                 if not getattr(app.state, "dynamic_tools_registered", False):
-                    _logger.info("[jit] initializing dynamic tools (token starts with: %s...)", token[:8])
+                    _logger.info("[JIT] initializing dynamic tools (token starts with: %s...)", token[:8])
                     success = await asyncio.to_thread(docuengine.init_dynamic_tools, token)
                     if success:
                         app.state.dynamic_tools_registered = True
                     else:
-                        _logger.warning("[jit] registration failed — will retry on next authenticated request")
+                        _logger.warning("[JIT] registration failed — will retry on next authenticated request")
 
         await self.app(scope, receive, send)
 
@@ -223,28 +223,28 @@ async def callbacks_endpoint(request: Request):
     try:
         callback = json.loads(raw_body)
     except Exception:
-        _logger.warning("[cb] received invalid JSON body")
+        _logger.warning("[CB] received invalid JSON body")
         return {"status": "error", "message": "Body not a valid JSON"}
 
     cb_obj = callback.get("callback")
     custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
-        _logger.warning("[cb] missing 'callback.custom' field")
+        _logger.warning("[CB] missing 'callback.custom' field")
         return {"status": "error", "message": "'callback.custom' missing from received data"}
     request_id = custom.get("request_id")
     if not request_id:
-        _logger.warning("[cb] missing 'request_id' in custom field")
+        _logger.warning("[CB] missing 'request_id' in custom field")
         return {"status": "error", "message": "'request_id' missing from custom field"}
 
     data = callback.get("data",{}) or callback
     if not data:
-        _logger.warning("[cb] missing 'callback.data' field")
+        _logger.warning("[CB] missing 'callback.data' field")
         return {"status": "error", "message": "'callback.data' missing from received data"}
 
     # Store the result keyed by request_id (overwrites on subsequent callbacks)
     set_callback_result(request_id, data, custom)
 
-    _logger.info("[cb] received request_id=%s", request_id)
+    _logger.info("[CB] received request_id=%s", request_id)
 
     return {"status": "ok"}
 
