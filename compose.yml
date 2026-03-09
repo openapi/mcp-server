@@ -15,28 +15,20 @@
 
 services:
   mcp:
-    container_name: mcp-openapi-com
-    build:
+    container_name: mcp-openapi-com    
+    build: 
       context: .
-      # Switch to ./docker/dev/Dockerfile to enable debugpy + live-reload:
-      # dockerfile: ./docker/dev/Dockerfile
-      dockerfile: ./docker/latest/Dockerfile
+      # Switch to ./docker/dev/Dockerfile or ./docker/latest/Dockerfile as needed.   
+      dockerfile: ./docker/dev/Dockerfile
     environment:
-      - PORT=8080
-      # Runtime credentials — use a .env file (gitignored) rather than
-      # hardcoding values here.  Example:
-      #   SERVICES_CREDENTIALS={}
+      - PORT=8080      
     ports:
       - "8080:8080"
-      # Uncomment when using ./docker/dev/Dockerfile (debugpy listener):
-      # - "5678:5678"
-    # Uncomment the volume block below when using ./docker/dev/Dockerfile.
-    # It bind-mounts ./src into the container so code changes take effect
-    # without rebuilding the image.
-    # volumes:
-    #   - type: bind
-    #     source: ./src
-    #     target: /app/src
+      - "5678:5678"
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/src
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------

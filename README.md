@@ -55,15 +55,18 @@ The server will be available at `http://0.0.0.0:8080`.
 
 ## Running with Docker
 
-1. **Build the Docker image**
-   ```bash
-   docker build -t mcp-openapi .
-   ```
+The project ships a single [`compose.yml`](compose.yml) with the `mcp` service.
 
-2. **Start the container**
-   ```bash
-   docker run -it --rm -p 8080:8080 mcp-openapi
-   ```
+```bash
+# Build and start (production-like image)
+docker compose up --build
+
+# Run in background
+docker compose up --build -d
+
+# Follow logs
+docker compose logs -f mcp
+```
 
 The server will be accessible at `http://localhost:8080`.
 
@@ -71,24 +74,75 @@ The server will be accessible at `http://localhost:8080`.
 
 ## Debug and Development
 
-- The server prints details of every request to the console, including headers and parameters.
-- To view logs, start the server from a terminal:
-  ```bash
-  python main.py
-  ```
-- You can modify the `make_api_call` function in [`mcp_core.py`](mcp_core.py) to add additional print statements or logging.
-- Use tools like [httpie](https://httpie.io/) or `curl` to manually test endpoints:
-  ```bash
-  curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/mcp/
-  ```
+### Local development (without Docker)
 
-### Hot Reload (optional)
+The fastest iteration loop runs the server directly with `uvicorn`:
 
-For rapid development, you can use [watchdog](https://pypi.org/project/watchdog/) or [entr](https://eradman.com/entrproject/) to restart the server on every file change:
 ```bash
-pip install watchdog
-watchmedo auto-restart --pattern="*.py" -- python main.py
+make start
 ```
+
+This sets `PYTHONPATH=src` and starts `uvicorn` with auto-reload disabled. The
+server listens on `http://0.0.0.0:8080`.
+
+To test endpoints manually:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/mcp/
+```
+
+The server prints request headers and parameters to stdout — no extra
+configuration needed.
+
+---
+
+### Remote debugging with VS Code and Docker (one click)
+
+The repository is pre-configured for a **single-click** debug experience.
+No manual steps, no editing compose files, no terminal commands.
+
+#### How it works
+
+| File | Role |
+|---|---|
+| [`docker/dev/Dockerfile`](docker/dev/Dockerfile) | Debug image — adds `debugpy`, exposes port 5678 |
+| [`compose.debug.yml`](compose.debug.yml) | Compose override — activates the dev image + port + bind mount |
+| [`.vscode/tasks.json`](.vscode/tasks.json) | VS Code tasks — starts/stops the container automatically |
+| [`.vscode/launch.json`](.vscode/launch.json) | Launch config — ties everything together under F5 |
+
+#### Workflow
+
+1. **Set your breakpoints** anywhere in `src/`.
+2. **Open Run and Debug** (`Ctrl+Shift+D` / `⌘+Shift+D`).
+3. **Select `MCP: Debug (Docker)`** from the dropdown.
+4. **Press F5.**
+
+VS Code will:
+
+- Build the debug image (`docker/dev/Dockerfile`) if needed.
+- Start the container (merging `compose.yml` + `compose.debug.yml`).
+- Wait automatically until the server logs `Server FastAPI+MCP ready`.
+- Attach `debugpy` — your breakpoints are now live.
+
+When you press **⇧F5** (Stop), VS Code detaches and tears down the container.
+
+> **Keep the container alive after detaching?**
+> Remove the `"postDebugTask"` line from `.vscode/launch.json`. You can then
+> re-attach at any time by pressing F5 again without rebuilding.
+
+#### Live code reload
+
+`compose.debug.yml` bind-mounts `./src` into `/app/src` inside the container.
+Edits to files under `src/` are reflected **immediately** — no image rebuild
+required. Just send a new request and the updated code runs.
+
+#### Path mapping reference
+
+| | Host | Container |
+|---|---|---|
+| Source code | `./src` | `/app/src` |
+| MCP server | `localhost:8080` | `0.0.0.0:8080` |
+| debugpy listener | `localhost:5678` | `0.0.0.0:5678` |
 
 ---
 
@@ -122,12 +176,15 @@ watchmedo auto-restart --pattern="*.py" -- python main.py
 
 ## Project Structure
 
-- [`main.py`](main.py): FastAPI + MCP server entry point.
-- [`mcp_core.py`](mcp_core.py): MCP initialization, API call helpers, error handling.
-- [`/apis/`](apis/): Python modules defining MCP tools (one per API/scope).
+- [`src/openapi_mcp_server/main.py`](src/openapi_mcp_server/main.py): FastAPI + MCP server entry point.
+- [`src/openapi_mcp_server/mcp_core.py`](src/openapi_mcp_server/mcp_core.py): MCP initialization, API call helpers, error handling.
+- [`src/openapi_mcp_server/apis/`](src/openapi_mcp_server/apis/): Python modules defining MCP tools (one per API/scope).
 - [`requirements.txt`](requirements.txt): Python dependencies.
+- [`compose.yml`](compose.yml): Docker Compose (production image by default; see comments to switch to debug).
+- [`docker/latest/Dockerfile`](docker/latest/Dockerfile): Production Docker image.
+- [`docker/dev/Dockerfile`](docker/dev/Dockerfile): Development image with `debugpy` for VS Code remote debugging.
+- [`.vscode/launch.json`](.vscode/launch.json): VS Code debug configuration (attach to debugpy).
 - [`docs/`](docs/): Documentation and example configurations.
-- [`Dockerfile`](Dockerfile): Docker container build and start.
 
 ---
 
