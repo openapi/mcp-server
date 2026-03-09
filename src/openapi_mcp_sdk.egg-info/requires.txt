@@ -1,0 +1,8 @@
+expiringdict>=1.2.2
+fastmcp>=2.9.1
+mcp[cli]>=1.10.1
+pydantic>=2.11.7
+python-dotenv>=1.1.1
+requests>=2.32.4
+uvicorn>=0.35.0
+fastapi>=0.110.0
