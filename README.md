@@ -11,45 +11,43 @@ This project implements a **Model Context Protocol (MCP)** server that acts as a
 
 ---
 
-## Prerequisites
+## Quick Start — run from PyPI (recommended)
 
-- Python 3.9+
-- [uv](https://github.com/astral-sh/uv) (for dependency management)
-- Internet connection
-- **(Optional)** [Docker](https://www.docker.com/) for containerized execution
-
----
-
-## Installation (Local Environment)
-
-1. **Clone the repository**
-   ```bash
-   git clone <REPO_URL>
-   cd mcp.openapi.com
-   ```
-
-2. **Create and activate a virtual environment**
-   ```bash
-   uv venv
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   uv pip install -r requirements.txt
-   # or, using uv:
-   uv add "fastmcp" requests pydantic
-   ```
-
----
-
-## Starting the Server
+No need to clone the repository. The server is published on [PyPI](https://pypi.org/project/mcp-openapi-com/) and can be started with a single command using [`uvx`](https://github.com/astral-sh/uv):
 
 ```bash
-python main.py
+uvx mcp-openapi-com
 ```
 
-The server will be available at `http://0.0.0.0:8080`.
+The server starts immediately at `http://localhost:8080`. No installation, no virtual environment, no cloning.
+
+---
+
+## Local launcher script
+
+Copy the block below, paste it into your terminal, and press Enter. It will create a `mcp-server.sh` file in the current directory and launch the server:
+
+```bash
+cat > mcp-server.sh << 'EOF'
+#!/bin/bash
+# ============================================================
+# Openapi.com MCP Server — local launcher
+# Edit the variables below, then run: bash mcp-server.sh
+# ============================================================
+
+export PORT="${PORT:-8080}"
+export SERVICES_CREDENTIALS="${SERVICES_CREDENTIALS:-{}}"
+
+uvx mcp-openapi-com
+EOF
+bash mcp-server.sh
+```
+
+Next time, just run:
+
+```bash
+bash mcp-server.sh
+```
 
 ---
 
@@ -106,7 +104,7 @@ No manual steps, no editing compose files, no terminal commands.
 | File | Role |
 |---|---|
 | [`docker/dev/Dockerfile`](docker/dev/Dockerfile) | Debug image — adds `debugpy`, exposes port 5678 |
-| [`compose.debug.yml`](compose.debug.yml) | Compose override — activates the dev image + port + bind mount |
+| [`compose.yml`](compose.yml) | Compose config — dev image, debug ports, bind mount |
 | [`.vscode/tasks.json`](.vscode/tasks.json) | VS Code tasks — starts/stops the container automatically |
 | [`.vscode/launch.json`](.vscode/launch.json) | Launch config — ties everything together under F5 |
 
@@ -120,7 +118,7 @@ No manual steps, no editing compose files, no terminal commands.
 VS Code will:
 
 - Build the debug image (`docker/dev/Dockerfile`) if needed.
-- Start the container (merging `compose.yml` + `compose.debug.yml`).
+- Start the container via `compose.yml` (debug image + bind mount).
 - Wait automatically until the server logs `Server FastAPI+MCP ready`.
 - Attach `debugpy` — your breakpoints are now live.
 
@@ -132,7 +130,7 @@ When you press **⇧F5** (Stop), VS Code detaches and tears down the container.
 
 #### Live code reload
 
-`compose.debug.yml` bind-mounts `./src` into `/app/src` inside the container.
+`compose.yml` bind-mounts `./src` into `/app/src` inside the container.
 Edits to files under `src/` are reflected **immediately** — no image rebuild
 required. Just send a new request and the updated code runs.
 

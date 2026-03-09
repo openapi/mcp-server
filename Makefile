@@ -43,7 +43,7 @@ PORT := 8080
 ## Targets
 ## =======
 
-.PHONY: start check-env test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox try-claude try-claude-sandbox test-docker-compose-up
+.PHONY: start check-env release test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox try-claude try-claude-sandbox test-docker-compose-up
 
 ## Check that python3 and uv are available, with OS-specific install hints
 check-env:
@@ -67,6 +67,15 @@ try-claude: check-env .install.stamp
 ## Start local MCP server and open Claude interactively - sandbox (requires: export OPENAPI_SANDBOX_TOKEN=your_token)
 try-claude-sandbox: check-env .install.stamp
 	@SANDBOX=1 bash scripts/try-claude.sh
+
+## =========
+## Release
+## =========
+
+## Build the package and publish it to PyPI (requires: uv, PyPI credentials)
+release:
+	$(UV) build
+	$(UV) publish
 
 ## =======
 ## Testing

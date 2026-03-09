@@ -204,11 +204,12 @@ app.add_middleware(
 app.mount("/", mcp_app)
 
 
-if __name__ == "__main__":
+def run():
     import uvicorn
-    # TODO: Remove legacy dependency — PORT env var defaulting to 80 follows Google Cloud Run
-    # convention. Standard default should be 8080 (or configurable). Update Dockerfile EXPOSE
-    # and Makefile accordingly when decoupled.
-    port = int(os.environ.get("PORT", 80))  # Cloud Run usa PORT, default 80
+    port = int(os.environ.get("PORT", 8080))
     print(f"\n--- Server FastAPI+MCP ready on http://0.0.0.0:{port} ---", file=sys.stderr)
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+    run()
