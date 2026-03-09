@@ -74,6 +74,7 @@ try-claude-sandbox: check-env .install.stamp
 
 ## Build the package and publish it to PyPI (requires: uv, PyPI credentials)
 release:
+	rm -rf dist/
 	$(UV) build
 	$(UV) publish
 
