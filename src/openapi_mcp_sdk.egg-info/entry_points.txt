@@ -1,0 +1,2 @@
+[console_scripts]
+openapi-mcp-sdk = openapi_mcp_sdk.cli:main

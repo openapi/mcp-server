@@ -70,9 +70,20 @@ try-claude: check-env .install.stamp
 try-claude-sandbox: check-env .install.stamp
 	@SANDBOX=1 bash scripts/try-claude.sh
 
-## =========
+## ==============
+## Git Operations
+## ==============
+
+dev-push:
+	@git config credential.helper 'cache --timeout=3600'
+	@git add .
+	@git commit -m "chore: update code" || true
+	@git push
+
+
+## =======
 ## Release
-## =========
+## =======
 
 ## Build the package and publish it to PyPI (requires: uv, PyPI credentials)
 release:
