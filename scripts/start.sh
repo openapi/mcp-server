@@ -2,11 +2,18 @@
 # Start the MCP server and expose it publicly via ngrok (if installed).
 # Usage: bash scripts/start.sh
 # Env:   PORT (default 8080), HOST (default 0.0.0.0)
+#        NGROK_DOMAIN — set to your reserved ngrok static domain to get a
+#                       stable URL that never changes across restarts.
+#                       Claim your free static domain at:
+#                       https://dashboard.ngrok.com/domains
+#        Example:
+#                       export NGROK_DOMAIN=your-name.ngrok-free.app
 
 set -uo pipefail
 
 PORT="${PORT:-8080}"
 HOST="${HOST:-0.0.0.0}"
+NGROK_DOMAIN="${NGROK_DOMAIN:-}"
 
 SERVER_PID=""
 NGROK_PID=""
@@ -41,7 +48,11 @@ if ! command -v ngrok > /dev/null 2>&1; then
     exit 0
 fi
 
-ngrok http "$PORT" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
+if [ -n "$NGROK_DOMAIN" ]; then
+    ngrok http "$PORT" --domain="$NGROK_DOMAIN" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
+else
+    ngrok http "$PORT" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
+fi
 NGROK_PID=$!
 
 # poll the ngrok local API until the tunnel URL is available or ngrok exits with an error

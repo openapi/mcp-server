@@ -35,9 +35,10 @@
 ## Variables
 ## =========
 
-UV   := uv
-HOST := 0.0.0.0
-PORT := 8080
+UV          := uv
+HOST        := 0.0.0.0
+PORT        := 8080
+NGROK_DOMAIN ?=
 
 ## =======
 ## Targets
@@ -57,8 +58,9 @@ check-env:
 	@touch .install.stamp
 
 ## Setup the local environment and start the server (exposes a public ngrok URL if ngrok is installed)
+## Set NGROK_DOMAIN=your-name.ngrok-free.app for a stable URL across restarts.
 start: check-env .install.stamp
-	@PORT=$(PORT) HOST=$(HOST) bash scripts/start.sh
+	@PORT=$(PORT) HOST=$(HOST) NGROK_DOMAIN=$(NGROK_DOMAIN) bash scripts/start.sh
 
 ## Start local MCP server and open Claude interactively - production (requires: export OPENAPI_TOKEN=your_token)
 try-claude: check-env .install.stamp
