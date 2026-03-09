@@ -5,11 +5,10 @@ Intercepts JSON-RPC POST bodies and emits a one-line human-readable log entry
 for every MCP action without exposing any parameter values (no PII leakage).
 
 Example output:
-  [MCP] connect        client=claude-ai/1.0.0
-  [MCP] initialized
-  [MCP] tools/list
-  [MCP] tool call      name=company_search_it
-  [MCP] tool call      name=geocoding_reverse
+  [MCP] connect        ip=X.X.X.X  client=claude-ai/1.0.0
+  [MCP] initialized    ip=X.X.X.X
+  [MCP] tools/list     ip=X.X.X.X
+  [MCP] tool call      ip=X.X.X.X  name=company_search_it
   [MCP] ping           (debug only)
 """
 
@@ -38,7 +37,7 @@ _LABELS: dict[str, str | None] = {
 }
 
 
-def _emit(body: bytes) -> None:
+def _emit(body: bytes, client_ip: str) -> None:
     """Parse a JSON-RPC body and emit a structured audit log line."""
     try:
         data = json.loads(body)
@@ -53,7 +52,7 @@ def _emit(body: bytes) -> None:
     label = _LABELS.get(method, method)   # unknown methods shown verbatim
 
     if label is None:
-        _log.debug("[MCP] %s", method)
+        _log.debug("[MCP] %s  ip=%s", method, client_ip)
         return
 
     if method == "initialize":
@@ -61,22 +60,22 @@ def _emit(body: bytes) -> None:
         name    = info.get("name", "unknown")
         version = info.get("version", "")
         proto   = (params.get("protocolVersion") or "")
-        _log.info("[MCP] %-18s client=%s/%s  protocol=%s", label, name, version, proto)
+        _log.info("[MCP] %-18s ip=%-15s client=%s/%s  protocol=%s", label, client_ip, name, version, proto)
 
     elif method == "tools/call":
-        _log.info("[MCP] %-18s name=%s", label, params.get("name", "?"))
+        _log.info("[MCP] %-18s ip=%-15s name=%s", label, client_ip, params.get("name", "?"))
 
     elif method == "resources/read":
-        _log.info("[MCP] %-18s uri=%s", label, params.get("uri", "?"))
+        _log.info("[MCP] %-18s ip=%-15s uri=%s", label, client_ip, params.get("uri", "?"))
 
     elif method == "prompts/get":
-        _log.info("[MCP] %-18s name=%s", label, params.get("name", "?"))
+        _log.info("[MCP] %-18s ip=%-15s name=%s", label, client_ip, params.get("name", "?"))
 
     elif method == "notifications/cancelled":
-        _log.info("[MCP] %-18s id=%s", label, data.get("id", "?"))
+        _log.info("[MCP] %-18s ip=%-15s id=%s", label, client_ip, data.get("id", "?"))
 
     else:
-        _log.info("[MCP] %s", label)
+        _log.info("[MCP] %-18s ip=%s", label, client_ip)
 
 
 class McpAuditMiddleware:
@@ -95,6 +94,9 @@ class McpAuditMiddleware:
             await self.app(scope, receive, send)
             return
 
+        client = scope.get("client") or ("?", 0)
+        client_ip: str = client[0]
+
         chunks: list[bytes] = []
         done = False
 
@@ -105,7 +107,7 @@ class McpAuditMiddleware:
                 chunks.append(message.get("body", b""))
                 if not message.get("more_body", False):
                     done = True
-                    _emit(b"".join(chunks))
+                    _emit(b"".join(chunks), client_ip)
             return message
 
         await self.app(scope, auditing_receive, send)
