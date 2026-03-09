@@ -67,7 +67,7 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:
     parsed = urlparse(url)
     # Log service name + path only — never query params (may contain PII / business data)
-    service = parsed.netloc.split(".")[0] if parsed.netloc else "unknown"
+    service = (parsed.netloc.split(".")[0] if parsed.netloc else "unknown").upper()
     logger.info("[%s] %s %s", service, method, parsed.path)
     # Attempt to retrieve the Authorization header from multiple sources
     try:
