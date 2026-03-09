@@ -9,14 +9,16 @@ from .memory_store import get_callback_result, set_callback_result
 from .mcp_core import mcp # Import MCP instance with tools already registered in mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Import tool modules (side-effect: triggers @mcp.tool registration)
 
-# Attempt to initialize dynamic tools if a token is present in the environment
-docuengine.init_dynamic_tools()
-
 # Create the MCP ASGI app mounted at root
 mcp_app = mcp.http_app(path='/')
 
 # Create the FastAPI app
 app = FastAPI(lifespan=mcp_app.lifespan)
+
+# Attempt to initialize dynamic tools if a token is present in the environment.
+# Mark as registered on app.state so JIT registration is skipped for this session.
+if docuengine.init_dynamic_tools():
+    app.state.dynamic_tools_registered = True
 
 # Lock to prevent concurrent duplicate registrations
 registration_lock = asyncio.Lock()
