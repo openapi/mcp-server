@@ -73,7 +73,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
     except Exception:
         client_ip = "?"
     tag = f"[{service}]"
-    logger.info('%-18s %s "%s %s"', tag, client_ip, method, parsed.path)
+    logger.info('%s %s "%s %s"', tag, client_ip, method, parsed.path)
     # Attempt to retrieve the Authorization header from multiple sources
     try:
         auth_header = None

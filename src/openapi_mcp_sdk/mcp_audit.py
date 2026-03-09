@@ -53,7 +53,7 @@ def _emit(body: bytes, client_ip: str) -> None:
     label = _LABELS.get(method, method.capitalize())
 
     if label is None:
-        _log.debug('%-18s %s "%s"', _TAG, client_ip, method)
+        _log.debug('%s %s "%s"', _TAG, client_ip, method)
         return
 
     if method == "initialize":
@@ -61,22 +61,22 @@ def _emit(body: bytes, client_ip: str) -> None:
         name    = info.get("name", "unknown")
         version = info.get("version", "")
         proto   = (params.get("protocolVersion") or "")
-        _log.info('%-18s %s "Connect" client=%s/%s protocol=%s', _TAG, client_ip, name, version, proto)
+        _log.info('%s %s "Connect" client=%s/%s protocol=%s', _TAG, client_ip, name, version, proto)
 
     elif method == "tools/call":
-        _log.info('%-18s %s "Tool call" name=%s', _TAG, client_ip, params.get("name", "?"))
+        _log.info('%s %s "Tool call" name=%s', _TAG, client_ip, params.get("name", "?"))
 
     elif method == "resources/read":
-        _log.info('%-18s %s "Resource read" uri=%s', _TAG, client_ip, params.get("uri", "?"))
+        _log.info('%s %s "Resource read" uri=%s', _TAG, client_ip, params.get("uri", "?"))
 
     elif method == "prompts/get":
-        _log.info('%-18s %s "Prompt get" name=%s', _TAG, client_ip, params.get("name", "?"))
+        _log.info('%s %s "Prompt get" name=%s', _TAG, client_ip, params.get("name", "?"))
 
     elif method == "notifications/cancelled":
-        _log.info('%-18s %s "Cancelled" id=%s', _TAG, client_ip, data.get("id", "?"))
+        _log.info('%s %s "Cancelled" id=%s', _TAG, client_ip, data.get("id", "?"))
 
     else:
-        _log.info('%-18s %s "%s"', _TAG, client_ip, label)
+        _log.info('%s %s "%s"', _TAG, client_ip, label)
 
 
 class McpAuditMiddleware:
