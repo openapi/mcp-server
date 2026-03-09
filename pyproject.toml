@@ -1,5 +1,5 @@
 [project]
-name = "mcp-openapi-com"
+name = "openapi-mcp-sdk"
 version = "0.2.0"
 description = "Openapi.com official mcp server implementation"
 readme = "README.md"
@@ -16,4 +16,4 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-openapi-com = "openapi_mcp_server.main:run"
+openapi-mcp-sdk = "openapi_mcp_server.cli:main"
