@@ -31,8 +31,14 @@ _logger = logging.getLogger(__name__)
 
 
 class _SanitizedAccessFormatter:
-    """Wraps uvicorn's AccessFormatter to mask ?token=<value> in the request line."""
+    """Wraps uvicorn's AccessFormatter to produce a uniform log layout and mask tokens.
+
+    Output format (same schema as all other log lines):
+      [HTTP]             X.X.X.X   - "POST / HTTP/1.1" 200 OK
+    """
     _TOKEN_RE = re.compile(r'([?&])token=[^&\s"]+')
+    # Matches the literal [HTTP] tag followed by the addr:port that uvicorn emits
+    _ADDR_RE  = re.compile(r'\[HTTP\] (\S+?) -')
 
     def __init__(self, *args, **kwargs):
         try:
@@ -43,7 +49,14 @@ class _SanitizedAccessFormatter:
 
     def format(self, record: logging.LogRecord) -> str:
         result = self._inner.format(record)
-        return self._TOKEN_RE.sub(r'\1token=***', result)
+        # Mask token in URL
+        result = self._TOKEN_RE.sub(r'\1token=***', result)
+        # Reformat "[HTTP] addr:port -" → "[HTTP padded] ip_padded -"
+        def _repad(m: re.Match) -> str:
+            addr = m.group(1)
+            ip = addr.rsplit(":", 1)[0] if ":" in addr else addr
+            return f'{"[HTTP]":<18} {ip:<15} -'
+        return self._ADDR_RE.sub(_repad, result)
 
     # Delegate everything else to the inner formatter
     def __getattr__(self, name):
@@ -151,14 +164,15 @@ class TokenQuerystringMiddleware:
         # JIT Registration: if we have a token and tools are not yet registered, proceed.
         # Run the sync HTTP call in a thread so we never block the event loop.
         if token and not getattr(app.state, "dynamic_tools_registered", False):
+            client_ip = (scope.get("client") or ("?", 0))[0]
             async with registration_lock:
                 if not getattr(app.state, "dynamic_tools_registered", False):
-                    _logger.info("[JIT] initializing dynamic tools (token starts with: %s...)", token[:8])
+                    _logger.info("%-18s %-15s - \"initializing dynamic tools (token: %s...)\"", "[JIT]", client_ip, token[:8])
                     success = await asyncio.to_thread(docuengine.init_dynamic_tools, token)
                     if success:
                         app.state.dynamic_tools_registered = True
                     else:
-                        _logger.warning("[JIT] registration failed — will retry on next authenticated request")
+                        _logger.warning("%-18s %-15s - \"registration failed — will retry on next request\"", "[JIT]", client_ip)
 
         await self.app(scope, receive, send)
 
@@ -218,33 +232,34 @@ app.add_middleware(
 
 @app.post("/callbacks")
 async def callbacks_endpoint(request: Request):
+    client_ip = request.client.host if request.client else "?"
     # Read raw body and deserialize to an object
     raw_body = await request.body()
     try:
         callback = json.loads(raw_body)
     except Exception:
-        _logger.warning("[CB] received invalid JSON body")
+        _logger.warning("%-18s %-15s - \"invalid JSON body\"", "[CB]", client_ip)
         return {"status": "error", "message": "Body not a valid JSON"}
 
     cb_obj = callback.get("callback")
     custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
-        _logger.warning("[CB] missing 'callback.custom' field")
+        _logger.warning("%-18s %-15s - \"missing callback.custom field\"", "[CB]", client_ip)
         return {"status": "error", "message": "'callback.custom' missing from received data"}
     request_id = custom.get("request_id")
     if not request_id:
-        _logger.warning("[CB] missing 'request_id' in custom field")
+        _logger.warning("%-18s %-15s - \"missing request_id in custom field\"", "[CB]", client_ip)
         return {"status": "error", "message": "'request_id' missing from custom field"}
 
     data = callback.get("data",{}) or callback
     if not data:
-        _logger.warning("[CB] missing 'callback.data' field")
+        _logger.warning("%-18s %-15s - \"missing callback.data field\"", "[CB]", client_ip)
         return {"status": "error", "message": "'callback.data' missing from received data"}
 
     # Store the result keyed by request_id (overwrites on subsequent callbacks)
     set_callback_result(request_id, data, custom)
 
-    _logger.info("[CB] received request_id=%s", request_id)
+    _logger.info("%-18s %-15s - \"received\" request_id=%s", "[CB]", client_ip, request_id)
 
     return {"status": "ok"}
 
