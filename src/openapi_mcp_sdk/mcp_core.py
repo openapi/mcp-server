@@ -5,8 +5,12 @@ from typing import Any, Optional
 from pydantic import BaseModel
 from .memory_store import get_callback_result,BASE_URL
 import asyncio
+import logging
 import requests
 import json
+from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 
 # Create the MCP server instance
 mcp = FastMCP(
@@ -44,9 +48,9 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     progress_report = ctx.report_progress(progress=1, total=45)
     # Poll callback_results once per second
     result = None
-    for i in range(timeout):  # Poll up to 10 seconds
+    for i in range(timeout):
         await asyncio.sleep(1)
-        print(f"Wait: {i}")
+        logger.debug("polling request_id=%s elapsed=%ds", request_id, i + 1)
         result = get_callback_result(request_id)
         if(result):
             if result.get("data").get(state_field) in final_states:
@@ -61,14 +65,10 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
 
 # Takes request details (method, url, json_payload), automatically adds the auth header, sends the request, and handles responses and errors.
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:
-    print(f"Call api url: {url}")
-    for attr in dir(ctx):
-        if not attr.startswith('__'):
-            try:
-                value = getattr(ctx, attr)
-                # print(f"  ctx.{attr} = {value}")
-            except Exception as e:
-                print(f"  ctx.{attr} = <errore: {e}>")
+    parsed = urlparse(url)
+    # Log service name + path only — never query params (may contain PII / business data)
+    service = parsed.netloc.split(".")[0] if parsed.netloc else "unknown"
+    logger.info("[%s] %s %s", service, method, parsed.path)
     # Attempt to retrieve the Authorization header from multiple sources
     try:
         auth_header = None
