@@ -14,3 +14,6 @@ dependencies = [
     "uvicorn>=0.35.0",
     "fastapi>=0.110.0",
 ]
+
+[project.scripts]
+mcp-openapi-com = "openapi_mcp_server.main:run"
