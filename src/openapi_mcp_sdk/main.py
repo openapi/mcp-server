@@ -83,16 +83,19 @@ class TokenQuerystringMiddleware:
             await self.app(scope, receive, send)
             return
 
-        from urllib.parse import parse_qs
+        from urllib.parse import parse_qs, urlencode
         query_string = scope.get("query_string", b"").decode()
-        token: str | None = (parse_qs(query_string).get("token") or [None])[0]
+        params = parse_qs(query_string, keep_blank_values=True)
+        token: str | None = (params.pop("token", None) or [None])[0]
 
         if token:
             # Strip any existing Authorization header and inject the new one.
-            # Create a new scope dict so we don't mutate the shared original.
+            # Also remove ?token= from the query string so it never appears in
+            # access logs — the token travels as a header from this point on.
+            clean_qs = urlencode(params, doseq=True).encode()
             headers = [(k, v) for k, v in scope["headers"] if k.lower() != b"authorization"]
             headers.append((b"authorization", f"Bearer {token}".encode()))
-            scope = {**scope, "headers": headers}
+            scope = {**scope, "headers": headers, "query_string": clean_qs}
         else:
             # Not in query string — try reading from the Authorization header for JIT registration
             for k, v in scope["headers"]:
