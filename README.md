@@ -6,7 +6,7 @@ can be used in two ways:
 
 - **Ready-to-use server** — run the MCP gateway directly from the package with a
   single command, no cloning or setup required.
-- **Python library** — import `openapi_mcp_server` in your own project to build a
+- **Python library** — import `openapi_mcp_sdk` in your own project to build a
   custom MCP server that wraps openapi.com APIs with your own logic, tools, or auth
   layer on top.
 
@@ -15,9 +15,9 @@ can be used in two ways:
 ## Features
 
 - **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
-- **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](src/openapi_mcp_server/apis/).
+- **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](src/openapi_mcp_sdk/apis/).
 - **MCP-compatible**: Designed according to MCP protocol best practices.
-- **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](src/openapi_mcp_server/mcp_core.py).
+- **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](src/openapi_mcp_sdk/mcp_core.py).
 
 ---
 
@@ -209,9 +209,9 @@ required. Just send a new request and the updated code runs.
 
 ## Project Structure
 
-- [`src/openapi_mcp_server/main.py`](src/openapi_mcp_server/main.py): FastAPI + MCP server entry point.
-- [`src/openapi_mcp_server/mcp_core.py`](src/openapi_mcp_server/mcp_core.py): MCP initialization, API call helpers, error handling.
-- [`src/openapi_mcp_server/apis/`](src/openapi_mcp_server/apis/): Python modules defining MCP tools (one per API/scope).
+- [`src/openapi_mcp_sdk/main.py`](src/openapi_mcp_sdk/main.py): FastAPI + MCP server entry point.
+- [`src/openapi_mcp_sdk/mcp_core.py`](src/openapi_mcp_sdk/mcp_core.py): MCP initialization, API call helpers, error handling.
+- [`src/openapi_mcp_sdk/apis/`](src/openapi_mcp_sdk/apis/): Python modules defining MCP tools (one per API/scope).
 - [`requirements.txt`](requirements.txt): Python dependencies.
 - [`compose.yml`](compose.yml): Docker Compose (production image by default; see comments to switch to debug).
 - [`docker/latest/Dockerfile`](docker/latest/Dockerfile): Production Docker image.

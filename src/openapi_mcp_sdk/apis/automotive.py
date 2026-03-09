@@ -1,8 +1,8 @@
 print("automotive.py Imported")
 from fastmcp import Context
 from typing import Any
-from src.openapi_mcp_server.mcp_core import make_api_call, mcp
-from src.openapi_mcp_server.memory_store import SANDBOX_PREFIX
+from ..mcp_core import make_api_call, mcp
+from ..memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def check_license_plate(countryCode: str, type: str, licensePlate: str, ctx: Context) -> Any:

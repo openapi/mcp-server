@@ -1,8 +1,8 @@
 print("visurecamerali.py Imported")
-from src.openapi_mcp_server.memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX  # usa sempre il singleton globale
+from ..memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
-from src.openapi_mcp_server.mcp_core import make_api_call, mcp, processPolling, getSessionHash
+from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
 import base64
 import zipfile
 import io
@@ -12,7 +12,7 @@ import json
 # (e.g. /tmp or STORAGE_PATH env var) for dev/portable deployments, and optionally support
 # S3-compatible backends (boto3 + STORAGE_BACKEND env var) for other clouds.
 # Remove google-cloud-storage from requirements.txt and pyproject.toml when done.
-from google.cloud import storage
+# Import is deferred to the functions that need it to keep google-cloud-storage optional.
 import os
 import mimetypes
 from datetime import datetime, timedelta, timezone
@@ -91,6 +91,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
         # Replace with STORAGE_BUCKET env var and abstract the upload behind a storage interface
         # so it can use local disk, S3, GCS, or Azure Blob interchangeably.
         bucket_name = os.getenv("K_SERVICE")
+        from google.cloud import storage  # lazy import — optional legacy dependency
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
 

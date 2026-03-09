@@ -1,6 +1,6 @@
 print("info.py Imported")
-from src.openapi_mcp_server.mcp_core import mcp, getSessionHash
-from src.openapi_mcp_server.memory_store import BASE_URL, SANDBOX_PREFIX
+from ..mcp_core import mcp, getSessionHash
+from ..memory_store import BASE_URL, SANDBOX_PREFIX
 from fastmcp import Context
 from typing import Any
 import sys
