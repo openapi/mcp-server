@@ -4,6 +4,14 @@
 !.vscode/launch.json
 !.vscode/tasks.json
 
+# Packaging
+*.egg-info/
+.eggs/
+
+# Build
+build/
+dist/
+
 # Ignore Python bytecode and virtual environment
 __pycache__
 .venv
