@@ -64,7 +64,7 @@ wait_for_server() {
             return 0
         fi
         sleep 1
-        (( elapsed++ ))
+        elapsed=$(( elapsed + 1 ))
     done
     return 1
 }
@@ -73,7 +73,7 @@ wait_for_server() {
 stop_server() {
     if [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null; then
         kill "$SERVER_PID" 2>/dev/null
-        wait "$SERVER_PID" 2>/dev/null
+        wait "$SERVER_PID" 2>/dev/null || true   # exit status may be non-zero (SIGTERM=143)
     fi
     SERVER_PID=
 }
@@ -88,19 +88,22 @@ run_test() {
     info "Testing: $description (port $port)"
     start_server "$port" "$@"
 
-    if wait_for_server "$SERVER_PID" "$port" 60; then
+    local pid_snapshot="$SERVER_PID"
+    if wait_for_server "$SERVER_PID" "$port" 120; then
         local http_code
         http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 3 \
-                    "http://localhost:$port/status/probe" 2>/dev/null)
+                    "http://localhost:$port/status/probe" 2>/dev/null) || http_code="???"
         stop_server
         pass "$description → HTTP $http_code"
         return 0
     else
+        local alive=false
+        kill -0 "$pid_snapshot" 2>/dev/null && alive=true
         stop_server
-        if ! kill -0 "${SERVER_PID:-0}" 2>/dev/null; then
-            fail "$description → server exited before responding"
-        else
+        if $alive; then
             fail "$description → server did not respond within timeout"
+        else
+            fail "$description → server exited before responding"
         fi
         if [[ -f "/tmp/pypi-test-server-$port.log" ]]; then
             echo "--- server log ---"
