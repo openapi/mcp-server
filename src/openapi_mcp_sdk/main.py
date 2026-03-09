@@ -202,7 +202,6 @@ app.mount("/", mcp_app)
 def run():
     import uvicorn
     port = int(os.environ.get("PORT", 8080))
-    print(f"\n--- Server FastAPI+MCP ready on http://0.0.0.0:{port} ---", file=sys.stderr)
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
