@@ -1,11 +1,53 @@
 import os
+import re
 import sys
 import json
+import logging
 import asyncio
+from copy import copy
 from fastapi import FastAPI, Request, HTTPException, Response
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp, Scope, Receive, Send, Message
 from .mcp_audit import McpAuditMiddleware
+
+# ---------------------------------------------------------------------------
+# Bootstrap package logger early — before uvicorn configures its own logging.
+# This ensures [MCP] and [api] lines appear whether the server is started via
+# `openapi-mcp-sdk server` (run()) or directly via `uvicorn ... main:app`.
+# ---------------------------------------------------------------------------
+_pkg_log = logging.getLogger("openapi_mcp_sdk")
+_pkg_log.setLevel(logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO").upper()))
+if not _pkg_log.handlers:
+    _h = logging.StreamHandler(sys.stderr)
+    try:
+        from uvicorn.logging import DefaultFormatter
+        _h.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s", use_colors=True))
+    except ImportError:
+        _h.setFormatter(logging.Formatter("%(levelname)-8s %(message)s"))
+    _pkg_log.addHandler(_h)
+    _pkg_log.propagate = False
+
+_logger = logging.getLogger(__name__)
+
+
+class _SanitizedAccessFormatter:
+    """Wraps uvicorn's AccessFormatter to mask ?token=<value> in the request line."""
+    _TOKEN_RE = re.compile(r'([?&])token=[^&\s"]+')
+
+    def __init__(self, *args, **kwargs):
+        try:
+            from uvicorn.logging import AccessFormatter
+            self._inner = AccessFormatter(*args, **kwargs)
+        except ImportError:
+            self._inner = logging.Formatter(*args, **kwargs)
+
+    def format(self, record: logging.LogRecord) -> str:
+        result = self._inner.format(record)
+        return self._TOKEN_RE.sub(r'\1token=***', result)
+
+    # Delegate everything else to the inner formatter
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
 from .memory_store import get_callback_result, set_callback_result
 from .mcp_core import mcp # Import MCP instance with tools already registered in mcp_core.py
 from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Import tool modules (side-effect: triggers @mcp.tool registration)
@@ -111,12 +153,12 @@ class TokenQuerystringMiddleware:
         if token and not getattr(app.state, "dynamic_tools_registered", False):
             async with registration_lock:
                 if not getattr(app.state, "dynamic_tools_registered", False):
-                    print(f"JIT Registration: initializing dynamic tools with detected token (starts with: {token[:8]}...)")
+                    _logger.info("[jit] initializing dynamic tools (token starts with: %s...)", token[:8])
                     success = await asyncio.to_thread(docuengine.init_dynamic_tools, token)
                     if success:
                         app.state.dynamic_tools_registered = True
                     else:
-                        print("JIT Registration failed. Will retry on next request if token is provided.")
+                        _logger.warning("[jit] registration failed — will retry on next authenticated request")
 
         await self.app(scope, receive, send)
 
@@ -181,28 +223,28 @@ async def callbacks_endpoint(request: Request):
     try:
         callback = json.loads(raw_body)
     except Exception:
-        print("Body not a valid JSON")
+        _logger.warning("[cb] received invalid JSON body")
         return {"status": "error", "message": "Body not a valid JSON"}
 
     cb_obj = callback.get("callback")
     custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
-        print("'callback.custom' missing from received data")
+        _logger.warning("[cb] missing 'callback.custom' field")
         return {"status": "error", "message": "'callback.custom' missing from received data"}
     request_id = custom.get("request_id")
     if not request_id:
-        print("'request_id' missing from custom field")
+        _logger.warning("[cb] missing 'request_id' in custom field")
         return {"status": "error", "message": "'request_id' missing from custom field"}
 
     data = callback.get("data",{}) or callback
     if not data:
-        print("'callback.data' missing from received data")
+        _logger.warning("[cb] missing 'callback.data' field")
         return {"status": "error", "message": "'callback.data' missing from received data"}
 
     # Store the result keyed by request_id (overwrites on subsequent callbacks)
     set_callback_result(request_id, data, custom)
 
-    print(f"Callback: \n{data}\n")
+    _logger.info("[cb] received request_id=%s", request_id)
 
     return {"status": "ok"}
 
@@ -258,6 +300,10 @@ _LOG_CONFIG: dict = {
             "()": "uvicorn.logging.AccessFormatter",
             "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
         },
+        "sanitized_access": {
+            "()": "openapi_mcp_sdk.main._SanitizedAccessFormatter",
+            "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+        },
     },
     "handlers": {
         "default": {
@@ -266,7 +312,7 @@ _LOG_CONFIG: dict = {
             "stream": "ext://sys.stderr",
         },
         "access": {
-            "formatter": "access",
+            "formatter": "sanitized_access",
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },

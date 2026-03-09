@@ -1,7 +1,10 @@
 # memory_store.py
 # Singleton in-memory store for callback results
 import os
+import logging
 from typing import Dict
+
+logger = logging.getLogger(__name__)
 # TODO: Remove legacy dependency — pymemcache is tied to the Google Cloud VPC-internal Memcached
 # instance (hardcoded IPs X.X.X.X / X.X.X.X). Replace with an environment-agnostic cache
 # abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
@@ -62,7 +65,7 @@ def get_callback_result(request_id: str):
         return get_from_memcached(memcached_client, request_id)
     except Exception as e:
         # Fallback al dizionario in memoria
-        print(f"Error retrieving from Memcached: {e}")
+        logger.debug("memcached get failed, falling back to in-memory store: %s", e)
         if request_id not in callback_results:
             raise KeyError(f"Result not found for request_id: {request_id}")
         return callback_results[request_id]
@@ -82,7 +85,7 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
         save_to_memcached(memcached_client, request_id, result)
     except Exception as e:
         # Fallback al dizionario in memoria
-        print(f"Memcached not enabled: {e}")
+        logger.debug("memcached set failed, falling back to in-memory store: %s", e)
         callback_results[request_id] = result
 
 def save_to_memcached(client, key, value):

@@ -5,6 +5,8 @@ from typing import Any
 from ..mcp_core import make_api_call, mcp
 from ..memory_store import SANDBOX_PREFIX
 
+logger = logging.getLogger(__name__)
+
 @mcp.tool
 async def check_license_plate(countryCode: str, type: str, licensePlate: str, ctx: Context) -> Any:
     """Retrieve informations about type=car,bike,insurance,mot from a countryCode=IT,FR,UK,DE,PT,ES and a licensePlate.
@@ -14,8 +16,5 @@ async def check_license_plate(countryCode: str, type: str, licensePlate: str, ct
         type: required, type of information needed (car|bike|insurance|mot)
         licensePlate: required, the license plate to check
     """
-    print(f"Running Tool: check_license_plate {licensePlate}")
-    
     url = f"https://{SANDBOX_PREFIX}automotive.openapi.com/{countryCode}-{type}/{licensePlate}"
-    api_call =  make_api_call(ctx, "GET", url)
-    return api_call
+    return make_api_call(ctx, "GET", url)
