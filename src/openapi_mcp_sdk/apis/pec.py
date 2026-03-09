@@ -8,9 +8,9 @@ from ..memory_store import SANDBOX_PREFIX
 @mcp.tool(
     annotations={
         "title": "Certified email address availability check",
-        "readOnlyHint": True,  # Dice all'AI: Questo tool legge dati, non modifica nulla
-        "openWorldHint": False, # Dice all'AI: Non puoi inventare parametri a caso
-        "idempotentHint": False # Dice all'AI: Se lo chiami 2 volte con gli stessi dati, il risultato è uguale
+        "readOnlyHint": True,  # Tells the AI: this tool only reads data, it does not modify anything
+        "openWorldHint": False, # Tells the AI: do not invent arbitrary parameter values
+        "idempotentHint": False # Tells the AI: calling twice with the same input yields the same result
     }
 )
 

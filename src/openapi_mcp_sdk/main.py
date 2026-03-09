@@ -5,26 +5,26 @@ import asyncio
 from fastapi import FastAPI, Request, HTTPException, Response
 from starlette.middleware.cors import CORSMiddleware
 from .memory_store import get_callback_result, set_callback_result  # usa sempre il singleton globale
-from .mcp_core import mcp # Importa MCP e tool già registrati da mcp_core.py
-from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Importa i tool (solo per triggerare la registrazione via @mcp.tool)
+from .mcp_core import mcp # Import MCP instance with tools already registered in mcp_core.py
+from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Import tool modules (side-effect: triggers @mcp.tool registration)
 
-# Tenta l'inizializzazione dei tool dinamici (se è presente un token in ambiente)
+# Attempt to initialize dynamic tools if a token is present in the environment
 docuengine.init_dynamic_tools()
 
 from starlette.datastructures import MutableHeaders
 
 
 
-# Crea l'app ASGI MCP sulla root
+# Create the MCP ASGI app mounted at root
 mcp_app = mcp.http_app(path='/')
 
-# Crea l'app FastAPI
+# Create the FastAPI app
 app = FastAPI(lifespan=mcp_app.lifespan)
 
-# Sostituzione del flag globale con asyncio.Event
+# Use asyncio.Event instead of a plain boolean flag
 initialization_complete = asyncio.Event()
 
-# Middleware per attendere il completamento dell'inizializzazione
+# Middleware: wait until initialization is complete before forwarding requests
 @app.middleware("http")
 async def enrich_404(request: Request, call_next):
     response = await call_next(request)
@@ -43,7 +43,7 @@ async def wait_for_initialization(request: Request, call_next):
     response = await call_next(request)
     return response
 
-# Middleware per bloccare le richieste prima dell'inizializzazione
+# Middleware: reject requests that arrive before initialization completes
 @app.middleware("http")
 async def check_initialization(request: Request, call_next):
     if not initialization_complete.is_set():
@@ -51,37 +51,37 @@ async def check_initialization(request: Request, call_next):
     response = await call_next(request)
     return response
 
-# Funzione per completare l'inizializzazione del server
+# Signal that server initialization is complete
 def complete_initialization():
     initialization_complete.set()
 
-# Chiamare questa funzione al termine dell'inizializzazione del server
+# Call once server initialization is done
 complete_initialization()
 
-# Lock per evitare registrazioni multiple simultanee
+# Lock to prevent concurrent duplicate registrations
 registration_lock = asyncio.Lock()
 
-# Middleware per intercettare il token nella querystring e inserirlo nell'header Authorization
+# Middleware: lift token from query string into the Authorization header
 @app.middleware("http")
 async def token_querystring_to_authorization(request: Request, call_next):
     token = request.query_params.get("token")
     if token:
-        # Rimuovi eventuali header Authorization già presenti
+        # Strip any existing Authorization headers
         headers = [
             (k, v)
             for k, v in request.scope["headers"]
             if k.lower() != b"authorization"
         ]
-        # Aggiungi il nuovo header Authorization
+        # Inject the Authorization header
         headers.append((b"authorization", f"Bearer {token}".encode()))
         request.scope["headers"] = headers
     else:
-        # Se non c'è in querystring, prova a prenderlo dagli header per la registrazione JIT
+        # Not in query string — try reading from the Authorization header for JIT registration
         auth = request.headers.get("Authorization")
         if auth and auth.lower().startswith("bearer "):
             token = auth[7:]
 
-    # JIT Registration: Se abbiamo un token e i tool non sono registrati, procedi
+    # JIT Registration: if we have a token and tools are not yet registered, proceed
     if token and not getattr(app.state, "dynamic_tools_registered", False):
         async with registration_lock:
             if not getattr(app.state, "dynamic_tools_registered", False):
@@ -120,10 +120,10 @@ async def reject_oauth_discovery(request: Request, call_next):
         )
     return await call_next(request)
 
-# Endpoint HTTP REST (fuori da MCP/JSON-RPC)
+# Plain HTTP REST endpoints (outside MCP/JSON-RPC)
 @app.post("/callbacks")
 async def callbacks_endpoint(request: Request):
-    # Ricevi il body come testo e deserializza sempre in oggetto
+    # Read raw body and deserialize to an object
     raw_body = await request.body()
     try:
         callback = json.loads(raw_body)
@@ -134,19 +134,19 @@ async def callbacks_endpoint(request: Request):
     cb_obj = callback.get("callback")
     custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
-        print("'callback.custom' mancante nei dati ricevuti")
-        return {"status": "error", "message": "'callback.custom' mancante nei dati ricevuti"}
+        print("'callback.custom' missing from received data")
+        return {"status": "error", "message": "'callback.custom' missing from received data"}
     request_id = custom.get("request_id")
     if not request_id:
-        print("'request_id' mancante nel campo custom")
-        return {"status": "error", "message": "'request_id' mancante nel campo custom"}
+        print("'request_id' missing from custom field")
+        return {"status": "error", "message": "'request_id' missing from custom field"}
     
     data = callback.get("data",{}) or callback
     if not data:
-        print("'callback.data' mancante nei dati ricevuti")
-        return {"status": "error", "message": "'callback.data' mancante nei dati ricevuti"}
+        print("'callback.data' missing from received data")
+        return {"status": "error", "message": "'callback.data' missing from received data"}
     
-    # Salva il risultato associato al client_id (sovrascrive se arriva una nuova callback)
+    # Store the result keyed by request_id (overwrites on subsequent callbacks)
     set_callback_result(request_id, data, custom)
 
     print(f"Callback: \n{data}\n")
@@ -195,7 +195,7 @@ app.add_middleware(
     expose_headers=["mcp-session-id"],
 )
 
-# Monta MCP sulla root, ma /callbacks viene gestito da FastAPI
+# Mount MCP at root; /callbacks and /status/* are handled by FastAPI above
 app.mount("/", mcp_app)
 
 

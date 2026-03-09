@@ -8,7 +8,7 @@ import asyncio
 import requests
 import json
 
-#crea un'istanza del server
+# Create the MCP server instance
 mcp = FastMCP(
     name="OpenAPI.com MCP Gateway",
     instructions=(
@@ -27,7 +27,7 @@ class ApiError(BaseModel):
     error: str
     message: str
 
-#crea un hash univoco per la sessione
+# Build a unique hash for the current session
 def getSessionHash(ctx: Context): 
     session_hash = ctx.request_id+ctx.session_id+ctx.fastmcp.name+(ctx.client_id or "Unknown client")
     headers = get_http_headers()
@@ -35,14 +35,14 @@ def getSessionHash(ctx: Context):
         session_hash += json.dumps(dict(headers))
     return md5(session_hash.encode('utf-8')).hexdigest()
 
-#funzione che aspetta senza bloccare il codice che il risultato sia disponibile chiamando get_callback_result
+# Non-blocking poll that waits until the callback result is available via get_callback_result
 async def processPolling(ctx: Context, request_id: str, final_states: Optional[list] = None, state_field: Optional[str] = "state"):
     timeout = 45
     if final_states is None:
         final_states = ["DONE"]
-    # Riporto il progresso
+    # Report initial progress
     progress_report = ctx.report_progress(progress=1, total=45)
-    # avvia un polling ogni secondo su callback_results 
+    # Poll callback_results once per second
     result = None
     for i in range(timeout):  # Poll up to 10 seconds
         await asyncio.sleep(1)
@@ -59,7 +59,7 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     progress_report = ctx.report_progress(progress=45, total=45)
     return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
 
-#prende i dettagli della richiesta desiderata (method, url, json_payload) e si occupa di aggiungere automaticamente l'header di autenticazione, inviare la richiesta e gestire le risposte e gli errori.
+# Takes request details (method, url, json_payload), automatically adds the auth header, sends the request, and handles responses and errors.
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:
     print(f"Call api url: {url}")
     for attr in dir(ctx):
@@ -69,28 +69,28 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
                 # print(f"  ctx.{attr} = {value}")
             except Exception as e:
                 print(f"  ctx.{attr} = <errore: {e}>")
-    #tenta di recuperare l'header Authorization da diverse fonti
+    # Attempt to retrieve the Authorization header from multiple sources
     try:
         auth_header = None
         
-        # Prova a ottenere l'header Authorization usando il metodo FastMCP
+        # Try to get the Authorization header via FastMCP
         headers = get_http_headers()
         if headers:
             auth_header = headers.get('authorization') or headers.get('Authorization')
         
-        # Se non trovato, prova con il context
+        # If not found, fall back to the request context
         if not auth_header and hasattr(ctx, 'request_context'):
             request_context = ctx.request_context
-            # Controlla se request_context ha l'attributo request
+            # Check if request_context has a request attribute
             if hasattr(request_context, 'request'):
                 request = request_context.request
-                # Controlla se request ha headers
+                # Check if request has headers
                 if hasattr(request, 'headers'):
                     headers_obj = request.headers
-                    # Se headers è un dizionario
+                    # If headers is a dict-like object
                     if hasattr(headers_obj, 'get'):
                         auth_header = headers_obj.get('authorization') or headers_obj.get('Authorization')
-                    # Se headers è un oggetto con attributi
+                    # If headers is an object with attributes
                     elif hasattr(headers_obj, 'authorization'):
                         auth_header = getattr(headers_obj, 'authorization', None) or getattr(headers_obj, 'Authorization', None)
         
