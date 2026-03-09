@@ -12,6 +12,49 @@ can be used in two ways:
 
 ---
 
+## Environment variables
+
+All configuration is done through environment variables. None are required to
+start the server — defaults are suitable for local use.
+
+### Core
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `8080` | HTTP port the server listens on |
+| `BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs) |
+| `CALLBACK_URL` | `$BASE_URL/callbacks` | Explicit callback URL sent to async APIs |
+| `SANDBOX_PREFIX` | _(empty)_ | Subdomain prefix for sandbox API endpoints (e.g. `dev.`) |
+| `SERVICES_CREDENTIALS` | `{}` | JSON map of per-service API credentials |
+
+### Storage
+
+The server needs to store files for APIs that return binary documents (e.g.
+company official documents). The storage backend is configurable:
+
+| Variable | Default | Description |
+|---|---|---|
+| `STORAGE_BACKEND` | `local` | `local` \| `gcs` \| `s3` |
+| `STORAGE_PATH` | `./openapi_storage` | Local path for `local` backend |
+| `STORAGE_BUCKET` | _(required for cloud)_ | Bucket name for `gcs` or `s3` |
+| `STORAGE_REGION` | _(required for s3)_ | AWS region for the S3 bucket |
+
+### Cache
+
+Used to share async callback results across multiple server instances.
+
+| Variable | Default | Description |
+|---|---|---|
+| `CACHE_BACKEND` | `none` | `none` (in-process dict) \| `memcached` \| `redis` |
+| `MEMCACHED_HOST` | _(none)_ | Memcached host (`CACHE_BACKEND=memcached`) |
+| `MEMCACHED_PORT` | `11211` | Memcached port |
+| `CACHE_URL` | _(none)_ | Redis connection URL (`CACHE_BACKEND=redis`), e.g. `redis://host:6379` |
+
+See [`docs/env/`](docs/env/) for per-environment configuration guides (local,
+Docker, AWS, GCP, Kubernetes).
+
+---
+
 ## Features
 
 - **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
@@ -204,6 +247,60 @@ required. Just send a new request and the updated code runs.
    - Reload VS Code.
    - Open the Copilot chat and type `@workspace`.
    - Use the tools exposed by the MCP server.
+
+---
+
+## File storage
+
+Some openapi.com APIs (e.g. **visure camerali** — Italian official company documents)
+return large binary files (ZIP archives, PDFs) that cannot be embedded inline in the
+MCP stream. The server downloads these files, stores them, and serves them via a
+separate HTTP endpoint (`GET /status/{id}/files/{filename}`).
+
+### Default: local filesystem
+
+By default (`STORAGE_BACKEND=local`) files are written to `./openapi_storage`
+relative to the directory from which the server is started:
+
+```
+./openapi_storage/
+└── <request_id>/
+    ├── document.pdf
+    └── attachments.zip
+```
+
+Override the path with the `STORAGE_PATH` environment variable:
+
+```bash
+export STORAGE_PATH=/var/data/openapi_storage
+uvx openapi-mcp-sdk server
+```
+
+> The directory is created automatically on first use. For the download links to
+> work correctly, `BASE_URL` must point to the public address of the server
+> (default: `https://mcp.openapi.com`).
+
+### Cloud storage backends
+
+| `STORAGE_BACKEND` | Additional variables | Notes |
+|---|---|---|
+| `local` | `STORAGE_PATH` (default `./openapi_storage`) | Default — local disk or mounted volume |
+| `gcs` | `STORAGE_BUCKET` | Google Cloud Storage |
+| `s3` | `STORAGE_BUCKET`, `STORAGE_REGION` | AWS S3 or any S3-compatible service |
+
+See [`docs/env/`](docs/env/) for full per-environment configuration guides.
+
+---
+
+## Deployment environments
+
+| Environment | Guide |
+|---|---|
+| Local machine (default) | [`docs/env/local.md`](docs/env/local.md) |
+| Docker / Docker Compose | [`docs/env/docker.md`](docs/env/docker.md) |
+| Google Cloud Platform | [`docs/env/gcp.md`](docs/env/gcp.md) |
+| Amazon Web Services | [`docs/env/aws.md`](docs/env/aws.md) |
+| Kubernetes | [`docs/env/kubernetes.md`](docs/env/kubernetes.md) |
 
 ---
 
