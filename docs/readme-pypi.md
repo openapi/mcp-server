@@ -6,7 +6,7 @@ Use it in two ways:
 
 - **Ready-to-use server** — start a fully configured MCP gateway from the command line
   with a single command, no setup required.
-- **Python library** — import `openapi_mcp_server` in your own project to build a
+- **Python library** — import `openapi_mcp_sdk` in your own project to build a
   custom MCP server on top of openapi.com APIs.
 
 ---
@@ -84,7 +84,7 @@ Point any MCP-compatible client (VS Code, Claude Desktop, …) at the running se
   "servers": {
     "openapi.com": {
       "type": "http",
-      "url": "http://localhost:8080/mcp/",
+      "url": "http://localhost:8080",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"
       }

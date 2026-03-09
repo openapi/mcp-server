@@ -7,7 +7,12 @@ from typing import Dict
 # abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
 # (e.g. via redis-py + CACHE_URL env var) or any other backend for production.
 # Remove pymemcache from requirements.txt and pyproject.toml when done.
-from pymemcache.client import base
+try:
+    from pymemcache.client import base
+    _pymemcache_available = True
+except ImportError:
+    base = None  # type: ignore[assignment]
+    _pymemcache_available = False
 import json
 
 callback_results = {}
@@ -44,7 +49,7 @@ MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", 11211))
 # connect_timeout / timeout = 1 s: when Memcached is unreachable (e.g. local dev,
 # Docker without the VPC network) the client fails fast and the except block
 # falls back to the in-process dict, keeping every endpoint responsive.
-memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT), connect_timeout=1, timeout=1)
+memcached_client = base.Client((MEMCACHED_HOST, MEMCACHED_PORT), connect_timeout=1, timeout=1) if _pymemcache_available else None
 
 # Funzioni aggiornate per supportare Memcached
 def get_callback_result(request_id: str):
@@ -52,6 +57,8 @@ def get_callback_result(request_id: str):
     Retrieves the result of a callback given the request_id.
     """
     try:
+        if memcached_client is None:
+            raise RuntimeError("pymemcache not available")
         return get_from_memcached(memcached_client, request_id)
     except Exception as e:
         # Fallback al dizionario in memoria
@@ -70,6 +77,8 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
         "custom": custom
     }
     try:
+        if memcached_client is None:
+            raise RuntimeError("pymemcache not available")
         save_to_memcached(memcached_client, request_id, result)
     except Exception as e:
         # Fallback al dizionario in memoria

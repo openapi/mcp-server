@@ -3,7 +3,7 @@ from fastmcp.server.dependencies import get_http_headers
 from hashlib import md5
 from typing import Any, Optional
 from pydantic import BaseModel
-from src.openapi_mcp_server.memory_store import get_callback_result,BASE_URL
+from .memory_store import get_callback_result,BASE_URL
 import asyncio
 import requests
 import json

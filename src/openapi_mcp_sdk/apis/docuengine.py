@@ -2,8 +2,8 @@ print("docuengine.py Imported")
 from fastmcp import Context
 import os
 from typing import Any, Dict, List, Optional
-from src.openapi_mcp_server.mcp_core import make_api_call, mcp, processPolling, getSessionHash
-from src.openapi_mcp_server.memory_store import SANDBOX_PREFIX, set_callback_result, callbackUrl
+from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
+from ..memory_store import SANDBOX_PREFIX, set_callback_result, callbackUrl
 
 class DocuEngineHelper:
     """Helper class to manage DocuEngine services and parameter mapping."""

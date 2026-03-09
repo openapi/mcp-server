@@ -66,7 +66,7 @@ codex mcp add "$MCP_SERVER_NAME" \
 
 echo "Starting MCP server..."
 cd "$ROOT_DIR"
-K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_server.main:app \
+K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app \
     --host 0.0.0.0 --port 8080 --log-level warning &
 SERVER_PID=$!
 

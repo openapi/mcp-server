@@ -11,12 +11,6 @@ from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, ge
 # Tenta l'inizializzazione dei tool dinamici (se è presente un token in ambiente)
 docuengine.init_dynamic_tools()
 
-# TODO: Remove legacy dependency — google-cloud-storage is used only to serve downloaded files
-# from a GCS bucket named after K_SERVICE. Replace the /status/{id}/files/{name} endpoint with
-# a storage-agnostic solution: local filesystem for dev (e.g. /tmp), pluggable via a
-# STORAGE_BACKEND env var (local | s3 | gcs). Remove google-cloud-storage from requirements.txt
-# and pyproject.toml when done.
-from google.cloud import storage
 from starlette.datastructures import MutableHeaders
 
 
@@ -174,6 +168,7 @@ async def get_file(request_id: str,file_name: str):
         # TODO: Remove legacy dependency — GCS bucket name is taken from K_SERVICE (Cloud Run env var).
         # Replace with a storage-agnostic file retrieval: read from local disk (STORAGE_PATH env var)
         # for dev, or from a configurable bucket/prefix via STORAGE_BACKEND / STORAGE_BUCKET env vars.
+        from google.cloud import storage  # lazy import — optional legacy dependency
         storage_client = storage.Client()
         bucket = storage_client.bucket(os.getenv("K_SERVICE"))
         blob = bucket.blob(f"{request_id}/{file_name}")

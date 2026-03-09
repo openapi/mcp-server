@@ -1,12 +1,12 @@
 ## Quick context for AI coding agents
 
-This repository implements the OpenAPI.com MCP gateway (FastAPI + FastMCP). The server acts as a proxy that forwards a client's Bearer token to downstream OpenAPI services and exposes MCP tools implemented under `src/openapi_mcp_server/apis/`.
+This repository implements the OpenAPI.com MCP gateway (FastAPI + FastMCP). The server acts as a proxy that forwards a client's Bearer token to downstream OpenAPI services and exposes MCP tools implemented under `src/openapi_mcp_sdk/apis/`.
 
 Key files
-- `src/openapi_mcp_server/main.py` — application entry point. Mounts the MCP app and contains HTTP endpoints `/callbacks` and `/status/{request_id}`. Shows how token query params are converted into an Authorization header.
-- `src/openapi_mcp_server/mcp_core.py` — central FastMCP instance (`mcp`), helper `make_api_call(ctx, method, url, ...)`, and `processPolling` for handling async callbacks.
-- `src/openapi_mcp_server/memory_store.py` — in-memory + Memcached-backed callback result store. Exposes `get_callback_result` and `set_callback_result` and defines `BASE_URL`, `callbackUrl` and memcached config from env vars.
-- `src/openapi_mcp_server/apis/` — each module defines one or more tools decorated with `@mcp.tool`. Importing these modules triggers tool registration.
+- `src/openapi_mcp_sdk/main.py` — application entry point. Mounts the MCP app and contains HTTP endpoints `/callbacks` and `/status/{request_id}`. Shows how token query params are converted into an Authorization header.
+- `src/openapi_mcp_sdk/mcp_core.py` — central FastMCP instance (`mcp`), helper `make_api_call(ctx, method, url, ...)`, and `processPolling` for handling async callbacks.
+- `src/openapi_mcp_sdk/memory_store.py` — in-memory + Memcached-backed callback result store. Exposes `get_callback_result` and `set_callback_result` and defines `BASE_URL`, `callbackUrl` and memcached config from env vars.
+- `src/openapi_mcp_sdk/apis/` — each module defines one or more tools decorated with `@mcp.tool`. Importing these modules triggers tool registration.
 
 What matters for code changes
 - Tools are registered when the `apis` modules are imported by `main.py`. Don't remove those imports unless you know how to re-register tools.
@@ -23,14 +23,14 @@ Common patterns and code examples
   - Use `processPolling(ctx, request_id, ...)` to wait/poll stored results.
 
 Environment and runtime
-- Run locally: `python src/openapi_mcp_server/main.py` (README shows `python main.py` from project root; in this layout use the module path). The server binds to 0.0.0.0:PORT (reads `PORT` env var, default 80).
+- Run locally: `python src/openapi_mcp_sdk/main.py` (README shows `python main.py` from project root; in this layout use the module path). The server binds to 0.0.0.0:PORT (reads `PORT` env var, default 80).
 - Virtualenv: repository uses `uv` in README but `pyproject.toml` shows `requires-python = ">=3.13"`. Note: README states Python 3.9+. If you modify runtime or CI, confirm the correct Python target.
 - Memcached configuration is read from `MEMCACHED_HOST`, `MEMCACHED_PORT`, and `X-DEV-VM`/`K_SERVICE` influence defaults. Tests or dev runs can run with a mocked `memory_store` (it falls back to in-process dict on Memcached errors).
 
 Developer workflows (concrete)
 - Start server (local):
   - Create venv and install requirements (README): `uv venv && source .venv/bin/activate && uv pip install -r requirements.txt`
-  - Run: `python src/openapi_mcp_server/main.py` (or use `uvicorn` as in `if __name__ == '__main__'`).
+  - Run: `python src/openapi_mcp_sdk/main.py` (or use `uvicorn` as in `if __name__ == '__main__'`).
 - Docker: see `Dockerfile` and README.
 - Debugging tips:
   - Check printed logs: `main.py` and `mcp_core.make_api_call` print request details and errors.

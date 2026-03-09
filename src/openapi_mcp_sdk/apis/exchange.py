@@ -1,8 +1,8 @@
 print("exchange.py Imported")
 from fastmcp import Context
 from typing import Any
-from src.openapi_mcp_server.mcp_core import make_api_call, mcp, getSessionHash
-from src.openapi_mcp_server.memory_store import SANDBOX_PREFIX
+from ..mcp_core import make_api_call, mcp, getSessionHash
+from ..memory_store import SANDBOX_PREFIX
 
 @mcp.tool
 async def get_today_exchange_rates(ctx: Context) -> Any:

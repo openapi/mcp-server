@@ -1,9 +1,9 @@
 print("trust.py Imported")
-from src.openapi_mcp_server.memory_store import callback_results, callbackUrl,SANDBOX_PREFIX
+from ..memory_store import callback_results, callbackUrl,SANDBOX_PREFIX
 from fastmcp import Context
 from typing import Any
 import asyncio
-from src.openapi_mcp_server.mcp_core import make_api_call, mcp, processPolling
+from ..mcp_core import make_api_call, mcp, processPolling
 import json
 
 @mcp.tool(

@@ -58,7 +58,7 @@ check-env:
 
 ## Setup the local environment and start the server
 start: check-env .install.stamp
-	PYTHONPATH=src $(UV) run uvicorn openapi_mcp_server.main:app --host $(HOST) --port $(PORT)
+	PYTHONPATH=src $(UV) run uvicorn openapi_mcp_sdk.main:app --host $(HOST) --port $(PORT)
 
 ## Start local MCP server and open Claude interactively - production (requires: export OPENAPI_TOKEN=your_token)
 try-claude: check-env .install.stamp
