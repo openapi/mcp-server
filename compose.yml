@@ -14,8 +14,8 @@
 # =============================================================================
 
 services:
-  mcp:
-    container_name: mcp-openapi-com    
+  mcp-server:
+    container_name: mcp-server
     build: 
       context: .
       # Switch to ./docker/dev/Dockerfile or ./docker/latest/Dockerfile as needed.   
@@ -24,6 +24,7 @@ services:
       - PORT=8080      
     ports:
       - "8080:8080"
+      # Debugpy for remote debugging (only in dev Dockerfile)
       - "5678:5678"
     volumes:
       - type: bind
@@ -58,5 +59,5 @@ services:
       - "6274:6274"   # Web UI
       - "6277:6277"   # Proxy backend (bridges browser ↔ MCP server)
     depends_on:
-      - mcp
+      - mcp-server
     restart: unless-stopped
