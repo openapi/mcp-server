@@ -185,13 +185,21 @@ async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
 
 
 
+_dynamic_tools_initialized = False
+
 def init_dynamic_tools(token: Optional[str] = None) -> bool:
-    """Dynamically registers a specialized MCP tool for each DocuEngine service."""
+    """Dynamically registers a specialized MCP tool for each DocuEngine service.
+    Idempotent: subsequent calls are no-ops and return True if already registered.
+    """
+    global _dynamic_tools_initialized
+    if _dynamic_tools_initialized:
+        return True
+
     import requests
     import re
     import keyword
     from inspect import Parameter, Signature
-    
+
     print("Initializing dynamic DocuEngine tools...")
     
     token = (token or os.getenv("OPENAPI_TOKEN", "")).strip()
@@ -353,7 +361,8 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                 print(f"Failed to register tool for service '{service.get('name')}': {e}")
         
         print(f"Successfully registered {registered_count} dynamic DocuEngine tools (including specialized selection tools).")
-        return registered_count > 0
+        _dynamic_tools_initialized = registered_count > 0
+        return _dynamic_tools_initialized
     except Exception as e:
         print(f"Error during tool registration loop: {e}")
         return False
