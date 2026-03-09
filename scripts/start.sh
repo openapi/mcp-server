@@ -25,18 +25,20 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# ── clear Python bytecode cache so edited sources are always reloaded ──────
+find src/ -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
 # ── start uvicorn ──────────────────────────────────────────────────────────
 PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$PORT" &
 SERVER_PID=$!
 
 # ── wait for server to accept connections ──────────────────────────────────
-printf "  waiting for server"
+printf "Waiting for server\n"
 for i in $(seq 1 30); do
     if curl -s --max-time 1 "http://localhost:$PORT/" > /dev/null 2>&1; then
         break
     fi
     sleep 1
-    printf "."
 done
 echo ""
 
@@ -82,17 +84,17 @@ except Exception:
     sleep 1
 done
 
-SEP="──────────────────────────────────────────────────────"
+SEP="========================================================="
 if [ -n "$NGROK_URL" ]; then
     echo ""
-    echo "  $SEP"
-    echo "  ngrok   ${NGROK_URL}"
-    echo "  local   http://localhost:${PORT}"
-    echo "  $SEP"
+    echo "$SEP"
+    echo "ngrok   ${NGROK_URL}"
+    echo "local   http://localhost:${PORT}"
+    echo "$SEP"
     echo ""
 else
-    echo "  ngrok started but tunnel URL not available."
-    echo "  Check the dashboard at http://localhost:4040"
+    echo "ngrok started but tunnel URL not available."
+    echo "Check the dashboard at http://localhost:4040"
 fi
 
 wait "$SERVER_PID" 2>/dev/null || true
