@@ -2,7 +2,7 @@
 name = "openapi-mcp-sdk"
 version = "0.2.0"
 description = "Openapi.com official mcp server implementation"
-readme = "README.md"
+readme = "README.pypi.md"
 requires-python = ">=3.13"
 dependencies = [
     "expiringdict>=1.2.2",
