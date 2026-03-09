@@ -1,6 +1,8 @@
 # IDE files
 .idea/
 .vscode/
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # Ignore Python bytecode and virtual environment
 __pycache__
