@@ -302,7 +302,7 @@ _LOG_CONFIG: dict = {
         },
         "sanitized_access": {
             "()": "openapi_mcp_sdk.main._SanitizedAccessFormatter",
-            "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+            "fmt": '%(levelprefix)s [HTTP] %(client_addr)s - "%(request_line)s" %(status_code)s',
         },
     },
     "handlers": {
