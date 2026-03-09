@@ -239,10 +239,57 @@ async def get_file(request_id: str,file_name: str):
 app.mount("/", mcp_app)
 
 
+# ---------------------------------------------------------------------------
+# Logging configuration
+# ---------------------------------------------------------------------------
+# Extends uvicorn's default log config so that openapi_mcp_sdk loggers
+# (audit, mcp_core, …) emit at INFO using the same format as uvicorn itself.
+# Without this, custom loggers have no handler and stay silent.
+_LOG_CONFIG: dict = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "()": "uvicorn.logging.DefaultFormatter",
+            "fmt": "%(levelprefix)s %(message)s",
+            "use_colors": None,
+        },
+        "access": {
+            "()": "uvicorn.logging.AccessFormatter",
+            "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+        },
+    },
+    "handlers": {
+        "default": {
+            "formatter": "default",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stderr",
+        },
+        "access": {
+            "formatter": "access",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        "uvicorn":        {"handlers": ["default"], "level": "INFO", "propagate": False},
+        "uvicorn.error":  {"handlers": ["default"], "level": "INFO", "propagate": False},
+        "uvicorn.access": {"handlers": ["access"],  "level": "INFO", "propagate": False},
+        # Our package loggers — same handler/format as uvicorn, INFO by default.
+        # Set LOG_LEVEL=debug in the environment to promote to DEBUG.
+        "openapi_mcp_sdk": {
+            "handlers": ["default"],
+            "level": os.environ.get("LOG_LEVEL", "INFO").upper(),
+            "propagate": False,
+        },
+    },
+}
+
+
 def run():
     import uvicorn
     port = int(os.environ.get("PORT", 8080))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port, log_config=_LOG_CONFIG)
 
 
 if __name__ == "__main__":
