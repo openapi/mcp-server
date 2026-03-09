@@ -56,9 +56,9 @@ check-env:
 	$(UV) pip install -r requirements.txt
 	@touch .install.stamp
 
-## Setup the local environment and start the server
+## Setup the local environment and start the server (exposes a public ngrok URL if ngrok is installed)
 start: check-env .install.stamp
-	PYTHONPATH=src $(UV) run uvicorn openapi_mcp_sdk.main:app --host $(HOST) --port $(PORT)
+	@PORT=$(PORT) HOST=$(HOST) bash scripts/start.sh
 
 ## Start local MCP server and open Claude interactively - production (requires: export OPENAPI_TOKEN=your_token)
 try-claude: check-env .install.stamp
