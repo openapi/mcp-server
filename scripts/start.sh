@@ -44,9 +44,20 @@ fi
 ngrok http "$PORT" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
 NGROK_PID=$!
 
-# poll the ngrok local API until the tunnel URL is available
+# poll the ngrok local API until the tunnel URL is available or ngrok exits with an error
 NGROK_URL=""
 for i in $(seq 1 20); do
+    # check if ngrok process died early (auth error, config error, etc.)
+    if ! kill -0 "$NGROK_PID" 2>/dev/null; then
+        NGROK_ERROR=$(grep -oP 'ERROR:\s+\K.+' /tmp/ngrok-mcp.log | grep -v '^\s*$' | head -5)
+        echo "  ngrok failed to start:"
+        while IFS= read -r line; do
+            echo "    $line"
+        done <<< "$NGROK_ERROR"
+        NGROK_PID=""
+        wait "$SERVER_PID" 2>/dev/null || true
+        exit 0
+    fi
     NGROK_URL=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | python3 -c "
 import sys, json
 try:
@@ -64,8 +75,8 @@ SEP="─────────────────────────
 if [ -n "$NGROK_URL" ]; then
     echo ""
     echo "  $SEP"
-    echo "  ngrok   ${NGROK_URL}/mcp/"
-    echo "  local   http://localhost:${PORT}/mcp/"
+    echo "  ngrok   ${NGROK_URL}"
+    echo "  local   http://localhost:${PORT}"
     echo "  $SEP"
     echo ""
 else
