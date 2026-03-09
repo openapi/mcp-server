@@ -8,9 +8,15 @@ source "$(dirname "$0")/lib.sh"
 require_wheel
 require_cmd pip
 
+PYTHON=$(uv python find 3.13 2>/dev/null || python3.13 2>/dev/null || echo "")
+if [[ -z "$PYTHON" ]]; then
+    info "Skipping — Python 3.13 not found (package requires >=3.13)"
+    exit 0
+fi
+
 VENV_DIR="$(mktemp -d)/venv-pip-test"
-info "Creating temp venv: $VENV_DIR"
-python3 -m venv "$VENV_DIR"
+info "Creating temp venv with $PYTHON: $VENV_DIR"
+"$PYTHON" -m venv "$VENV_DIR"
 
 "$VENV_DIR/bin/pip" install --quiet "$WHEEL"
 
