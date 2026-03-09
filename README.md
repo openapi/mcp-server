@@ -197,7 +197,7 @@ VS Code will:
 
 - Build the debug image (`docker/dev/Dockerfile`) if needed.
 - Start the container via `compose.yml` (debug image + bind mount).
-- Wait automatically until the server logs `Server FastAPI+MCP ready`.
+- Wait automatically until `debugpy` is accepting connections on port 5678.
 - Attach `debugpy` — your breakpoints are now live.
 
 When you press **⇧F5** (Stop), VS Code detaches and tears down the container.
