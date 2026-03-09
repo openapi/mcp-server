@@ -1,4 +1,5 @@
-print("async_tool.py Imported")
+import logging
+logging.getLogger(__name__).debug("module loaded")
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import mcp

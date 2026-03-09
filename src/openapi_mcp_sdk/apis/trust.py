@@ -1,4 +1,5 @@
-print("trust.py Imported")
+import logging
+logging.getLogger(__name__).debug("module loaded")
 from ..memory_store import callback_results, callbackUrl,SANDBOX_PREFIX
 from fastmcp import Context
 from typing import Any

@@ -1,4 +1,5 @@
-print("docuengine.py Imported")
+import logging
+logging.getLogger(__name__).debug("module loaded")
 from fastmcp import Context
 import os
 from typing import Any, Dict, List, Optional
