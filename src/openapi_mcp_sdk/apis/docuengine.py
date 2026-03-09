@@ -1,5 +1,7 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
+
+logger = logging.getLogger(__name__)
 from fastmcp import Context
 import os
 from typing import Any, Dict, List, Optional
@@ -123,7 +125,7 @@ async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any],
     """
     Internal helper to request any DocuEngine service. 
     """
-    print(f"Running Tool: post_docuengine_request id={document_id}, params={parameters}")
+    logger.debug("tool: post_docuengine_request id=%s", document_id)
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     request_id = getSessionHash(ctx)
     
@@ -200,33 +202,33 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
     import keyword
     from inspect import Parameter, Signature
 
-    print("Initializing dynamic DocuEngine tools...")
-    
+    logger.info("[jit] initializing dynamic DocuEngine tools...")
+
     token = (token or os.getenv("OPENAPI_TOKEN", "")).strip()
     if not token:
-        print("Skipping dynamic registration: No token provided.")
+        logger.warning("[jit] skipping dynamic registration: no token provided")
         return False
 
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
-    
+
     headers = {"Authorization": f"Bearer {token}"}
     services = []
-    
+
     try:
-        print(f"Fetching services from: {url}")
+        logger.debug("[jit] fetching services from: %s", url)
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response_data = response.json()
             services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
             if services and isinstance(services, list):
-                print(f"Successfully fetched {len(services)} services from {url}")
+                logger.info("[jit] fetched %d services", len(services))
         else:
-            print(f"Failed to fetch from {url}: {response.status_code} - {response.text}")
+            logger.warning("[jit] failed to fetch services: %s %s", response.status_code, response.text)
     except Exception as e:
-        print(f"Error fetching from {url}: {e}")
+        logger.error("[jit] error fetching services: %s", e)
 
     if not services or not isinstance(services, list):
-        print("No services found to register.")
+        logger.warning("[jit] no services found to register")
         return False
 
     def sanitize_name(name):
@@ -358,11 +360,11 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                     registered_count += 1
                     
             except Exception as e:
-                print(f"Failed to register tool for service '{service.get('name')}': {e}")
-        
-        print(f"Successfully registered {registered_count} dynamic DocuEngine tools (including specialized selection tools).")
+                logger.error("[jit] failed to register tool for service '%s': %s", service.get('name'), e)
+
+        logger.info("[jit] registered %d dynamic DocuEngine tools", registered_count)
         _dynamic_tools_initialized = registered_count > 0
         return _dynamic_tools_initialized
     except Exception as e:
-        print(f"Error during tool registration loop: {e}")
+        logger.error("[jit] error during tool registration: %s", e)
         return False

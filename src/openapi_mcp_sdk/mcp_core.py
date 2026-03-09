@@ -101,13 +101,11 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
     headers = {"Authorization": auth_header, **kwargs.pop("headers", {})}
-    #Chiamata API Esterna
     try:
         request_args = dict(method=method, url=url, headers=headers, **kwargs)
         if json_payload is not None:
             request_args["json"] = json_payload
         response = requests.request(**request_args)
-        #Gestione della Risposta e Normalizzazione dei Dati
         response.raise_for_status()
         response_data = response.json()
         if response.status_code == 204:

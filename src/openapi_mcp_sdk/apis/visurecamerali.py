@@ -1,6 +1,8 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX  # usa sempre il singleton globale
+from ..memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX
+
+logger = logging.getLogger(__name__)
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
@@ -21,28 +23,25 @@ from datetime import datetime, timedelta, timezone
 @mcp.tool
 async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: Context) -> Any:
     """
-    Recupera un elenco di endpoint di visure camerali disponibili per una azienda da usare con il tool get_italian_company_official_document
-    fornendo la sua Partita IVA o il suo Codice Fiscale.
+    Returns the list of available official company registry document endpoints for a company,
+    identified by its VAT number or tax code. Use with get_italian_company_official_document.
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    print(f"Running Tool: get_official_documents_list per {vat_or_tax_code}")
     url = f"https://{SANDBOX_PREFIX}visurecamerali.openapi.it/impresa/{vat_or_tax_code}"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
 async def get_italian_company_official_document(document_url:str,vat_or_tax_code:str, ctx: Context) -> Any:
     """
-    Recupera una visura camerale di una azienda fornendo la sua Partita IVA o il suo Codice Fiscale.
+    Retrieves an official company registry document (visura camerale) for a company
+    identified by its VAT number or tax code.
     Args:
         document_url: url of the requested document
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    print(f"Running Tool: get_italian_company_official_document su {document_url} per {vat_or_tax_code}")
     url = f"https://{document_url}"
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
-    # Usa un request_id
     request_id = getSessionHash(ctx)
-    # Serialize context
     custom_context = {
         "request_id": request_id,
         "document_url": document_url,
@@ -57,18 +56,13 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
         },
         "cf_piva_id":vat_or_tax_code
     })
-    print(f"response: {response}")
     state = response.get("stato_richiesta")
-    
+
     if state == "In erogazione":
         # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # Poll callback_results once per second 
-        response =  await processPolling(ctx, request_id, ["Dati disponibili"],"stato_richiesta")
-        print(f"response: {response}")
-        # if response.get("data").get("stato_richiesta") == "Visura evasa":
-        #     response = make_api_call(ctx, "GET", url+"/"+response.get("data").get("id")+"/allegati")
-        #     set_callback_result(request_id, response, custom_context)
+        # Poll for final state
+        response = await processPolling(ctx, request_id, ["Dati disponibili"],"stato_richiesta")
     return response
 @mcp.tool
 async def download_italian_company_official_document(document_id:str,document_url:str, ctx: Context) -> Any:
@@ -80,7 +74,6 @@ async def download_italian_company_official_document(document_id:str,document_ur
         document_id: the value id in return of a previous request.
         document_url: the value id in return of a previous request.
     """
-    print(f"Running Tool: download_italian_company_official_document ")
     url = f"https://{document_url}/{document_id}/allegati"
     document_response = make_api_call(ctx, "GET", url)
     if "file" in document_response:
