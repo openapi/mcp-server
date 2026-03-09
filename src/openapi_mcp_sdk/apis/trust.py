@@ -23,7 +23,7 @@ async def check_email_start(email: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "email": email
@@ -42,7 +42,7 @@ async def check_email_start(email: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -52,7 +52,7 @@ async def check_email_start(email: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)
@@ -85,7 +85,7 @@ async def check_email_advanced(email: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "email": email
@@ -104,7 +104,7 @@ async def check_email_advanced(email: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -114,7 +114,7 @@ async def check_email_advanced(email: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)
@@ -147,7 +147,7 @@ async def check_mobile_start(mobile: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "mobile": mobile
@@ -166,7 +166,7 @@ async def check_mobile_start(mobile: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -176,7 +176,7 @@ async def check_mobile_start(mobile: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)
@@ -209,7 +209,7 @@ async def check_mobile_advanced(mobile: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "mobile": mobile
@@ -228,7 +228,7 @@ async def check_mobile_advanced(mobile: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -238,7 +238,7 @@ async def check_mobile_advanced(mobile: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)
@@ -271,7 +271,7 @@ async def check_ip_advanced(ip: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "ip": ip
@@ -290,7 +290,7 @@ async def check_ip_advanced(ip: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -300,7 +300,7 @@ async def check_ip_advanced(ip: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)
@@ -333,7 +333,7 @@ async def check_url_advanced(url: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = ctx.request_id
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "url": url
@@ -352,7 +352,7 @@ async def check_url_advanced(url: str, ctx: Context) -> Any:
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         callback_results[request_id] = {
             "progress": "progress",
             "result": response,
@@ -362,7 +362,7 @@ async def check_url_advanced(url: str, ctx: Context) -> Any:
         ctx.report_progress(progress=1, total=100)
         
 
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         res = None
         for i in range(100):  # Poll up to 10 seconds
             await asyncio.sleep(1)

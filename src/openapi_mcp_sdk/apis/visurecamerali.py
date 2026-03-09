@@ -41,7 +41,7 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     # Usa un request_id
     request_id = getSessionHash(ctx)
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "document_url": document_url,
@@ -60,9 +60,9 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
     state = response.get("stato_richiesta")
     
     if state == "In erogazione":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         response =  await processPolling(ctx, request_id, ["Dati disponibili"],"stato_richiesta")
         print(f"response: {response}")
         # if response.get("data").get("stato_richiesta") == "Visura evasa":

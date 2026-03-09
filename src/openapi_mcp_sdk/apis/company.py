@@ -45,7 +45,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     
     # Usa un request_id
     request_id = getSessionHash(ctx)
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "vat_or_taxCode": vat_or_taxCode
@@ -63,9 +63,9 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     
     #gestione asincrona
     if response.get("state") == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         response = await processPolling(ctx, request_id, [not None],"companyDetails")
     return response
 

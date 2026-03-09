@@ -86,14 +86,14 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
         callback_results[request_id] = result
 
 def save_to_memcached(client, key, value):
-    # Serializza i dati in JSON e codifica in UTF-8
+    # Serialize to JSON and encode as UTF-8
     binary_value = json.dumps(value).encode('utf-8')
     client.set(key, binary_value)
 
-# Funzione per recuperare i dati da Memcached
+# Retrieve data from Memcached
 def get_from_memcached(client, key):
     binary_value = client.get(key)
     if binary_value is not None:
-        # Decodifica i dati da UTF-8 e deserializza da JSON
+        # Decode from UTF-8 and deserialize from JSON
         return json.loads(binary_value.decode('utf-8'))
     return None

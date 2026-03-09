@@ -27,7 +27,7 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
     
     # Usa un request_id
     request_id = getSessionHash(ctx)
-    # Serializza il contesto
+    # Serialize context
     custom_context = {
         "request_id": request_id,
         "firstName": firstName,
@@ -57,9 +57,9 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
     state = response.get("state")
     
     if state == "PENDING":
-        # Salva subito il risultato parziale per il polling
+        # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # avvia un polling ogni secondo su callback_results 
+        # Poll callback_results once per second 
         response =  await processPolling(ctx, request_id, ["DONE"])
     return response
 
