@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Create the MCP server instance
 mcp = FastMCP(
-    name="OpenAPI.com MCP Gateway",
+    name="Openapi.com MCP Gateway",
     instructions=(
         "This server provides a unified gateway for various services of openapi.com. "
         "It authenticates every request with a Bearer token supplied by the client.\n\n"
@@ -72,7 +72,8 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
         client_ip = ctx.request_context.request.client.host
     except Exception:
         client_ip = "?"
-    logger.info("[%s] ip=%-15s %s %s", service, client_ip, method, parsed.path)
+    tag = f"[{service}]"
+    logger.info("%-18s %-15s - \"%s %s\"", tag, client_ip, method, parsed.path)
     # Attempt to retrieve the Authorization header from multiple sources
     try:
         auth_header = None

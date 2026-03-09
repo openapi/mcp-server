@@ -202,11 +202,11 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
     import keyword
     from inspect import Parameter, Signature
 
-    logger.info("[JIT] initializing dynamic DocuEngine tools...")
+    logger.info("%-18s %-15s - \"initializing\"", "[JIT]", "-")
 
     token = (token or os.getenv("OPENAPI_TOKEN", "")).strip()
     if not token:
-        logger.warning("[JIT] skipping dynamic registration: no token provided")
+        logger.warning("%-18s %-15s - \"no token provided\"", "[JIT]", "-")
         return False
 
     url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
@@ -215,20 +215,20 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
     services = []
 
     try:
-        logger.debug("[JIT] fetching services from: %s", url)
+        logger.debug("%-18s %-15s - \"fetching services\"", "[JIT]", "-")
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response_data = response.json()
             services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
             if services and isinstance(services, list):
-                logger.info("[JIT] fetched %d services", len(services))
+                logger.info("%-18s %-15s - \"fetched %d services\"", "[JIT]", "-", len(services))
         else:
-            logger.warning("[JIT] failed to fetch services: %s %s", response.status_code, response.text)
+            logger.warning("%-18s %-15s - \"fetch failed\" status=%s", "[JIT]", "-", response.status_code)
     except Exception as e:
-        logger.error("[JIT] error fetching services: %s", e)
+        logger.error("%-18s %-15s - \"fetch error\" detail=%s", "[JIT]", "-", e)
 
     if not services or not isinstance(services, list):
-        logger.warning("[JIT] no services found to register")
+        logger.warning("%-18s %-15s - \"no services found\"", "[JIT]", "-")
         return False
 
     def sanitize_name(name):
@@ -360,11 +360,11 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                     registered_count += 1
                     
             except Exception as e:
-                logger.error("[JIT] failed to register tool for service '%s': %s", service.get('name'), e)
+                logger.error("%-18s %-15s - \"register failed\" service=%s detail=%s", "[JIT]", "-", service.get('name'), e)
 
-        logger.info("[JIT] registered %d dynamic DocuEngine tools", registered_count)
+        logger.info("%-18s %-15s - \"registered %d tools\"", "[JIT]", "-", registered_count)
         _dynamic_tools_initialized = registered_count > 0
         return _dynamic_tools_initialized
     except Exception as e:
-        logger.error("[JIT] error during tool registration: %s", e)
+        logger.error("%-18s %-15s - \"registration error\" detail=%s", "[JIT]", "-", e)
         return False

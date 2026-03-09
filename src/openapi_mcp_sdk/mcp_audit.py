@@ -4,12 +4,11 @@ MCP protocol-level audit logger.
 Intercepts JSON-RPC POST bodies and emits a one-line human-readable log entry
 for every MCP action without exposing any parameter values (no PII leakage).
 
-Example output:
-  [MCP] connect        ip=1.2.3.4  client=claude-ai/1.0.0
-  [MCP] initialized    ip=1.2.3.4
-  [MCP] tools/list     ip=1.2.3.4
-  [MCP] tool call      ip=1.2.3.4  name=company_search_it
-  [MCP] ping           (debug only)
+Uniform layout (same schema as HTTP access logs):
+  [TAG]              IP              - "action" key=value
+  [MCP]              160.79.106.11   - "connect" client=claude-ai/1.0.0 protocol=2025-11-25
+  [MCP]              160.79.106.11   - "tool call" name=company_search_it
+  [MCP]              160.79.106.11   - "tools/list"
 """
 
 import json
@@ -36,6 +35,8 @@ _LABELS: dict[str, str | None] = {
     "logging/setLevel":             "set log level",
 }
 
+_TAG = "[MCP]"
+
 
 def _emit(body: bytes, client_ip: str) -> None:
     """Parse a JSON-RPC body and emit a structured audit log line."""
@@ -52,7 +53,7 @@ def _emit(body: bytes, client_ip: str) -> None:
     label = _LABELS.get(method, method)   # unknown methods shown verbatim
 
     if label is None:
-        _log.debug("[MCP] %s  ip=%s", method, client_ip)
+        _log.debug("%-18s %-15s - \"%s\"", _TAG, client_ip, method)
         return
 
     if method == "initialize":
@@ -60,22 +61,22 @@ def _emit(body: bytes, client_ip: str) -> None:
         name    = info.get("name", "unknown")
         version = info.get("version", "")
         proto   = (params.get("protocolVersion") or "")
-        _log.info("[MCP] %-18s ip=%-15s client=%s/%s  protocol=%s", label, client_ip, name, version, proto)
+        _log.info("%-18s %-15s - \"connect\" client=%s/%s protocol=%s", _TAG, client_ip, name, version, proto)
 
     elif method == "tools/call":
-        _log.info("[MCP] %-18s ip=%-15s name=%s", label, client_ip, params.get("name", "?"))
+        _log.info("%-18s %-15s - \"tool call\" name=%s", _TAG, client_ip, params.get("name", "?"))
 
     elif method == "resources/read":
-        _log.info("[MCP] %-18s ip=%-15s uri=%s", label, client_ip, params.get("uri", "?"))
+        _log.info("%-18s %-15s - \"resource read\" uri=%s", _TAG, client_ip, params.get("uri", "?"))
 
     elif method == "prompts/get":
-        _log.info("[MCP] %-18s ip=%-15s name=%s", label, client_ip, params.get("name", "?"))
+        _log.info("%-18s %-15s - \"prompt get\" name=%s", _TAG, client_ip, params.get("name", "?"))
 
     elif method == "notifications/cancelled":
-        _log.info("[MCP] %-18s ip=%-15s id=%s", label, client_ip, data.get("id", "?"))
+        _log.info("%-18s %-15s - \"cancelled\" id=%s", _TAG, client_ip, data.get("id", "?"))
 
     else:
-        _log.info("[MCP] %-18s ip=%s", label, client_ip)
+        _log.info("%-18s %-15s - \"%s\"", _TAG, client_ip, label)
 
 
 class McpAuditMiddleware:
