@@ -1,4 +1,5 @@
-print("info.py Imported")
+import logging
+logging.getLogger(__name__).debug("module loaded")
 from ..mcp_core import mcp, getSessionHash
 from ..memory_store import BASE_URL, SANDBOX_PREFIX
 from fastmcp import Context
