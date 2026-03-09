@@ -77,23 +77,39 @@ Commands:
 
 ## MCP client configuration
 
-Point any MCP-compatible client (VS Code, Claude Desktop, …) at the running server:
+Point any MCP-compatible client (VS Code, Claude Desktop, …) at the running server.
+
+Get your Bearer Token at [console.openapi.com](https://console.openapi.com/oauth).
+
+**With Authorization header (recommended):**
 
 ```json
 {
   "servers": {
     "openapi.com": {
       "type": "http",
-      "url": "http://localhost:8080",
-      "headers": {
-        "Authorization": "Bearer YOUR_TOKEN"
-      }
+      "url": "http://localhost:8080/",
+      "headers": { "Authorization": "Bearer YOUR_TOKEN" }
     }
   }
 }
 ```
 
-Get your Bearer Token at [console.openapi.com](https://console.openapi.com/oauth).
+**With `?token=` query parameter** (for clients that do not support custom headers):
+
+```json
+{
+  "servers": {
+    "openapi.com": {
+      "type": "http",
+      "url": "http://localhost:8080/?token=YOUR_TOKEN"
+    }
+  }
+}
+```
+
+The server automatically promotes `?token=` to an `Authorization: Bearer` header,
+so both methods behave identically.
 
 ---
 

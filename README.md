@@ -222,22 +222,65 @@ required. Just send a new request and the updated code runs.
 
 ---
 
+## Authentication
+
+The server accepts the Bearer token in two ways:
+
+### Option A — Authorization header (recommended)
+
+Pass the token as a standard HTTP header:
+
+```
+Authorization: Bearer YOUR_TOKEN
+```
+
+### Option B — `?token=` query parameter
+
+Some MCP clients or environments do not support custom HTTP headers. In that
+case the token can be embedded directly in the server URL as a query parameter:
+
+```
+http://YOUR_SERVER_IP:8080/?token=YOUR_TOKEN
+```
+
+The server automatically promotes it to an `Authorization: Bearer` header
+before the request reaches the MCP layer, so the behaviour is identical.
+
+> **When to use `?token=`:** Claude Desktop (as of mid-2025), some browser-based
+> MCP playgrounds, and any client whose configuration only accepts a plain URL
+> without a headers field.
+
+---
+
 ## MCP Client Configuration (VS Code)
 
 1. **Generate a Bearer Token**
    From the portal https://console.openapi.com/oauth, create a token with the required scopes.
 
 2. **Create the `.vscode/mcp.json` file**
-   Example:
+
+   **With header (recommended):**
    ```json
    {
      "servers": {
        "openapi.com": {
          "type": "http",
-         "url": "http://YOUR_SERVER_IP:8080/mcp/",
+         "url": "http://YOUR_SERVER_IP:8080/",
          "headers": {
-           "Authorization": "Bearer YOUR_PRODUCTION_BEARER_TOKEN"
+           "Authorization": "Bearer YOUR_TOKEN"
          }
+       }
+     }
+   }
+   ```
+
+   **With `?token=` query parameter** (for clients that do not support custom headers):
+   ```json
+   {
+     "servers": {
+       "openapi.com": {
+         "type": "http",
+         "url": "http://YOUR_SERVER_IP:8080/?token=YOUR_TOKEN"
        }
      }
    }
