@@ -15,8 +15,6 @@ import json
 
 callback_results = {}
 
-MCP_STORAGE_BUCKET = os.getenv("MCP_STORAGE_BUCKET", "mcp-openapi-storage")
-
 MCP_ENV = os.getenv("MCP_ENV", "production").strip().lower()
 if MCP_ENV not in {"dev", "staging", "production"}:
     logger.warning("Invalid MCP_ENV=%r, defaulting to 'production'", MCP_ENV)
@@ -25,14 +23,6 @@ if MCP_ENV not in {"dev", "staging", "production"}:
 MCP_OPENAPI_ENV = os.getenv("MCP_OPENAPI_ENV", "").strip().lower()
 if MCP_OPENAPI_ENV == "sandbox":
     MCP_OPENAPI_ENV = "test"
-if not MCP_OPENAPI_ENV and K_SERVICE and K_SERVICE != "mcp-openapi-com":
-    candidate = K_SERVICE.split("-")[0].strip().lower()
-    if candidate == "alpha":
-        candidate = "dev"
-    if candidate == "sandbox":
-        candidate = "test"
-    if candidate in {"dev", "test"}:
-        MCP_OPENAPI_ENV = candidate
 if MCP_OPENAPI_ENV not in {"", "dev", "test"}:
     logger.warning("Invalid MCP_OPENAPI_ENV=%r, defaulting to production", MCP_OPENAPI_ENV)
     MCP_OPENAPI_ENV = ""

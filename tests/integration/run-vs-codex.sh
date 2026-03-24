@@ -15,10 +15,10 @@ SERVER_PID=""
 SANDBOX="${SANDBOX:-0}"
 if [ "$SANDBOX" = "1" ]; then
     TOKEN="${OPENAPI_SANDBOX_TOKEN:-}"
-    K_SERVICE_VALUE="test-openapi-mcp-server"
+    MCP_OPENAPI_ENV_VALUE="test"
 else
     TOKEN="${OPENAPI_TOKEN:-}"
-    K_SERVICE_VALUE=""
+    MCP_OPENAPI_ENV_VALUE=""
 fi
 
 cleanup() {
@@ -66,7 +66,7 @@ codex mcp add "$MCP_SERVER_NAME" \
 
 echo "Starting MCP server..."
 cd "$ROOT_DIR"
-K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app \
+MCP_OPENAPI_ENV="$MCP_OPENAPI_ENV_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app \
     --host 0.0.0.0 --port 8080 --log-level warning &
 SERVER_PID=$!
 

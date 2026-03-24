@@ -43,20 +43,6 @@ MCP_CACHE_PORT=11211
 
 ---
 
-## Legacy variables (backward compatibility)
-
-If you are using a Cloud Run deployment without migrating to the
-explicit variables above, the following variables are still read:
-
-| Variable | Effect |
-|---|---|
-| `K_SERVICE` | Auto-set by Cloud Run. Derives `MCP_BASE_URL` (`K_SERVICE.replace("-",".")`) and `MCP_OPENAPI_ENV` (from service name prefix), and selects the Memcached VPC IP. |
-
-> **Migration path:** set `MCP_BASE_URL`, `MCP_OPENAPI_ENV`, `MCP_CACHE_HOST` explicitly
-> and stop relying on `K_SERVICE`. This makes the server portable to any platform.
-
----
-
 ## Cloud Run deployment
 
 ### Cloud Run service YAML
