@@ -39,8 +39,6 @@ if MCP_OPENAPI_ENV not in {"", "dev", "test"}:
 OPENAPI_HOST_PREFIX = f"{MCP_OPENAPI_ENV}." if MCP_OPENAPI_ENV else ""
 
 MCP_BASE_URL = os.getenv("MCP_BASE_URL", "http://localhost:8080")
-if MCP_STORAGE_BUCKET and "MCP_BASE_URL" not in os.environ:
-    MCP_BASE_URL = "https://" + MCP_STORAGE_BUCKET.replace("-", ".")
 
 callbackUrl = os.getenv("MCP_CALLBACK_URL")
 if not callbackUrl:

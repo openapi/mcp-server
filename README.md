@@ -37,7 +37,7 @@ start the server — defaults are suitable for local use.
 |---|---|------------------------------------------------------------------------------------------|
 | `MCP_PORT` | `8080` | HTTP port the server listens on                                                          |
 | `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production`                                  |
-| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs)                |
+| `MCP_BASE_URL` | `http://localhost:8080` | Public URL of this server (used to build callback and file download URLs)                |
 | `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Explicit callback URL sent to async APIs                                                 |
 | `MCP_OPENAPI_ENV` | _(empty)_ | Openapi environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
 
@@ -110,33 +110,6 @@ Commands:
 
 
 
-## Local launcher script
-
-Copy the block below, paste it into your terminal, and press Enter. It will
-create a `mcp-server.sh` file in the current directory and launch the server:
-
-```bash
-cat > mcp-server.sh << 'EOF'
-#!/bin/bash
-# ============================================================
-# Openapi.com MCP Server — local launcher
-# Edit the variables below, then run: bash mcp-server.sh
-# ============================================================
-
-export MCP_PORT="${MCP_PORT:-8080}"
-uvx openapi-mcp-sdk server
-EOF
-bash mcp-server.sh
-```
-
-Next time, just run:
-
-```bash
-bash mcp-server.sh
-```
-
-
-
 ## Running with Docker
 
 The project ships a single [`compose.yml`](compose.yml) with the `mcp` service.
@@ -172,7 +145,7 @@ server listens on `http://0.0.0.0:8080`.
 To test endpoints manually:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/mcp/
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080
 ```
 
 The server prints request headers and parameters to stdout — no extra
@@ -329,7 +302,7 @@ uvx openapi-mcp-sdk server
 
 > The directory is created automatically on first use. For the download links to
 > work correctly, `MCP_BASE_URL` must point to the public address of the server
-> (default: `https://mcp.openapi.com`).
+> (default: `http://localhost:8080`).
 
 ### Cloud storage backends
 

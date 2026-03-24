@@ -14,7 +14,7 @@ cache backend, and any platform-specific notes.
 |---|---|------------------------------------------------------------------------------------------|
 | `MCP_PORT` | `8080` | HTTP port the server listens on                                                          |
 | `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production`                                  |
-| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used in callback URLs)                                        |
+| `MCP_BASE_URL` | `http://localhost:8080` | Public URL of this server (used in callback URLs)                                        |
 | `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Full callback URL sent to async APIs                                                     |
 | `MCP_OPENAPI_ENV` | _(empty)_ | Openapi environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
 | `MCP_STORAGE_BACKEND` | `local` | Storage backend: `local` \| `gcs` \| `s3`                                                |

@@ -75,7 +75,7 @@ Options:
 export MCP_BASE_URL=https://abc123.ngrok.io
 ```
 
-If `MCP_BASE_URL` is not set the server defaults to `https://mcp.openapi.com`, which
+If `MCP_BASE_URL` is not set the server defaults to `http://localhost:8080`, which
 will not work for local callbacks.
 
 ---
@@ -103,7 +103,7 @@ source local.env && openapi-mcp-sdk server
 cat > mcp-server.sh << 'EOF'
 #!/bin/bash
 export MCP_PORT="${MCP_PORT:-8080}"
-export MCP_BASE_URL="${MCP_BASE_URL:-https://mcp.openapi.com}"
+export MCP_BASE_URL="${MCP_BASE_URL:-http://localhost:8080}"
 export MCP_STORAGE_BACKEND="${MCP_STORAGE_BACKEND:-local}"
 export MCP_STORAGE_PATH="${MCP_STORAGE_PATH:-./openapi_storage}"
 

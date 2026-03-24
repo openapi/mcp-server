@@ -26,8 +26,8 @@ Internet → Cloud Run (openapi-mcp-sdk server)
 # Core
 MCP_PORT=8080
 MCP_ENV=production
-MCP_BASE_URL=https://mcp.openapi.com
-MCP_CALLBACK_URL=https://mcp.openapi.com/callbacks
+MCP_BASE_URL=https://mcp.example.com
+MCP_CALLBACK_URL=https://mcp.example.com/callbacks
 MCP_OPENAPI_ENV=                        # dev, test, sandbox (alias of test), or empty for production
 
 # Storage
@@ -81,7 +81,7 @@ spec:
             - name: MCP_PORT
               value: "8080"
             - name: MCP_BASE_URL
-              value: "https://mcp.openapi.com"
+              value: "https://mcp.example.com"
             - name: MCP_STORAGE_BACKEND
               value: "gcs"
             - name: MCP_STORAGE_BUCKET
