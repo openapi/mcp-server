@@ -16,7 +16,7 @@
 
 # Overview
 
-**`openapi-mcp-sdk`** is the official [openapi.com](https://openapi.com/) MCP SDK.
+Welcome to **`openapi-mcp-sdk`**, this is the official [openapi.com](https://openapi.com/) MCP SDK.
 It ships as a Python package on [PyPI](https://pypi.org/project/openapi-mcp-sdk/) and
 can be used in two ways:
 
@@ -67,14 +67,12 @@ Used to share async callback results across multiple server instances.
 See [`docs/env/`](docs/env/) for per-environment configuration guides (local,
 Docker, AWS, GCP, Kubernetes).
 
-
 ## Features
 
 - **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
 - **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](src/openapi_mcp_sdk/apis/).
 - **MCP-compatible**: Designed according to MCP protocol best practices.
 - **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](src/openapi_mcp_sdk/mcp_core.py).
-
 
 ## Quick Start — run from PyPI (recommended)
 
@@ -401,7 +399,6 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 - [MCP Documentation](https://github.com/anthropics/model-context-protocol)
 - [fastmcp](https://pypi.org/project/fastmcp/)
 - [openapi.com](https://openapi.com/)
-
 
 
 ## Contributing
