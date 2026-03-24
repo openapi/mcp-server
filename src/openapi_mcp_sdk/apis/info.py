@@ -27,7 +27,7 @@ except Exception:
     _FASTMCP_VERSION = "unknown"
 
 _SERVER_VERSION = "0.2.0"
-_SERVER_NAME    = "OpenAPI.com MCP Gateway"
+_SERVER_NAME    = "Openapi.com MCP Gateway"
 
 
 def _mask_token(token: str) -> str:

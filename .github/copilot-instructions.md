@@ -1,6 +1,6 @@
 ## Quick context for AI coding agents
 
-This repository implements the OpenAPI.com MCP gateway (FastAPI + FastMCP). The server acts as a proxy that forwards a client's Bearer token to downstream OpenAPI services and exposes MCP tools implemented under `src/openapi_mcp_sdk/apis/`.
+This repository implements the Openapi.com MCP gateway (FastAPI + FastMCP). The server acts as a proxy that forwards a client's Bearer token to downstream Openapi services and exposes MCP tools implemented under `src/openapi_mcp_sdk/apis/`.
 
 Key files
 - `src/openapi_mcp_sdk/main.py` — application entry point. Mounts the MCP app and contains HTTP endpoints `/callbacks` and `/status/{request_id}`. Shows how token query params are converted into an Authorization header.

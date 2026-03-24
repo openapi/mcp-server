@@ -10,21 +10,21 @@ cache backend, and any platform-specific notes.
 
 ## Quick reference — all environment variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `MCP_PORT` | `8080` | HTTP port the server listens on |
-| `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production` |
-| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used in callback URLs) |
-| `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Full callback URL sent to async APIs |
-| `MCP_OPENAPI_ENV` | _(empty)_ | OpenAPI environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
-| `MCP_STORAGE_BACKEND` | `local` | Storage backend: `local` \| `gcs` \| `s3` |
-| `MCP_STORAGE_PATH` | `./openapi_storage` | Local filesystem path for `local` backend |
-| `MCP_STORAGE_BUCKET` | _(required for cloud)_ | Bucket/container name for `gcs` or `s3` backend |
-| `MCP_STORAGE_REGION` | _(required for s3)_ | AWS region for the S3 bucket |
-| `MCP_CACHE_BACKEND` | `none` | Cache for async callbacks: `none` \| `memcached` \| `redis` |
-| `MCP_CACHE_HOST` | _(none)_ | Memcached host (used when `MCP_CACHE_BACKEND=memcached`) |
-| `MCP_CACHE_PORT` | `11211` | Memcached port |
-| `MCP_CACHE_URL` | _(none)_ | Redis connection URL (used when `MCP_CACHE_BACKEND=redis`) |
+| Variable | Default | Description                                                                              |
+|---|---|------------------------------------------------------------------------------------------|
+| `MCP_PORT` | `8080` | HTTP port the server listens on                                                          |
+| `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production`                                  |
+| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used in callback URLs)                                        |
+| `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Full callback URL sent to async APIs                                                     |
+| `MCP_OPENAPI_ENV` | _(empty)_ | Openapi environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
+| `MCP_STORAGE_BACKEND` | `local` | Storage backend: `local` \| `gcs` \| `s3`                                                |
+| `MCP_STORAGE_PATH` | `./openapi_storage` | Local filesystem path for `local` backend                                                |
+| `MCP_STORAGE_BUCKET` | _(required for cloud)_ | Bucket/container name for `gcs` or `s3` backend                                          |
+| `MCP_STORAGE_REGION` | _(required for s3)_ | AWS region for the S3 bucket                                                             |
+| `MCP_CACHE_BACKEND` | `none` | Cache for async callbacks: `none` \| `memcached` \| `redis`                              |
+| `MCP_CACHE_HOST` | _(none)_ | Memcached host (used when `MCP_CACHE_BACKEND=memcached`)                                 |
+| `MCP_CACHE_PORT` | `11211` | Memcached port                                                                           |
+| `MCP_CACHE_URL` | _(none)_ | Redis connection URL (used when `MCP_CACHE_BACKEND=redis`)                               |
 
 ### Legacy variables (GCP Cloud Run — deprecated)
 

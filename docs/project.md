@@ -116,7 +116,7 @@ def make_api_call(ctx: Context, method: str, url: str, **kwargs) -> Any:
 
 # --- Inizializzazione del Server MCP ---
 mcp = FastMCP(
-    name="OpenAPI.com Gateway",
+    name="Openapi.com Gateway",
     instructions="Questo server fornisce un gateway unificato per diversi servizi di openapi.com."
 )
 

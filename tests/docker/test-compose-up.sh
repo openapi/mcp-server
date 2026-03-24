@@ -142,7 +142,7 @@ assert_contains "initialize → jsonrpc result"   "$INIT_BODY" '"result"'
 assert_contains "initialize → protocolVersion"  "$INIT_BODY" '"protocolVersion"'
 assert_contains "initialize → serverInfo"       "$INIT_BODY" '"serverInfo"'
 assert_contains "initialize → capabilities"     "$INIT_BODY" '"capabilities"'
-assert_contains "initialize → server name"      "$INIT_BODY" 'OpenAPI'
+assert_contains "initialize → server name"      "$INIT_BODY" 'Openapi'
 
 SESSION_ID=$(extract_session_id)
 if [ -n "$SESSION_ID" ]; then
@@ -190,7 +190,7 @@ CALL_BODY=$(parse_mcp_response "$CALL_RAW")
 assert_contains "tools/call → jsonrpc result"           "$CALL_BODY" '"result"'
 assert_contains "tools/call → content array"            "$CALL_BODY" '"content"'
 assert_contains "tools/call → isError false"            "$CALL_BODY" 'false'
-assert_contains "tools/call → server name in payload"   "$CALL_BODY" 'OpenAPI'
+assert_contains "tools/call → server name in payload"   "$CALL_BODY" 'Openapi'
 assert_contains "tools/call → status ok in payload"     "$CALL_BODY" 'status'
 
 # =============================================================================
