@@ -1,0 +1,76 @@
+# convcommit - Conventional Commit message builder
+# This file is read by the `convcommit` CLI tool to populate
+# the interactive selector menus.
+# Commit this file to share the project's commit vocabulary with the team.
+#
+# FORMAT
+#   type:<value>      — commit type option (e.g. fix, feat, docs)
+#   scope:<value>     — commit scope option
+#   message:<value>   — commit message template
+#
+# SPECIAL PREFIXES
+#   ~<value>          — marks the default selection
+#   _                 — enables free-text manual input (press ".")
+#   [X]<value>        — forces key letter X for this entry (e.g. [B]build, [W]wip)
+#
+# HOW TO USE (interactive)
+#   Run `convcommit` in a git repo. A menu appears for type, scope, message.
+#   Press the letter in brackets [A][B]... or [.] for free-text input.
+#   Stage and push in one shot:
+#     convcommit -a -p
+#
+# HOW TO USE (direct flags — scripts, AI agents)
+#   Bypass the selector entirely with explicit flags:
+#     convcommit --type fix --scope auth --message "fix null pointer" --push
+#     convcommit -t feat -s api -m "add endpoint" -a -p
+#
+# SMART PATTERN — stage specific files and commit in one command
+#   Use --add instead of nested command substitution.
+#   Anti-pattern (avoid):
+#     msg=$(convcommit --type fix --message "fix") && git commit -m "$msg" && git push
+#   Recommended:
+#     convcommit --add src/auth.sh --type fix --scope auth --message "fix null pointer" --push
+#   Stage multiple files:
+#     convcommit --add src/auth.sh --add tests/auth_test.sh -t test -s auth -m "add tests" -p
+#
+# HOW TO USE (pipe / non-interactive)
+#   Pipe selections as lines: one per stage (type, scope, message).
+#   Use the letter shown in the menu, or "." to trigger free-text input.
+#   Examples:
+#     printf "G\n.\nfix null pointer in login\n" | convcommit
+#     printf "F\n\nadd endpoint\n" | convcommit -a -p
+#   Capture just the formatted message:
+#     msg=$(printf "G\n\nfix null pointer\n" | convcommit)
+#
+# OTHER USEFUL FLAGS
+#   --reset   Regenerate this file with the latest defaults
+#   --help    Show all options
+#
+# INSTALLATION
+#   convcommit is a single bash file with no dependencies.
+#   Install it locally in your project:
+#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \
+#       -o bin/convcommit && chmod +x bin/convcommit
+#   Or system-wide:
+#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \
+#       -o /usr/local/bin/convcommit && chmod +x /usr/local/bin/convcommit
+type:[B]build
+type:~chore
+type:[D]docs
+type:deps
+type:feat
+type:fix
+type:ci
+type:init
+type:merge
+type:perf
+type:refactor
+type:revert
+type:security
+type:style
+type:test
+type:[W]wip
+scope:_
+scope:~
+message:_
+message:~_

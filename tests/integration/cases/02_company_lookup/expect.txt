@@ -1,0 +1,3 @@
+# Verified via: openapi --sandbox company start --code 02120220419
+# Response: companyName = "OPENAPI S.P.A."
+OPENAPI

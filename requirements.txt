@@ -1,8 +1,20 @@
+# =============================================================================
+# mcp.openapi.com MCP Gateway
+# =============================================================================
+# Secure MCP (Model Context Protocol) server acting as a unified gateway
+# for authenticated openapi.com API services.
+#
+# Architecture: FastAPI + FastMCP over HTTP, Bearer Token pass-through proxy.
+# Transport:    HTTP with Server-Sent Events (SSE)
+# Entrypoint:   main.py (host: 0.0.0.0, port: 8080)
+#
+# Authors: Simone Desantis, Marco Prosperi, Francesco Bianco, Openapi Team
+# License: MIT
+# =============================================================================
+
+# --- Core ---
 fastapi
 fastmcp
 requests
 pydantic
-mangum
 uvicorn
-pymemcache
-google-cloud-storage
