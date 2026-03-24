@@ -13,7 +13,7 @@ Uniform layout across all log lines:
 
 import json
 import logging
-from starlette.types import ASGIApp, Scope, Receive, Send
+from starlette.types import ASGIApp, Scope, Receive, Send  # pylint: disable=import-error
 
 _log = logging.getLogger("openapi_mcp_sdk.audit")
 
@@ -42,7 +42,7 @@ def _emit(body: bytes, client_ip: str) -> None:
     """Parse a JSON-RPC body and emit a structured audit log line."""
     try:
         data = json.loads(body)
-    except Exception:
+    except json.JSONDecodeError:
         return
 
     if not isinstance(data, dict) or "method" not in data:
@@ -79,7 +79,7 @@ def _emit(body: bytes, client_ip: str) -> None:
         _log.info('%s %s "%s"', _TAG, client_ip, label)
 
 
-class McpAuditMiddleware:
+class McpAuditMiddleware:  # pylint: disable=too-few-public-methods
     """Non-destructive ASGI middleware that logs MCP JSON-RPC calls.
 
     Wraps the ``receive`` callable to buffer POST body chunks, emits the audit
