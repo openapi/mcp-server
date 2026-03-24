@@ -10,7 +10,7 @@ WORK_DIR="$(mktemp -d /tmp/openapi-try-XXXXXX)"
 
 SERVER_PID=""
 
-# Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and the test OpenAPI environment
+# Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and the test Openapi environment
 SANDBOX="${SANDBOX:-0}"
 if [ "$SANDBOX" = "1" ]; then
     TOKEN="${OPENAPI_SANDBOX_TOKEN:-}"

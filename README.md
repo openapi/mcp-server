@@ -1,6 +1,22 @@
-# openapi-mcp-sdk
+<div align="center">
+  <a href="https://openapi.com/">
+    <img alt="Openapi MCP" src=".github/assets/images/repo-header-a4.png" >
+  </a>
 
-**`openapi-mcp-sdk`** is the official [openapi.com](https://openapi.com/) MCP SDK.
+  <h1>🔐 Openapi® MCP</h1>
+  <h4>The official Python MCP SDK and ready-to-run MCP server for <a href="https://openapi.com/">Openapi®</a></h4>
+
+[![PyPI](https://img.shields.io/pypi/v/openapi-mcp-sdk.svg)](https://pypi.org/project/openapi-mcp-sdk/)
+[![Python](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/openapi/mcp-server)](LICENSE)
+[![MCP](https://img.shields.io/badge/protocol-MCP-1f6feb.svg)](https://modelcontextprotocol.io/)
+<br>
+[![Linux Foundation Member](https://img.shields.io/badge/Linux%20Foundation-Silver%20Member-003778?logo=linux-foundation&logoColor=white)](https://www.linuxfoundation.org/about/members)
+</div>
+
+# Overview
+
+Welcome to **`openapi-mcp-sdk`**, this is the official [openapi.com](https://openapi.com/) MCP SDK.
 It ships as a Python package on [PyPI](https://pypi.org/project/openapi-mcp-sdk/) and
 can be used in two ways:
 
@@ -10,8 +26,6 @@ can be used in two ways:
   custom MCP server that wraps openapi.com APIs with your own logic, tools, or auth
   layer on top.
 
----
-
 ## Environment variables
 
 All configuration is done through environment variables. None are required to
@@ -19,13 +33,13 @@ start the server — defaults are suitable for local use.
 
 ### Core
 
-| Variable | Default | Description |
-|---|---|---|
-| `MCP_PORT` | `8080` | HTTP port the server listens on |
-| `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production` |
-| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs) |
-| `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Explicit callback URL sent to async APIs |
-| `MCP_OPENAPI_ENV` | _(empty)_ | OpenAPI environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
+| Variable | Default | Description                                                                              |
+|---|---|------------------------------------------------------------------------------------------|
+| `MCP_PORT` | `8080` | HTTP port the server listens on                                                          |
+| `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production`                                  |
+| `MCP_BASE_URL` | `http://localhost:8080` | Public URL of this server (used to build callback and file download URLs)                |
+| `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Explicit callback URL sent to async APIs                                                 |
+| `MCP_OPENAPI_ENV` | _(empty)_ | Openapi environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
 
 ### Storage
 
@@ -53,16 +67,12 @@ Used to share async callback results across multiple server instances.
 See [`docs/env/`](docs/env/) for per-environment configuration guides (local,
 Docker, AWS, GCP, Kubernetes).
 
----
-
 ## Features
 
 - **Secure proxy**: Pass-through of the Bearer Token provided by the client, without direct handling of sensitive credentials.
 - **Extensible**: Easily add new tools/APIs by creating modules in [`/apis/`](src/openapi_mcp_sdk/apis/).
 - **MCP-compatible**: Designed according to MCP protocol best practices.
 - **Modular**: All API call logic and tool registration is centralized in [`mcp_core.py`](src/openapi_mcp_sdk/mcp_core.py).
-
----
 
 ## Quick Start — run from PyPI (recommended)
 
@@ -98,34 +108,7 @@ Commands:
   token    Generate or inspect an openapi.com Bearer token    [coming soon]
 ```
 
----
 
-## Local launcher script
-
-Copy the block below, paste it into your terminal, and press Enter. It will
-create a `mcp-server.sh` file in the current directory and launch the server:
-
-```bash
-cat > mcp-server.sh << 'EOF'
-#!/bin/bash
-# ============================================================
-# Openapi.com MCP Server — local launcher
-# Edit the variables below, then run: bash mcp-server.sh
-# ============================================================
-
-export MCP_PORT="${MCP_PORT:-8080}"
-uvx openapi-mcp-sdk server
-EOF
-bash mcp-server.sh
-```
-
-Next time, just run:
-
-```bash
-bash mcp-server.sh
-```
-
----
 
 ## Running with Docker
 
@@ -144,7 +127,7 @@ docker compose logs -f mcp
 
 The server will be accessible at `http://localhost:8080`.
 
----
+
 
 ## Debug and Development
 
@@ -162,13 +145,13 @@ server listens on `http://0.0.0.0:8080`.
 To test endpoints manually:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/mcp/
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080
 ```
 
 The server prints request headers and parameters to stdout — no extra
 configuration needed.
 
----
+
 
 ### Remote debugging with VS Code and Docker (one click)
 
@@ -218,7 +201,7 @@ required. Just send a new request and the updated code runs.
 | MCP server | `localhost:8080` | `0.0.0.0:8080` |
 | debugpy listener | `localhost:5678` | `0.0.0.0:5678` |
 
----
+
 
 ## Authentication
 
@@ -248,7 +231,7 @@ before the request reaches the MCP layer, so the behaviour is identical.
 > MCP playgrounds, and any client whose configuration only accepts a plain URL
 > without a headers field.
 
----
+
 
 ## MCP Client Configuration (VS Code)
 
@@ -289,7 +272,7 @@ before the request reaches the MCP layer, so the behaviour is identical.
    - Open the Copilot chat and type `@workspace`.
    - Use the tools exposed by the MCP server.
 
----
+
 
 ## File storage
 
@@ -319,7 +302,7 @@ uvx openapi-mcp-sdk server
 
 > The directory is created automatically on first use. For the download links to
 > work correctly, `MCP_BASE_URL` must point to the public address of the server
-> (default: `https://mcp.openapi.com`).
+> (default: `http://localhost:8080`).
 
 ### Cloud storage backends
 
@@ -331,7 +314,7 @@ uvx openapi-mcp-sdk server
 
 See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 
----
+
 
 ## Deployment environments
 
@@ -343,7 +326,7 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 | Amazon Web Services | [`docs/env/aws.md`](docs/env/aws.md) |
 | Kubernetes | [`docs/env/kubernetes.md`](docs/env/kubernetes.md) |
 
----
+
 
 ## Project Structure
 
@@ -357,7 +340,7 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 - [`.vscode/launch.json`](.vscode/launch.json): VS Code debug configuration (attach to debugpy).
 - [`docs/`](docs/): Documentation and example configurations.
 
----
+
 
 ## Adding New Tools/APIs
 
@@ -374,7 +357,7 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
    ```
 2. Restart the server to apply the changes.
 
----
+
 
 ## Security Notes
 
@@ -382,7 +365,7 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 - The server expects the Bearer Token to be provided by the client via HTTP headers.
 - All API calls are proxied using the token provided by the client.
 
----
+
 
 ## Useful Resources
 
@@ -390,7 +373,6 @@ See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 - [fastmcp](https://pypi.org/project/fastmcp/)
 - [openapi.com](https://openapi.com/)
 
----
 
 ## Contributing
 
