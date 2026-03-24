@@ -1,0 +1,15 @@
+Image Description Sheet
+-----------------------
+
+File Name: repo-header-a4.png
+Format: PNG
+Dimensions: 830 x 173 pixels
+
+Short Description:
+A banner image featuring the word "Openapi" on the left, Various tech figures in the background,
+and the Openapi logo on the right.
+
+Purpose:
+This image is intended to be used as a header/banner for documentation or repository README.
+It visually associates linux tools with the Openapi MCP,
+giving a professional and modern look to the project materials.
