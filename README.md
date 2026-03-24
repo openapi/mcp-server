@@ -6,6 +6,7 @@
   <h1>🔐 Openapi® MCP</h1>
   <h4>The official Python MCP SDK and ready-to-run MCP server for <a href="https://openapi.com/">Openapi®</a></h4>
 
+[![build](https://github.com/openapi/mcp-server/actions/workflows/build.yml/badge.svg)](https://github.com/openapi/mcp-server/actions/workflows/build.yml)
 [![PyPI](https://img.shields.io/pypi/v/openapi-mcp-sdk.svg)](https://pypi.org/project/openapi-mcp-sdk/)
 [![Python](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/github/license/openapi/mcp-server)](LICENSE)
