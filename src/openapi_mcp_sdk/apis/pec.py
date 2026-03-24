@@ -3,7 +3,7 @@ logging.getLogger(__name__).debug("module loaded")
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp
-from ..memory_store import SANDBOX_PREFIX
+from ..memory_store import OPENAPI_HOST_PREFIX
 
 
 @mcp.tool(
@@ -24,5 +24,5 @@ async def check_pec(pec: str, ctx: Context) -> Any:
         pec: the pec address to check
     """  
     
-    url = f"https://{SANDBOX_PREFIX}pec.openapi.it/verifica_pec/{pec}"
+    url = f"https://{OPENAPI_HOST_PREFIX}pec.openapi.it/verifica_pec/{pec}"
     return make_api_call(ctx, "GET", url)

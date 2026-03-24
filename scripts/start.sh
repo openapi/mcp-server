@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Start the MCP server and expose it publicly via ngrok (if installed).
 # Usage: bash scripts/start.sh
-# Env:   PORT (default 8080), HOST (default 0.0.0.0)
+# Env:   MCP_PORT (default 8080), HOST (default 0.0.0.0)
 #        NGROK_DOMAIN — set to your reserved ngrok static domain to get a
 #                       stable URL that never changes across restarts.
 #                       Claim your free static domain at:
@@ -11,7 +11,7 @@
 
 set -uo pipefail
 
-PORT="${PORT:-8080}"
+MCP_PORT="${MCP_PORT:-8080}"
 HOST="${HOST:-0.0.0.0}"
 NGROK_DOMAIN="${NGROK_DOMAIN:-}"
 
@@ -29,13 +29,13 @@ trap cleanup EXIT INT TERM
 find src/ -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 # ── start uvicorn ──────────────────────────────────────────────────────────
-PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$PORT" --log-config scripts/log_config.json &
+PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$MCP_PORT" --log-config scripts/log_config.json &
 SERVER_PID=$!
 
 # ── wait for server to accept connections ──────────────────────────────────
 printf "Waiting for server\n"
 for i in $(seq 1 30); do
-    if curl -s --max-time 1 "http://localhost:$PORT/" > /dev/null 2>&1; then
+    if curl -s --max-time 1 "http://localhost:$MCP_PORT/" > /dev/null 2>&1; then
         break
     fi
     sleep 1
@@ -51,9 +51,9 @@ if ! command -v ngrok > /dev/null 2>&1; then
 fi
 
 if [ -n "$NGROK_DOMAIN" ]; then
-    ngrok http "$PORT" --domain="$NGROK_DOMAIN" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
+    ngrok http "$MCP_PORT" --domain="$NGROK_DOMAIN" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
 else
-    ngrok http "$PORT" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
+    ngrok http "$MCP_PORT" --log=stdout > /tmp/ngrok-mcp.log 2>&1 &
 fi
 NGROK_PID=$!
 
@@ -89,7 +89,7 @@ if [ -n "$NGROK_URL" ]; then
     echo ""
     echo "$SEP"
     echo "ngrok   ${NGROK_URL}"
-    echo "local   http://localhost:${PORT}"
+    echo "local   http://localhost:${MCP_PORT}"
     echo "$SEP"
     echo ""
 else

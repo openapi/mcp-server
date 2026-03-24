@@ -3,7 +3,7 @@ logging.getLogger(__name__).debug("module loaded")
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp
-from ..memory_store import SANDBOX_PREFIX
+from ..memory_store import OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ async def get_IT_regions_list(ctx: Context) -> Any:
     """
     Returns the list of Italian regions
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/regioni"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/regioni"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -20,7 +20,7 @@ async def get_IT_provinces_list(ctx: Context) -> Any:
     """
      Returns the list of Italian provinces
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/province"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/province"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -28,7 +28,7 @@ async def get_IT_metropolitan_cities_list(ctx: Context) -> Any:
     """
     Returns the list of Italian metropolitan cities
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/citta_metropolitane"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/citta_metropolitane"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -36,7 +36,7 @@ async def get_suppressed_italian_municipalities(ctx: Context) -> Any:
     """
     Returns the list of suppressed or merged Italian municipalities
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/comuni_soppressi"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/comuni_soppressi"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -44,7 +44,7 @@ async def find_IT_istat_by_comune_name(comune: str, ctx: Context) -> Any:
     """
     Searches for the ISTAT code associated with a given Italian municipality.
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/cerca_comuni"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/cerca_comuni"
     params = {"comune": comune}
     return make_api_call(ctx, "GET", url, params=params)
 
@@ -73,7 +73,7 @@ async def find_IT_municipality_by_istat(istatCode: str, ctx: Context) -> Any:
     - frazioni:fractions
     - cap:postalCodes
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/comuni_advance/{istatCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/comuni_advance/{istatCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -81,5 +81,5 @@ async def find_IT_municipalities_by_zip(zip_code: str, ctx: Context) -> Any:
     """
     Retrieves the list of Italian municipalities and their ISTAT code based on the ZIP code.
     """
-    url = f"https://{SANDBOX_PREFIX}cap.openapi.it/cap/{zip_code}"
+    url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/cap/{zip_code}"
     return make_api_call(ctx, "GET", url)

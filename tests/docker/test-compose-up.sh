@@ -19,7 +19,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-BASE_URL="${MCP_URL:-http://localhost:8080}"
+SERVER_URL="${MCP_URL:-http://localhost:8080}"
 PASS=0
 FAIL=0
 CONTAINER_STARTED=0
@@ -92,7 +92,7 @@ mcp_post() {
         -s
         --max-time 15
         -D "$hfile"
-        -X POST "$BASE_URL/"
+        -X POST "$SERVER_URL/"
         -H "Content-Type: application/json"
         -H "Accept: application/json, text/event-stream"
         -H "Authorization: Bearer test-smoke-token"
@@ -117,9 +117,9 @@ info "Building and starting the MCP container (latest image)..."
 docker compose -f compose.yml up --build -d
 CONTAINER_STARTED=1
 
-info "Waiting for server at $BASE_URL (up to 90s)..."
+info "Waiting for server at $SERVER_URL (up to 90s)..."
 for i in $(seq 1 90); do
-    if curl -s --max-time 2 -o /dev/null "$BASE_URL/" 2>/dev/null; then
+    if curl -s --max-time 2 -o /dev/null "$SERVER_URL/" 2>/dev/null; then
         info "Server ready after ${i}s"; break
     fi
     sleep 1
@@ -199,23 +199,23 @@ assert_contains "tools/call → status ok in payload"     "$CALL_BODY" 'status'
 section "REST Endpoints"
 
 # POST /callbacks with a missing required field → error JSON
-CB_BODY=$(curl -s --max-time 10 -X POST "$BASE_URL/callbacks" \
+CB_BODY=$(curl -s --max-time 10 -X POST "$SERVER_URL/callbacks" \
     -H "Content-Type: application/json" \
     -d '{"unexpected_field": true}')
 assert_contains "POST /callbacks (bad body) → error field" "$CB_BODY" '"error"'
 
 # GET /status/<unknown-id> → 404
 STATUS_CODE=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" \
-    "$BASE_URL/status/nonexistent-smoke-test-id-$(date +%s)")
+    "$SERVER_URL/status/nonexistent-smoke-test-id-$(date +%s)")
 assert_eq "GET /status/<unknown> → 404" "$STATUS_CODE" "404"
 
 # GET /.well-known/oauth-authorization-server → JSON error (not plain 404)
-OAUTH_BODY=$(curl -s --max-time 10 "$BASE_URL/.well-known/oauth-authorization-server")
+OAUTH_BODY=$(curl -s --max-time 10 "$SERVER_URL/.well-known/oauth-authorization-server")
 assert_contains "GET /.well-known/oauth-authorization-server → oauth_not_supported" \
     "$OAUTH_BODY" '"oauth_not_supported"'
 
 # GET /.well-known/oauth-protected-resource → same guard
-OAUTH2_BODY=$(curl -s --max-time 10 "$BASE_URL/.well-known/oauth-protected-resource")
+OAUTH2_BODY=$(curl -s --max-time 10 "$SERVER_URL/.well-known/oauth-protected-resource")
 assert_contains "GET /.well-known/oauth-protected-resource → oauth_not_supported" \
     "$OAUTH2_BODY" '"oauth_not_supported"'
 

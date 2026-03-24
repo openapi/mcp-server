@@ -1,6 +1,6 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result,callbackUrl,SANDBOX_PREFIX  # usa sempre il singleton globale
+from ..memory_store import set_callback_result, callbackUrl, OPENAPI_HOST_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
@@ -36,7 +36,7 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
         "entityType": entityType,
         "name": name,
     }
-    url = f"https://{SANDBOX_PREFIX}risk.openapi.com/WW-kyc-full"
+    url = f"https://{OPENAPI_HOST_PREFIX}risk.openapi.com/WW-kyc-full"
     json_payload = {
         "callback": {
             "url": callbackUrl,
@@ -78,7 +78,7 @@ async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://{SANDBOX_PREFIX}risk.openapi.com/IT-creditscore-top/{vat_or_taxCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}risk.openapi.com/IT-creditscore-top/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -94,5 +94,5 @@ async def check_IT_fiscal_code(fiscalCode: str, ctx: Context) -> Any:
     Args:
         fiscalCode: fiscal code of an italian person
     """
-    url = f"https://{SANDBOX_PREFIX}risk.openapi.com/IT-verifica_cf/{fiscalCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}risk.openapi.com/IT-verifica_cf/{fiscalCode}"
     return make_api_call(ctx, "GET", url)

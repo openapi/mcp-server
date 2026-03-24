@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 # TODO: Remove legacy dependency — pymemcache is tied to the Google Cloud VPC-internal Memcached
 # instance (hardcoded IPs X.X.X.X / X.X.X.X). Replace with an environment-agnostic cache
 # abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
-# (e.g. via redis-py + CACHE_URL env var) or any other backend for production.
+# (e.g. via redis-py + MCP_CACHE_URL env var) or any other backend for production.
 # Remove pymemcache from requirements.txt and pyproject.toml when done.
 try:
     from pymemcache.client import base
@@ -22,33 +22,41 @@ callback_results = {}
 
 # TODO: Remove legacy dependency — K_SERVICE is a Google Cloud Run reserved env var injected
 # automatically by the platform. It encodes the service name which is used here to derive:
-# sandbox/production prefix, BASE_URL and callback URL. Replace with explicit env vars:
-#   SANDBOX_PREFIX, BASE_URL, CALLBACK_URL so the app works on any platform.
+# OpenAPI environment, MCP_BASE_URL and callback URL. Replace with explicit env vars:
+#   MCP_ENV, MCP_OPENAPI_ENV, MCP_BASE_URL, MCP_CALLBACK_URL so the app works on any platform.
 K_SERVICE = os.getenv("K_SERVICE")
-# Estrae il prefisso ambiente da K_SERVICE (es: "dev-mcp-openapi-com" -> "dev.")
-if K_SERVICE and K_SERVICE != "mcp-openapi-com":
-    env_prefix = K_SERVICE.split("-")[0]  # estrae "test", "dev", "alpha"
-    SANDBOX_PREFIX = f"{env_prefix}."
-else:
-    SANDBOX_PREFIX = ""
 
-# TODO: Remove legacy dependency — X-DEV-VM is an internal convention for a specific GCP VM.
-# Replace with a standard ENVIRONMENT=dev|staging|production env var.
-DEV_VM = os.getenv("X-DEV-VM")
-BASE_URL = "https://mcp.openapi.com"
-callbackUrl = None
-if K_SERVICE:
-    # TODO: Remove legacy dependency — BASE_URL derived from K_SERVICE (Cloud Run naming convention).
-    # Replace with an explicit BASE_URL env var.
-    BASE_URL = "https://" + K_SERVICE.replace("-", ".")
-    callbackUrl = BASE_URL + "/callbacks"
-    callbackUrl = callbackUrl.replace("alpha", "dev") if DEV_VM else callbackUrl
+MCP_ENV = os.getenv("MCP_ENV", "production").strip().lower()
+if MCP_ENV not in {"dev", "staging", "production"}:
+    logger.warning("Invalid MCP_ENV=%r, defaulting to 'production'", MCP_ENV)
+    MCP_ENV = "production"
 
-# TODO: Remove legacy dependency — Memcached IPs (X.X.X.X, X.X.X.X) are hardcoded VPC-internal
-# addresses specific to the current GCP deployment. For local dev use the in-process dict fallback
-# already present below. For production replace with CACHE_URL=redis://... or similar.
-MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", 'X.X.X.X' if DEV_VM or K_SERVICE != "mcp-openapi-com" else "X.X.X.X" )
-MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", 11211))
+MCP_OPENAPI_ENV = os.getenv("MCP_OPENAPI_ENV", "").strip().lower()
+if not MCP_OPENAPI_ENV and K_SERVICE and K_SERVICE != "mcp-openapi-com":
+    candidate = K_SERVICE.split("-")[0].strip().lower()
+    if candidate == "alpha":
+        candidate = "dev"
+    if candidate in {"dev", "test"}:
+        MCP_OPENAPI_ENV = candidate
+if MCP_OPENAPI_ENV not in {"", "dev", "test"}:
+    logger.warning("Invalid MCP_OPENAPI_ENV=%r, defaulting to production", MCP_OPENAPI_ENV)
+    MCP_OPENAPI_ENV = ""
+OPENAPI_HOST_PREFIX = f"{MCP_OPENAPI_ENV}." if MCP_OPENAPI_ENV else ""
+
+MCP_BASE_URL = os.getenv("MCP_BASE_URL", "http://localhost:8080")
+if K_SERVICE and "MCP_BASE_URL" not in os.environ:
+    # TODO: Remove legacy dependency — MCP_BASE_URL derived from K_SERVICE (Cloud Run naming convention).
+    # Replace with an explicit MCP_BASE_URL env var.
+    MCP_BASE_URL = "https://" + K_SERVICE.replace("-", ".")
+
+callbackUrl = os.getenv("MCP_CALLBACK_URL")
+if not callbackUrl:
+    callbackUrl = MCP_BASE_URL + "/callbacks"
+    if MCP_ENV == "dev":
+        callbackUrl = callbackUrl.replace("alpha", "dev")
+
+MEMCACHED_HOST = os.getenv("MCP_CACHE_HOST", '0.0.0.0')
+MEMCACHED_PORT = int(os.getenv("MCP_CACHE_PORT", 11211))
 # connect_timeout / timeout = 1 s: when Memcached is unreachable (e.g. local dev,
 # Docker without the VPC network) the client fails fast and the except block
 # falls back to the in-process dict, keeping every endpoint responsive.

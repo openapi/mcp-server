@@ -6,7 +6,7 @@ from fastmcp import Context
 import os
 from typing import Any, Dict, List, Optional
 from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
-from ..memory_store import SANDBOX_PREFIX, set_callback_result, callbackUrl
+from ..memory_store import OPENAPI_HOST_PREFIX, set_callback_result, callbackUrl
 
 class DocuEngineHelper:
     """Helper class to manage DocuEngine services and parameter mapping."""
@@ -118,7 +118,7 @@ async def get_docuengine_services(ctx: Context) -> Any:
     """
     Returns the list of all available DocuEngine services with their required parameters.
     """
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
+    url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/documents"
     return make_api_call(ctx, "GET", url)
 
 async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any], ctx: Context) -> Any:
@@ -129,7 +129,7 @@ async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any],
     auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     request_id = getSessionHash(ctx)
     
-    services_response = make_api_call(ctx, "GET", f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents")
+    services_response = make_api_call(ctx, "GET", f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/documents")
     
     if isinstance(services_response, dict) and "error" in services_response:
         return services_response
@@ -151,7 +151,7 @@ async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any],
         "parameters": parameters,
     }
     
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests"
+    url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/requests"
     json_payload = {
         "documentId": document_id,
         "search": search_payload,
@@ -176,13 +176,13 @@ async def _post_docuengine_request(document_id: str, parameters: Dict[str, Any],
 @mcp.tool()
 async def get_docuengine_request_status(request_id: str, ctx: Context) -> Any:
     """Returns the details and status of a specific DocuEngine request."""
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
+    url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/requests/{request_id}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool()
 async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
     """Returns the download links for the documents produced by a request."""
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}/documents"
+    url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/requests/{request_id}/documents"
     return make_api_call(ctx, "GET", url)
 
 
@@ -209,7 +209,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         logger.warning('%s "No token provided"', "[JIT]")
         return False
 
-    url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/documents"
+    url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/documents"
 
     headers = {"Authorization": f"Bearer {token}"}
     services = []
@@ -279,7 +279,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
             if year is not None:
                 selected_option["year"] = year
             
-            url = f"https://{SANDBOX_PREFIX}docuengine.openapi.com/requests/{request_id}"
+            url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/requests/{request_id}"
             return make_api_call(ctx, "PATCH", url, selected_option)
             
         specialized_patch_tool.__name__ = t_name

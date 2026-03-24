@@ -1,6 +1,6 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result,callbackUrl, BASE_URL, SANDBOX_PREFIX
+from ..memory_store import set_callback_result, callbackUrl, MCP_BASE_URL, OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
 from fastmcp import Context
@@ -12,8 +12,8 @@ import io
 import json
 # TODO: Remove legacy dependency — google-cloud-storage is used to store downloaded document
 # files in a GCS bucket. Replace with a storage-agnostic abstraction: write to local filesystem
-# (e.g. /tmp or STORAGE_PATH env var) for dev/portable deployments, and optionally support
-# S3-compatible backends (boto3 + STORAGE_BACKEND env var) for other clouds.
+# (e.g. /tmp or MCP_STORAGE_PATH env var) for dev/portable deployments, and optionally support
+# S3-compatible backends (boto3 + MCP_STORAGE_BACKEND env var) for other clouds.
 # Remove google-cloud-storage from requirements.txt and pyproject.toml when done.
 # Import is deferred to the functions that need it to keep google-cloud-storage optional.
 import os
@@ -28,7 +28,7 @@ async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: 
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://{SANDBOX_PREFIX}visurecamerali.openapi.it/impresa/{vat_or_tax_code}"
+    url = f"https://{OPENAPI_HOST_PREFIX}visurecamerali.openapi.it/impresa/{vat_or_tax_code}"
     return make_api_call(ctx, "GET", url)
 @mcp.tool
 async def get_italian_company_official_document(document_url:str,vat_or_tax_code:str, ctx: Context) -> Any:
@@ -82,7 +82,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
         request_id = getSessionHash(ctx)
 
         # TODO: Remove legacy dependency — bucket name taken from K_SERVICE (Google Cloud Run env var).
-        # Replace with STORAGE_BUCKET env var and abstract the upload behind a storage interface
+        # Replace with MCP_STORAGE_BUCKET env var and abstract the upload behind a storage interface
         # so it can use local disk, S3, GCS, or Azure Blob interchangeably.
         bucket_name = os.getenv("K_SERVICE")
         from google.cloud import storage  # lazy import — optional legacy dependency
@@ -108,7 +108,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
                         "file_name": file_name,
                         "file_size": file_size,
                         "file_type": content_type,
-                        "download_link": BASE_URL + remote_path,
+                        "download_link": MCP_BASE_URL + remote_path,
                         "content": base64.b64encode(file_content).decode('utf-8'),
                         "expire": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
                     })

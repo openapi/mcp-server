@@ -46,8 +46,7 @@ cat > mcp-server.sh << 'EOF'
 # Edit the variables below, then run: bash mcp-server.sh
 # ============================================================
 
-export PORT="${PORT:-8080}"
-export SERVICES_CREDENTIALS="${SERVICES_CREDENTIALS:-{}}"
+export MCP_PORT="${MCP_PORT:-8080}"
 
 uvx openapi-mcp-sdk server
 EOF

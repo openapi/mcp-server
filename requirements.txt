@@ -21,10 +21,3 @@ pydantic
 # Cloud Run deployments. Remove when the deployment target is clarified.
 mangum
 uvicorn
-# TODO: Remove legacy dependency — pymemcache ties the app to a VPC-internal Memcached instance
-# with hardcoded IPs (see memory_store.py). Replace with an in-process dict for dev and
-# a Redis client (redis-py) for production via CACHE_URL env var.
-pymemcache
-# TODO: Remove legacy dependency — google-cloud-storage ties file storage to GCS. Replace with
-# a storage-agnostic solution (local filesystem for dev, pluggable via STORAGE_BACKEND env var).
-google-cloud-storage

@@ -3,7 +3,7 @@ logging.getLogger(__name__).debug("module loaded")
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp
-from ..memory_store import SANDBOX_PREFIX
+from ..memory_store import OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ async def geocode(address: str, ctx: Context) -> Any:
     Args:
         address: string
     """
-    url = f"https://{SANDBOX_PREFIX}geocoding.openapi.it/geocode"
+    url = f"https://{OPENAPI_HOST_PREFIX}geocoding.openapi.it/geocode"
     return make_api_call(ctx, "POST", url, json_payload={
         "address": address
     })
@@ -39,5 +39,5 @@ async def reverse_geocode(type: str,id: str,lat: float,long: float, ctx: Context
         json_payload["lat"] = lat
     if long:
         json_payload["long"] = long
-    url = f"https://{SANDBOX_PREFIX}geocoding.openapi.it/reverse"
+    url = f"https://{OPENAPI_HOST_PREFIX}geocoding.openapi.it/reverse"
     return make_api_call(ctx, "POST", url, json_payload=json_payload)

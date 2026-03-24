@@ -21,34 +21,34 @@ start the server — defaults are suitable for local use.
 
 | Variable | Default | Description |
 |---|---|---|
-| `PORT` | `8080` | HTTP port the server listens on |
-| `BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs) |
-| `CALLBACK_URL` | `$BASE_URL/callbacks` | Explicit callback URL sent to async APIs |
-| `SANDBOX_PREFIX` | _(empty)_ | Subdomain prefix for sandbox API endpoints (e.g. `dev.`) |
-| `SERVICES_CREDENTIALS` | `{}` | JSON map of per-service API credentials |
+| `MCP_PORT` | `8080` | HTTP port the server listens on |
+| `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production` |
+| `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs) |
+| `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Explicit callback URL sent to async APIs |
+| `MCP_OPENAPI_ENV` | _(empty)_ | OpenAPI environment: `dev`, `test`, or empty for production |
 
 ### Storage
 
 The server needs to store files for APIs that return binary documents (e.g.
 company official documents). The storage backend is configurable:
 
-| Variable | Default | Description |
-|---|---|---|
-| `STORAGE_BACKEND` | `local` | `local` \| `gcs` \| `s3` |
-| `STORAGE_PATH` | `./openapi_storage` | Local path for `local` backend |
-| `STORAGE_BUCKET` | _(required for cloud)_ | Bucket name for `gcs` or `s3` |
-| `STORAGE_REGION` | _(required for s3)_ | AWS region for the S3 bucket |
+| Variable              | Default | Description |
+|-----------------------|---|---|
+| `MCP_STORAGE_BACKEND` | `local` | `local` \| `gcs` \| `s3` |
+| `MCP_STORAGE_PATH`    | `./openapi_storage` | Local path for `local` backend |
+| `MCP_STORAGE_BUCKET`  | _(required for cloud)_ | Bucket name for `gcs` or `s3` |
+| `MCP_STORAGE_REGION`  | _(required for s3)_ | AWS region for the S3 bucket |
 
 ### Cache
 
 Used to share async callback results across multiple server instances.
 
-| Variable | Default | Description |
-|---|---|---|
-| `CACHE_BACKEND` | `none` | `none` (in-process dict) \| `memcached` \| `redis` |
-| `MEMCACHED_HOST` | _(none)_ | Memcached host (`CACHE_BACKEND=memcached`) |
-| `MEMCACHED_PORT` | `11211` | Memcached port |
-| `CACHE_URL` | _(none)_ | Redis connection URL (`CACHE_BACKEND=redis`), e.g. `redis://host:6379` |
+| Variable            | Default | Description |
+|---------------------|---|---|
+| `MCP_CACHE_BACKEND` | `none` | `none` (in-process dict) \| `memcached` \| `redis` |
+| `MCP_CACHE_URL`     | _(none)_ | Redis connection URL (`MCP_CACHE_BACKEND=redis`), e.g. `redis://host:6379` |
+| `MCP_CACHE_HOST`    | _(none)_ | Memcached host (`MCP_CACHE_BACKEND=memcached`) |
+| `MCP_CACHE_PORT`    | `11211` | Memcached port |
 
 See [`docs/env/`](docs/env/) for per-environment configuration guides (local,
 Docker, AWS, GCP, Kubernetes).
@@ -113,9 +113,7 @@ cat > mcp-server.sh << 'EOF'
 # Edit the variables below, then run: bash mcp-server.sh
 # ============================================================
 
-export PORT="${PORT:-8080}"
-export SERVICES_CREDENTIALS="${SERVICES_CREDENTIALS:-{}}"
-
+export MCP_PORT="${MCP_PORT:-8080}"
 uvx openapi-mcp-sdk server
 EOF
 bash mcp-server.sh
@@ -302,7 +300,7 @@ separate HTTP endpoint (`GET /status/{id}/files/{filename}`).
 
 ### Default: local filesystem
 
-By default (`STORAGE_BACKEND=local`) files are written to `./openapi_storage`
+By default (`MCP_STORAGE_BACKEND=local`) files are written to `./openapi_storage`
 relative to the directory from which the server is started:
 
 ```
@@ -312,24 +310,24 @@ relative to the directory from which the server is started:
     └── attachments.zip
 ```
 
-Override the path with the `STORAGE_PATH` environment variable:
+Override the path with the `MCP_STORAGE_PATH` environment variable:
 
 ```bash
-export STORAGE_PATH=/var/data/openapi_storage
+export MCP_STORAGE_PATH=/var/data/openapi_storage
 uvx openapi-mcp-sdk server
 ```
 
 > The directory is created automatically on first use. For the download links to
-> work correctly, `BASE_URL` must point to the public address of the server
+> work correctly, `MCP_BASE_URL` must point to the public address of the server
 > (default: `https://mcp.openapi.com`).
 
 ### Cloud storage backends
 
-| `STORAGE_BACKEND` | Additional variables | Notes |
+| `MCP_STORAGE_BACKEND` | Additional variables | Notes |
 |---|---|---|
-| `local` | `STORAGE_PATH` (default `./openapi_storage`) | Default — local disk or mounted volume |
-| `gcs` | `STORAGE_BUCKET` | Google Cloud Storage |
-| `s3` | `STORAGE_BUCKET`, `STORAGE_REGION` | AWS S3 or any S3-compatible service |
+| `local` | `MCP_STORAGE_PATH` (default `./openapi_storage`) | Default — local disk or mounted volume |
+| `gcs` | `MCP_STORAGE_BUCKET` | Google Cloud Storage |
+| `s3` | `MCP_STORAGE_BUCKET`, `MCP_STORAGE_REGION` | AWS S3 or any S3-compatible service |
 
 See [`docs/env/`](docs/env/) for full per-environment configuration guides.
 

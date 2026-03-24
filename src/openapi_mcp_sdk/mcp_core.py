@@ -3,7 +3,7 @@ from fastmcp.server.dependencies import get_http_headers
 from hashlib import md5
 from typing import Any, Optional
 from pydantic import BaseModel
-from .memory_store import get_callback_result,BASE_URL
+from .memory_store import get_callback_result, MCP_BASE_URL
 import asyncio
 import logging
 import requests
@@ -61,7 +61,7 @@ async def processPolling(ctx: Context, request_id: str, final_states: Optional[l
     # Return the link to the status endpoint
     status_endpoint = f"/status/{request_id}"
     progress_report = ctx.report_progress(progress=45, total=45)
-    return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": BASE_URL+status_endpoint}
+    return {"message":"The response is not ready yet, you can poll the async api endpoint or use the mcp tool check_async_status","request_id":request_id,"status_api_endpoint": MCP_BASE_URL+status_endpoint}
 
 # Takes request details (method, url, json_payload), automatically adds the auth header, sends the request, and handles responses and errors.
 def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[dict] = None, **kwargs) -> Any:

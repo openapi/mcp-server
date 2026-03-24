@@ -38,7 +38,7 @@ require_cmd() {
 #   Sets global SERVER_PID.
 start_server() {
     local port="$1"; shift
-    export PORT="$port"
+    export MCP_PORT="$port"
     "$@" >/tmp/pypi-test-server-$port.log 2>&1 &
     SERVER_PID=$!
 }

@@ -9,9 +9,9 @@ ElastiCache Redis for async callback caching.
 
 ```
 Internet → ALB → ECS Fargate (openapi-mcp-sdk server)
-                      │
-                      ├── S3 Bucket (file downloads)
-                      └── ElastiCache Redis (async callback cache, VPC-internal)
+                 │
+                 ├── S3 Bucket (file downloads)
+                 └── ElastiCache Redis (async callback cache, VPC-internal)
 ```
 
 ---
@@ -20,22 +20,20 @@ Internet → ALB → ECS Fargate (openapi-mcp-sdk server)
 
 ```bash
 # Core
-PORT=8080
-BASE_URL=https://mcp.example.com      # ALB or CloudFront URL
-CALLBACK_URL=https://mcp.example.com/callbacks
-SANDBOX_PREFIX=                        # leave empty for production
+MCP_PORT=8080
+MCP_BASE_URL=https://mcp.example.com      # ALB or CloudFront URL
+MCP_CALLBACK_URL=https://mcp.example.com/callbacks
+MCP_OPENAPI_ENV=                      # dev, test, or empty for production
 
 # Storage
-STORAGE_BACKEND=s3
-STORAGE_BUCKET=openapi-mcp-files
-STORAGE_REGION=eu-west-1
+MCP_STORAGE_BACKEND=s3
+MCP_STORAGE_BUCKET=openapi-mcp-files
+MCP_STORAGE_REGION=eu-west-1
 
 # Cache
-CACHE_BACKEND=redis
-CACHE_URL=redis://my-redis.cache.amazonaws.com:6379
+MCP_CACHE_BACKEND=redis
+MCP_CACHE_URL=redis://my-redis.cache.amazonaws.com:6379
 
-# Credentials
-SERVICES_CREDENTIALS={}               # inject via Secrets Manager or Parameter Store
 ```
 
 ---
@@ -57,19 +55,13 @@ SERVICES_CREDENTIALS={}               # inject via Secrets Manager or Parameter 
       "image": "ACCOUNT.dkr.ecr.REGION.amazonaws.com/openapi-mcp-sdk:latest",
       "portMappings": [{ "containerPort": 8080 }],
       "environment": [
-        { "name": "PORT",             "value": "8080" },
-        { "name": "BASE_URL",         "value": "https://mcp.example.com" },
-        { "name": "STORAGE_BACKEND",  "value": "s3" },
-        { "name": "STORAGE_BUCKET",   "value": "openapi-mcp-files" },
-        { "name": "STORAGE_REGION",   "value": "eu-west-1" },
-        { "name": "CACHE_BACKEND",    "value": "redis" },
-        { "name": "CACHE_URL",        "value": "redis://my-redis.cache.amazonaws.com:6379" }
-      ],
-      "secrets": [
-        {
-          "name": "SERVICES_CREDENTIALS",
-          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:openapi-mcp-credentials"
-        }
+        { "name": "MCP_PORT",         "value": "8080" },
+        { "name": "MCP_BASE_URL",     "value": "https://mcp.example.com" },
+        { "name": "MCP_STORAGE_BACKEND",  "value": "s3" },
+        { "name": "MCP_STORAGE_BUCKET",   "value": "openapi-mcp-files" },
+        { "name": "MCP_STORAGE_REGION",   "value": "eu-west-1" },
+        { "name": "MCP_CACHE_BACKEND",    "value": "redis" },
+        { "name": "MCP_CACHE_URL",        "value": "redis://my-redis.cache.amazonaws.com:6379" }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
@@ -131,15 +123,15 @@ docker push \
 3. Configure the server:
 
    ```bash
-   STORAGE_BACKEND=s3
-   STORAGE_BUCKET=openapi-mcp-files
-   STORAGE_REGION=eu-west-1
+   MCP_STORAGE_BACKEND=s3
+   MCP_STORAGE_BUCKET=openapi-mcp-files
+   MCP_STORAGE_REGION=eu-west-1
    ```
 
    AWS credentials are picked up automatically from the ECS task IAM role — no
    `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` needed in the container.
 
-Downloaded files are stored at `s3://STORAGE_BUCKET/<request_id>/<filename>` and
+Downloaded files are stored at `s3://MCP_STORAGE_BUCKET/<request_id>/<filename>` and
 served via the `/status/{id}/files/{name}` endpoint.
 
 ---
@@ -151,8 +143,8 @@ served via the `/status/{id}/files/{name}` endpoint.
 3. Set:
 
    ```bash
-   CACHE_BACKEND=redis
-   CACHE_URL=redis://my-cluster.abc123.ng.0001.euw1.cache.amazonaws.com:6379
+   MCP_CACHE_BACKEND=redis
+   MCP_CACHE_URL=redis://my-cluster.abc123.ng.0001.euw1.cache.amazonaws.com:6379
    ```
 
 ---

@@ -1,6 +1,6 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result,callbackUrl,SANDBOX_PREFIX  # usa sempre il singleton globale
+from ..memory_store import set_callback_result, callbackUrl, OPENAPI_HOST_PREFIX  # usa sempre il singleton globale
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
@@ -51,7 +51,7 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         "request_id": request_id,
         "vat_or_taxCode": vat_or_taxCode
     }
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-full/{vat_or_taxCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-full/{vat_or_taxCode}"
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
             "url": callbackUrl,
@@ -84,7 +84,7 @@ async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-advanced/{vat_or_taxCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-advanced/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -100,7 +100,7 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-start/{vat_or_taxCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-start/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -174,7 +174,7 @@ async def get_company_IT_search(
         creationTimestamp: Filter by creation unix timestamp (optional).
         lastUpdateTimestamp: Filter by last update unix timestamp (optional).
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-search?limit={limit}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-search?limit={limit}"
 
     
     if companyName:
@@ -253,7 +253,7 @@ async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context
         vat_or_taxCode: vatCode or taxCode of a company
         country_code: country code of the company
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool
@@ -263,7 +263,7 @@ async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
     "EI"="ENTE IMPRESA","EL"="ENTE SOCIALE","OO"="COOPERATIVA SOCIALE","OS"="SOCIETA' CONSORTILE COOPERATIVA A RESPONSABILITA' LIMITATA","RC"="CONTRATTO DI RETE DOTATO DI SOGGETTIVITA' GIURIDICA","ST"="SOGGETTO ESTERO","AF"="ALTRE FORME","AP"="AZIENDA PROVINCIALE","AS"="SOCIETA' IN ACCOMANDITA SEMPLICE","CO"="CONSORZIO","EE"="ENTE ECCLESIASTICO","FO"="FONDAZIONE","SL"="SOCIETA' CONSORTILE A RESPONSABILITA' LIMITATA","SR"="SOCIETA' A RESPONSABILITA' LIMITATA","SZ"="SOCIETA' NON PREVISTA DALLA LEGISLAZIONE ITALIANA","AL"="AZIENDA SPECIALE","AN"="SOCIETA' CONSORTILE IN NOME COLLETTIVO","CC"="CONSORZIO CON ATTIVITA' ESTERNA","CF"="CONSORZIO FIDI","EC"="ENTE PUBBLICO COMMERCIALE","ED"="ENTE DIRITTO PUBBLICO","EN"="ENTE","OC"="SOCIETA' COOPERATIVA CONSORTILE","PA"="ASSOCIAZIONE IN PARTECIPAZIONE","SF"="SOCIETA' DI FATTO","SO"="SOCIETA' CONSORTILE PER AZIONI","AA"="SOCIETA' IN ACCOMANDITA PER AZIONI","AC"="ASSOCIAZIONE","AI"="ASSOCIAZIONE IMPRESA","AM"="AZIENDA MUNICIPALE","AT"="AZIENDA AUTONOMA STATALE","CR"="CONSORZIO INTERCOMUNALE","ES"="ENTE DI CUI ALLA L.R. 21-12-93 N88","GE"="GRUPPO EUROPEO DI INTERESSE ECONOMICO","IF"="IMPRESA FAMILIARE","LL"="AZIENDA SPECIALE DI CUI AL DLGS 267/2000","RS"="SOCIETA' A RESPONSABILITA' LIMITATA SEMPLIFICATA","SI"="SOCIETA' IRREGOLARE","AR"="AZIENDA REGIONALE","CS"="CONSORZIO SENZA ATTIVITA' ESTERNA","SA"="SOCIETA' ANONIMA","SC"="SOCIETA' COOPERATIVA","SD"="SOCIETA' EUROPEA","SG"="SOCIETA' COOPERATIVA EUROPEA","AE"="SOCIETA' CONSORTILE IN ACCOMANDITA SEMPLICE","EP"="ENTE PUBBLICO ECONOMICO","PF"="PERSONA FISICA","SN"="SOCIETA' IN NOME COLLETTIVO","SP"="SOCIETA' PER AZIONI","XX"="NON PRECISATA","AU"="SOCIETA'  PER AZIONI CON SOCIO UNICO","CE"="COMUNIONE EREDITARIA","CI"="SOCIETA' COOPERATIVA A RESPONSABILITA ILLIMITATA","CL"="SOCIETA' COOPERATIVA A RESPONSABILITA LIMITATA","CN"="SOCIETA' CONSORTILE","CZ"="CONSORZIO DI CUI AL DLGS 267/2000","DI"="IMPRESA INDIVIDUALE","RR"="SOCIETA' A RESPONSABILITA' LIMITATA A CAPITALE RIDOTTO","SE"="SOCIETA' SEMPLICE","SU"="SOCIETA' A RESPONSABILITA' LIMITATA CON UNICO SOCIO","AZ"="AZIENDA SPECIALE REA","CM"="CONSORZIO MUNICIPALE","EM"="ENTE MORALE","ER"="ENTE ECCLESIASTICO CIVILMENTE RICONOSCIUTO","FI"="FONDAZIONE IMPRESA","IC"="ISTITUTO DI CREDITO","ID"="ISTITUTO DI CREDITO DI DIRITTO PUBBLICO","IR"="ISTITUTO RELIGIOSO","MA"="MUTUA ASSICURAZIONE","PC"="PICCOLA SOCIETA' COOPERATIVA","PS"="PICCOLA SOCIETA' COOPERATIVA A RESPONSABILITA' LIMITATA","SM"="SOCIETA' DI MUTUO SOCCORSO","SS"="SOCIETA' COSTITUITA IN BASE A LEGGI DI ALTRO STATO","SV"="SOCIETA' TRA PROFESSIONISTI"
 
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/IT-legalforms/"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-legalforms/"
     return make_api_call(ctx, "GET", url)
 
 # ============================================================================
@@ -287,7 +287,7 @@ async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) ->
         country_code: Two-letter country code (e.g., DE, ES, PT, GB, BE, AT, CH, PL, FR)
     """
     country_code = country_code.upper()
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/{country_code}-start/{vatCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-start/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -307,7 +307,7 @@ async def get_company_EU_advanced(vatCode: str, country_code: str, ctx: Context)
         country_code: Two-letter country code (e.g., FR, DE, ES, etc.)
     """
     country_code = country_code.upper()
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/{country_code}-advanced/{vatCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-advanced/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
 # ============================================================================
@@ -328,7 +328,7 @@ async def get_company_WW_start(vatCode: str, country_code: str, ctx: Context) ->
         vatCode: VAT code or company registration number
         country_code: Two-letter country code of the country
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-start/{country_code}/{vatCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-start/{country_code}/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
 @mcp.tool(
@@ -345,7 +345,7 @@ async def get_company_WW_advanced(vatCode: str, country_code: str, ctx: Context)
         vatCode: VAT code or company registration number
         country_code: Two-letter country code of the country
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/WW-advanced/{country_code}/{vatCode}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-advanced/{country_code}/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
 # ============================================================================
@@ -382,7 +382,7 @@ async def get_company_FR_search(
         nafCode: NAF Activity Code for the company (optional).
         activityStatus: Status of the company (optional).
     """
-    url = f"https://{SANDBOX_PREFIX}company.openapi.com/FR-search?limit={limit if limit else 10}"
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/FR-search?limit={limit if limit else 10}"
     
     if companyName: url += f"&companyName={companyName}"
     if provinceCode: url += f"&province={provinceCode}"
@@ -393,5 +393,4 @@ async def get_company_FR_search(
     if activityStatus: url += f"&activityStatus={activityStatus}"
 
     return make_api_call(ctx, "GET", url)
-
 

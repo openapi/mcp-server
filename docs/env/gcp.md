@@ -24,22 +24,21 @@ Internet → Cloud Run (openapi-mcp-sdk server)
 
 ```bash
 # Core
-PORT=8080
-BASE_URL=https://mcp.openapi.com
-CALLBACK_URL=https://mcp.openapi.com/callbacks
-SANDBOX_PREFIX=                         # leave empty for production
+MCP_PORT=8080
+MCP_ENV=production
+MCP_BASE_URL=https://mcp.openapi.com
+MCP_CALLBACK_URL=https://mcp.openapi.com/callbacks
+MCP_OPENAPI_ENV=                        # dev, test, or empty for production
 
 # Storage
-STORAGE_BACKEND=gcs
-STORAGE_BUCKET=my-cloud-run-service     # name of the GCS bucket
+MCP_STORAGE_BACKEND=gcs
+MCP_STORAGE_BUCKET=my-cloud-run-service     # name of the GCS bucket
 
 # Cache
-CACHE_BACKEND=memcached
-MEMCACHED_HOST=10.x.x.x                 # Memorystore VPC-internal IP
-MEMCACHED_PORT=11211
+MCP_CACHE_BACKEND=memcached
+MCP_CACHE_HOST=10.x.x.x                 # Memorystore VPC-internal IP
+MCP_CACHE_PORT=11211
 
-# Credentials
-SERVICES_CREDENTIALS={}                 # inject via Secret Manager
 ```
 
 ---
@@ -51,10 +50,9 @@ explicit variables above, the following variables are still read:
 
 | Variable | Effect |
 |---|---|
-| `K_SERVICE` | Auto-set by Cloud Run. Derives `BASE_URL` (`K_SERVICE.replace("-",".")`), `SANDBOX_PREFIX` (from service name prefix), and selects the Memcached VPC IP. |
-| `X-DEV-VM` | Internal flag, selects dev Memcached IP. |
+| `K_SERVICE` | Auto-set by Cloud Run. Derives `MCP_BASE_URL` (`K_SERVICE.replace("-",".")`) and `MCP_OPENAPI_ENV` (from service name prefix), and selects the Memcached VPC IP. |
 
-> **Migration path:** set `BASE_URL`, `SANDBOX_PREFIX`, `MEMCACHED_HOST` explicitly
+> **Migration path:** set `MCP_BASE_URL`, `MCP_OPENAPI_ENV`, `MCP_CACHE_HOST` explicitly
 > and stop relying on `K_SERVICE`. This makes the server portable to any platform.
 
 ---
@@ -80,23 +78,18 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: PORT
+            - name: MCP_PORT
               value: "8080"
-            - name: BASE_URL
+            - name: MCP_BASE_URL
               value: "https://mcp.openapi.com"
-            - name: STORAGE_BACKEND
+            - name: MCP_STORAGE_BACKEND
               value: "gcs"
-            - name: STORAGE_BUCKET
+            - name: MCP_STORAGE_BUCKET
               value: "mcp-openapi-com"
-            - name: CACHE_BACKEND
+            - name: MCP_CACHE_BACKEND
               value: "memcached"
-            - name: MEMCACHED_HOST
+            - name: MCP_CACHE_HOST
               value: "10.x.x.x"
-            - name: SERVICES_CREDENTIALS
-              valueFrom:
-                secretKeyRef:
-                  name: services-credentials
-                  key: latest
 ```
 
 ### Build and deploy
@@ -118,7 +111,7 @@ gcloud run deploy mcp-openapi-com \
 
 ## Storage: Google Cloud Storage
 
-1. Create a bucket (name it after the service for legacy compatibility, or use any name + set `STORAGE_BUCKET`):
+1. Create a bucket (name it after the service for legacy compatibility, or use any name + set `MCP_STORAGE_BUCKET`):
 
    ```bash
    gsutil mb -l europe-west1 gs://mcp-openapi-com
@@ -134,11 +127,11 @@ gcloud run deploy mcp-openapi-com \
 3. Set the env vars:
 
    ```bash
-   STORAGE_BACKEND=gcs
-   STORAGE_BUCKET=mcp-openapi-com
+   MCP_STORAGE_BACKEND=gcs
+   MCP_STORAGE_BUCKET=mcp-openapi-com
    ```
 
-Downloaded files are stored at `gs://STORAGE_BUCKET/<request_id>/<filename>` and
+Downloaded files are stored at `gs://MCP_STORAGE_BUCKET/<request_id>/<filename>` and
 served via the `/status/{id}/files/{name}` endpoint.
 
 ---
@@ -152,27 +145,25 @@ instances (which are stateless and ephemeral).
 2. Set:
 
    ```bash
-   CACHE_BACKEND=memcached
-   MEMCACHED_HOST=10.x.x.x        # discovery IP from Memorystore console
-   MEMCACHED_PORT=11211
+   MCP_CACHE_BACKEND=memcached
+   MCP_CACHE_HOST=10.x.x.x        # discovery IP from Memorystore console
+   MCP_CACHE_PORT=11211
    ```
 
 3. Connect Cloud Run to the VPC via a Serverless VPC Access connector so it can
    reach the private IP.
 
 > **Tip:** Redis (Memorystore for Redis) is a simpler alternative with better
-> support for persistence. Use `CACHE_BACKEND=redis` and `CACHE_URL=redis://IP:6379`.
+> support for persistence. Use `MCP_CACHE_BACKEND=redis` and `MCP_CACHE_URL=redis://IP:6379`.
 
 ---
 
-## Credentials via Secret Manager
+## Notes
 
-Store `SERVICES_CREDENTIALS` in Secret Manager and inject it at deploy time:
-
-```bash
-echo '{"my_service": "MY_API_KEY"}' | \
-  gcloud secrets create services-credentials --data-file=-
-
-gcloud run services update mcp-openapi-com \
-  --update-secrets=SERVICES_CREDENTIALS=services-credentials:latest
-```
+# TODO: Remove legacy dependency — pymemcache ties the app to a VPC-internal Memcached instance
+# with hardcoded IPs (see memory_store.py). Replace with an in-process dict for dev and
+# a Redis client (redis-py) for production via MCP_CACHE_URL env var.
+pymemcache
+# TODO: Remove legacy dependency — google-cloud-storage ties file storage to GCS. Replace with
+# a storage-agnostic solution (local filesystem for dev, pluggable via MCP_STORAGE_BACKEND env var).
+google-cloud-storage

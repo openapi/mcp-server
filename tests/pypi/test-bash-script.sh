@@ -13,8 +13,7 @@ require_cmd uvx
 LAUNCHER="$(mktemp)"
 cat > "$LAUNCHER" << SCRIPT
 #!/bin/bash
-export PORT=18084
-export SERVICES_CREDENTIALS="\${SERVICES_CREDENTIALS:-{}}"
+export MCP_PORT=18084
 uvx --from "$WHEEL" openapi-mcp-sdk server
 SCRIPT
 chmod +x "$LAUNCHER"

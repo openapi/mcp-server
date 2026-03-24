@@ -276,8 +276,8 @@ async def get_status(request_id: str):
 async def get_file(request_id: str,file_name: str):
     try:
         # TODO: Remove legacy dependency — GCS bucket name is taken from K_SERVICE (Cloud Run env var).
-        # Replace with a storage-agnostic file retrieval: read from local disk (STORAGE_PATH env var)
-        # for dev, or from a configurable bucket/prefix via STORAGE_BACKEND / STORAGE_BUCKET env vars.
+        # Replace with a storage-agnostic file retrieval: read from local disk (MCP_STORAGE_PATH env var)
+        # for dev, or from a configurable bucket/prefix via MCP_STORAGE_BACKEND / MCP_STORAGE_BUCKET env vars.
         from google.cloud import storage  # lazy import — optional legacy dependency
         storage_client = storage.Client()
         bucket = storage_client.bucket(os.getenv("K_SERVICE"))
@@ -349,7 +349,7 @@ _LOG_CONFIG: dict = {
 
 def run():
     import uvicorn
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("MCP_PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port, log_config=_LOG_CONFIG)
 
 

@@ -67,7 +67,7 @@ def main():
         import warnings
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        port = int(os.environ.get("PORT", 8080))
+        port = int(os.environ.get("MCP_PORT", 8080))
         _print_banner(port)
 
         from .main import run

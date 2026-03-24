@@ -32,13 +32,13 @@ metadata:
   name: openapi-mcp-config
   namespace: openapi-mcp
 data:
-  PORT: "8080"
-  BASE_URL: "https://mcp.example.com"
-  STORAGE_BACKEND: "local"          # or "s3"
-  STORAGE_PATH: "/app/openapi_storage"
-  CACHE_BACKEND: "redis"
-  CACHE_URL: "redis://redis-service:6379"
-  SANDBOX_PREFIX: ""
+  MCP_PORT: "8080"
+  MCP_BASE_URL: "https://mcp.example.com"
+  MCP_STORAGE_BACKEND: "local"          # or "s3"
+  MCP_STORAGE_PATH: "/app/openapi_storage"
+  MCP_CACHE_BACKEND: "redis"
+  MCP_CACHE_URL: "redis://redis-service:6379"
+  MCP_OPENAPI_ENV: ""
 ```
 
 ---
@@ -53,8 +53,7 @@ metadata:
   namespace: openapi-mcp
 type: Opaque
 stringData:
-  SERVICES_CREDENTIALS: "{}"
-  # S3 credentials (only if STORAGE_BACKEND=s3 without IAM role):
+  # S3 credentials (only if MCP_STORAGE_BACKEND=s3 without IAM role):
   # AWS_ACCESS_KEY_ID: "..."
   # AWS_SECRET_ACCESS_KEY: "..."
 ```
@@ -234,9 +233,9 @@ the same file store:
 
 ```yaml
 # In ConfigMap:
-STORAGE_BACKEND: "s3"
-STORAGE_BUCKET: "openapi-mcp-files"
-STORAGE_REGION: "eu-west-1"
+MCP_STORAGE_BACKEND: "s3"
+MCP_STORAGE_BUCKET: "openapi-mcp-files"
+MCP_STORAGE_REGION: "eu-west-1"
 
 # In Deployment: remove the PVC volumeMount and volume
 # In Deployment: replicas: 3

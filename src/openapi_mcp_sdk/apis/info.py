@@ -1,7 +1,7 @@
 import logging
 logging.getLogger(__name__).debug("module loaded")
 from ..mcp_core import mcp, getSessionHash
-from ..memory_store import BASE_URL, SANDBOX_PREFIX
+from ..memory_store import MCP_BASE_URL, MCP_OPENAPI_ENV
 from fastmcp import Context
 from typing import Any
 import sys
@@ -59,7 +59,7 @@ async def openapi_server_info(ctx: Context) -> Any:
     now = datetime.now(timezone.utc)
     uptime_seconds = int((now - _SERVER_START).total_seconds())
 
-    sandbox_mode = bool(SANDBOX_PREFIX)
+    sandbox_mode = bool(MCP_OPENAPI_ENV)
 
     # Token presence and masked preview — never expose the full token
     prod_token    = os.environ.get("OPENAPI_TOKEN", "")
@@ -82,7 +82,7 @@ async def openapi_server_info(ctx: Context) -> Any:
             "name":        _SERVER_NAME,
             "version":     _SERVER_VERSION,
             "mode":        "sandbox" if sandbox_mode else "production",
-            "base_url":    BASE_URL,
+            "base_url":    MCP_BASE_URL,
             "description": mcp.instructions,
         },
         "instance": {

@@ -21,7 +21,7 @@ services:
       # Switch to ./docker/dev/Dockerfile or ./docker/latest/Dockerfile as needed.   
       dockerfile: ./docker/dev/Dockerfile
     environment:
-      - PORT=8080      
+      - MCP_PORT=8080      
     ports:
       - "8080:8080"
       # Debugpy for remote debugging (only in dev Dockerfile)

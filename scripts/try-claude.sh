@@ -10,15 +10,15 @@ WORK_DIR="$(mktemp -d /tmp/openapi-try-XXXXXX)"
 
 SERVER_PID=""
 
-# Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and test.* endpoints
+# Sandbox mode: SANDBOX=1 uses OPENAPI_SANDBOX_TOKEN and the test OpenAPI environment
 SANDBOX="${SANDBOX:-0}"
 if [ "$SANDBOX" = "1" ]; then
     TOKEN="${OPENAPI_SANDBOX_TOKEN:-}"
-    K_SERVICE_VALUE="test-openapi-mcp-server"
+    MCP_OPENAPI_ENV_VALUE="test"
     MODE_LABEL="SANDBOX"
 else
     TOKEN="${OPENAPI_TOKEN:-}"
-    K_SERVICE_VALUE=""
+    MCP_OPENAPI_ENV_VALUE=""
     MODE_LABEL="PRODUCTION"
 fi
 
@@ -89,7 +89,7 @@ cd "$ROOT_DIR"
 # loaded fresh rather than served from stale .pyc files.
 find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
-K_SERVICE="$K_SERVICE_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app \
+MCP_OPENAPI_ENV="$MCP_OPENAPI_ENV_VALUE" PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app \
     --host 0.0.0.0 --port 8080 --log-level warning &
 SERVER_PID=$!
 
