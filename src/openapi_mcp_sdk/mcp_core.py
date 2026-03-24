@@ -146,7 +146,7 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
             raise ValueError("Missing or malformed Header 'Authorization: Bearer <token>'.")
 
     except Exception as e:
-        _log_api_event(tag, client_ip, "ERROR", parsed.path, "token mancante")
+        _log_api_event(tag, client_ip, "ERROR", parsed.path, "missing bearer token")
         return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
     _log_api_event(tag, client_ip, method, parsed.path)
