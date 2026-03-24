@@ -25,7 +25,6 @@ Common patterns and code examples
 Environment and runtime
 - Run locally: `python src/openapi_mcp_sdk/main.py` (README shows `python main.py` from project root; in this layout use the module path). The server binds to 0.0.0.0:PORT (reads `PORT` env var, default 80).
 - Virtualenv: repository uses `uv` in README but `pyproject.toml` shows `requires-python = ">=3.13"`. Note: README states Python 3.9+. If you modify runtime or CI, confirm the correct Python target.
-- Memcached configuration is read from `MEMCACHED_HOST`, `MEMCACHED_PORT`, and `X-DEV-VM`/`K_SERVICE` influence defaults. Tests or dev runs can run with a mocked `memory_store` (it falls back to in-process dict on Memcached errors).
 
 Developer workflows (concrete)
 - Start server (local):
@@ -42,7 +41,6 @@ Conventions and gotchas for agents
 - When adding a new API/tool module:
   - Follow the `@mcp.tool` decorator pattern and ensure the module is imported from `main.py` or otherwise registered during startup.
   - Prefer to call `make_api_call` for HTTP interactions so the common auth/header extraction is reused.
-- Beware `BASE_URL` / `callbackUrl` derivation in `memory_store.py` — it depends on `K_SERVICE` and `X-DEV-VM`. Tests running on CI may need to set these env vars.
 - The code expects `ctx` to contain `request_context.request.headers` in some places; use defensive checks when reading headers if you add new code paths.
 
 What I couldn't verify automatically
