@@ -38,7 +38,7 @@ data:
   MCP_STORAGE_PATH: "/app/openapi_storage"
   MCP_CACHE_BACKEND: "redis"
   MCP_CACHE_URL: "redis://redis-service:6379"
-  MCP_OPENAPI_ENV: ""
+  MCP_OPENAPI_ENV: ""                  # dev, test, sandbox (alias of test), or empty for production
 ```
 
 ---

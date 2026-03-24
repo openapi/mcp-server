@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request, HTTPException, Response
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp, Scope, Receive, Send, Message
 from .mcp_audit import McpAuditMiddleware
+from .storage_backend import read_file
 
 # ---------------------------------------------------------------------------
 # Bootstrap package logger early — before uvicorn configures its own logging.
@@ -275,20 +276,12 @@ async def get_status(request_id: str):
 @app.get("/status/{request_id}/files/{file_name}")
 async def get_file(request_id: str,file_name: str):
     try:
-        # TODO: Remove legacy dependency — GCS bucket name is taken from K_SERVICE (Cloud Run env var).
-        # Replace with a storage-agnostic file retrieval: read from local disk (MCP_STORAGE_PATH env var)
-        # for dev, or from a configurable bucket/prefix via MCP_STORAGE_BACKEND / MCP_STORAGE_BUCKET env vars.
-        from google.cloud import storage  # lazy import — optional legacy dependency
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(os.getenv("K_SERVICE"))
-        blob = bucket.blob(f"{request_id}/{file_name}")
-
-        if not blob.exists():
-            raise HTTPException(status_code=404, detail="File not found")
-
-        file_content = blob.download_as_bytes()
-        content_type = blob.content_type or "application/octet-stream"
+        file_content, content_type = read_file(f"{request_id}/{file_name}")
         return Response(content=file_content, media_type=content_type)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving file: {str(e)}")
 

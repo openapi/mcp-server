@@ -23,7 +23,7 @@ Internet → ALB → ECS Fargate (openapi-mcp-sdk server)
 MCP_PORT=8080
 MCP_BASE_URL=https://mcp.example.com      # ALB or CloudFront URL
 MCP_CALLBACK_URL=https://mcp.example.com/callbacks
-MCP_OPENAPI_ENV=                      # dev, test, or empty for production
+MCP_OPENAPI_ENV=                      # dev, test, sandbox (alias of test), or empty for production
 
 # Storage
 MCP_STORAGE_BACKEND=s3

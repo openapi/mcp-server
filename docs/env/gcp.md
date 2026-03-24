@@ -28,7 +28,7 @@ MCP_PORT=8080
 MCP_ENV=production
 MCP_BASE_URL=https://mcp.openapi.com
 MCP_CALLBACK_URL=https://mcp.openapi.com/callbacks
-MCP_OPENAPI_ENV=                        # dev, test, or empty for production
+MCP_OPENAPI_ENV=                        # dev, test, sandbox (alias of test), or empty for production
 
 # Storage
 MCP_STORAGE_BACKEND=gcs

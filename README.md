@@ -25,7 +25,7 @@ start the server — defaults are suitable for local use.
 | `MCP_ENV` | `production` | Runtime environment: `dev` \| `staging` \| `production` |
 | `MCP_BASE_URL` | `https://mcp.openapi.com` | Public URL of this server (used to build callback and file download URLs) |
 | `MCP_CALLBACK_URL` | `$MCP_BASE_URL/callbacks` | Explicit callback URL sent to async APIs |
-| `MCP_OPENAPI_ENV` | _(empty)_ | OpenAPI environment: `dev`, `test`, or empty for production |
+| `MCP_OPENAPI_ENV` | _(empty)_ | OpenAPI environment: `dev`, `test`, `sandbox` (alias of `test`), or empty for production |
 
 ### Storage
 

@@ -6,16 +6,12 @@ logger = logging.getLogger(__name__)
 from fastmcp import Context
 from typing import Any
 from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
+from ..storage_backend import save_file
 import base64
 import zipfile
 import io
 import json
-# TODO: Remove legacy dependency — google-cloud-storage is used to store downloaded document
-# files in a GCS bucket. Replace with a storage-agnostic abstraction: write to local filesystem
-# (e.g. /tmp or MCP_STORAGE_PATH env var) for dev/portable deployments, and optionally support
-# S3-compatible backends (boto3 + MCP_STORAGE_BACKEND env var) for other clouds.
-# Remove google-cloud-storage from requirements.txt and pyproject.toml when done.
-# Import is deferred to the functions that need it to keep google-cloud-storage optional.
+
 import os
 import mimetypes
 from datetime import datetime, timedelta, timezone
@@ -81,14 +77,6 @@ async def download_italian_company_official_document(document_id:str,document_ur
         zip_file_content = base64.b64decode(document_response["file"])
         request_id = getSessionHash(ctx)
 
-        # TODO: Remove legacy dependency — bucket name taken from K_SERVICE (Google Cloud Run env var).
-        # Replace with MCP_STORAGE_BUCKET env var and abstract the upload behind a storage interface
-        # so it can use local disk, S3, GCS, or Azure Blob interchangeably.
-        bucket_name = os.getenv("K_SERVICE")
-        from google.cloud import storage  # lazy import — optional legacy dependency
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-
         # Unzip the content
         with zipfile.ZipFile(io.BytesIO(zip_file_content)) as z:
             files = []
@@ -100,9 +88,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
                     file_path = f"{request_id}/{file_name}"
                     remote_path = f"/status/{request_id}/files/{file_name}"
 
-                    # Upload each file to the GCP bucket
-                    blob = bucket.blob(file_path)
-                    blob.upload_from_string(file_content, content_type=content_type or "application/octet-stream")
+                    save_file(file_path, file_content, content_type or "application/octet-stream")
 
                     files.append({
                         "file_name": file_name,

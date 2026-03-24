@@ -20,11 +20,7 @@ import json
 
 callback_results = {}
 
-# TODO: Remove legacy dependency — K_SERVICE is a Google Cloud Run reserved env var injected
-# automatically by the platform. It encodes the service name which is used here to derive:
-# OpenAPI environment, MCP_BASE_URL and callback URL. Replace with explicit env vars:
-#   MCP_ENV, MCP_OPENAPI_ENV, MCP_BASE_URL, MCP_CALLBACK_URL so the app works on any platform.
-K_SERVICE = os.getenv("K_SERVICE")
+MCP_STORAGE_BUCKET = os.getenv("MCP_STORAGE_BUCKET", "mcp-openapi-storage")
 
 MCP_ENV = os.getenv("MCP_ENV", "production").strip().lower()
 if MCP_ENV not in {"dev", "staging", "production"}:
@@ -32,10 +28,14 @@ if MCP_ENV not in {"dev", "staging", "production"}:
     MCP_ENV = "production"
 
 MCP_OPENAPI_ENV = os.getenv("MCP_OPENAPI_ENV", "").strip().lower()
+if MCP_OPENAPI_ENV == "sandbox":
+    MCP_OPENAPI_ENV = "test"
 if not MCP_OPENAPI_ENV and K_SERVICE and K_SERVICE != "mcp-openapi-com":
     candidate = K_SERVICE.split("-")[0].strip().lower()
     if candidate == "alpha":
         candidate = "dev"
+    if candidate == "sandbox":
+        candidate = "test"
     if candidate in {"dev", "test"}:
         MCP_OPENAPI_ENV = candidate
 if MCP_OPENAPI_ENV not in {"", "dev", "test"}:
