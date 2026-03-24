@@ -5,11 +5,6 @@ import logging
 from typing import Dict
 
 logger = logging.getLogger(__name__)
-# TODO: Remove legacy dependency — pymemcache is tied to the Google Cloud VPC-internal Memcached
-# instance (hardcoded IPs X.X.X.X / X.X.X.X). Replace with an environment-agnostic cache
-# abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
-# (e.g. via redis-py + MCP_CACHE_URL env var) or any other backend for production.
-# Remove pymemcache from requirements.txt and pyproject.toml when done.
 try:
     from pymemcache.client import base
     _pymemcache_available = True
@@ -44,10 +39,8 @@ if MCP_OPENAPI_ENV not in {"", "dev", "test"}:
 OPENAPI_HOST_PREFIX = f"{MCP_OPENAPI_ENV}." if MCP_OPENAPI_ENV else ""
 
 MCP_BASE_URL = os.getenv("MCP_BASE_URL", "http://localhost:8080")
-if K_SERVICE and "MCP_BASE_URL" not in os.environ:
-    # TODO: Remove legacy dependency — MCP_BASE_URL derived from K_SERVICE (Cloud Run naming convention).
-    # Replace with an explicit MCP_BASE_URL env var.
-    MCP_BASE_URL = "https://" + K_SERVICE.replace("-", ".")
+if MCP_STORAGE_BUCKET and "MCP_BASE_URL" not in os.environ:
+    MCP_BASE_URL = "https://" + MCP_STORAGE_BUCKET.replace("-", ".")
 
 callbackUrl = os.getenv("MCP_CALLBACK_URL")
 if not callbackUrl:

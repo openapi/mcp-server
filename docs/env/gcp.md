@@ -160,10 +160,26 @@ instances (which are stateless and ephemeral).
 
 ## Notes
 
-# TODO: Remove legacy dependency — pymemcache ties the app to a VPC-internal Memcached instance
-# with hardcoded IPs (see memory_store.py). Replace with an in-process dict for dev and
-# a Redis client (redis-py) for production via MCP_CACHE_URL env var.
+> Remove legacy dependency — pymemcache ties the app to a VPC-internal Memcached instance
+> with hardcoded IPs (see memory_store.py). Replace with an in-process dict for dev and
+> a Redis client (redis-py) for production via MCP_CACHE_URL env var.
+
+```
 pymemcache
-# TODO: Remove legacy dependency — google-cloud-storage ties file storage to GCS. Replace with
-# a storage-agnostic solution (local filesystem for dev, pluggable via MCP_STORAGE_BACKEND env var).
+```
+
+> Remove legacy dependency — google-cloud-storage ties file storage to GCS. Replace with
+> a storage-agnostic solution (local filesystem for dev, pluggable via MCP_STORAGE_BACKEND env var).
+
+```
 google-cloud-storage
+```
+
+> Remove legacy dependency — pymemcache is tied to the Google Cloud VPC-internal Memcached
+> instance (hardcoded IPs X.X.X.X / X.X.X.X). Replace with an environment-agnostic cache
+> abstraction: use a simple in-process dict for local/dev, and allow plugging in Redis
+> (e.g. via redis-py + MCP_CACHE_URL env var) or any other backend for production.
+
+```
+pymemcache
+```

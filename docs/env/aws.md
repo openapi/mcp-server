@@ -166,3 +166,12 @@ Reference the ARN in the task definition `secrets` block (see above).
 The ALB health check endpoint should call `GET /status/health`. The server returns
 HTTP 404 with a JSON body for unknown request IDs — configure the ALB to accept
 HTTP 404 as healthy, or add a dedicated `/health` endpoint if needed.
+
+## Notes
+
+> Remove legacy dependency — mangum is an AWS Lambda adapter, not needed for local or
+> Cloud Run deployments. Remove when the deployment target is clarified.
+
+```
+mangum
+```

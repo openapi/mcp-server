@@ -17,7 +17,4 @@ fastapi
 fastmcp
 requests
 pydantic
-# TODO: Remove legacy dependency — mangum is an AWS Lambda adapter, not needed for local or
-# Cloud Run deployments. Remove when the deployment target is clarified.
-mangum
 uvicorn
