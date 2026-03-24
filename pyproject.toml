@@ -24,5 +24,8 @@ dependencies = [
 [tool.setuptools]
 license-files = ["LICENSE"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests/pytest"]
+
 [project.scripts]
 openapi-mcp-sdk = "openapi_mcp_sdk.cli:main"

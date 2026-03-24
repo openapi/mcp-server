@@ -1,3 +1,5 @@
+"""ASGI entrypoint for the OpenAPI MCP server."""
+
 import os
 import re
 import sys
@@ -10,6 +12,23 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp, Scope, Receive, Send, Message
 from .mcp_audit import McpAuditMiddleware
 from .storage_backend import read_file
+from .memory_store import get_callback_result, set_callback_result
+from .mcp_core import mcp
+from .apis import (
+    async_tool,
+    automotive,
+    cap,
+    company,
+    docuengine,
+    exchange,
+    geocoding,
+    info,
+    pec,
+    risk,
+    sms,
+    trust,
+    visurecamerali,
+)
 
 # ---------------------------------------------------------------------------
 # Bootstrap package logger early — before uvicorn configures its own logging.
@@ -59,12 +78,8 @@ class _SanitizedAccessFormatter:
         # Fallback: at least mask tokens
         return self._TOKEN_RE.sub(r'\1token=***', result)
 
-    # Delegate everything else to the inner formatter
     def __getattr__(self, name):
         return getattr(self._inner, name)
-from .memory_store import get_callback_result, set_callback_result
-from .mcp_core import mcp # Import MCP instance with tools already registered in mcp_core.py
-from .apis import async_tool, company, cap, trust, visurecamerali, sms, risk, geocoding,automotive,exchange, pec, docuengine, info # Import tool modules (side-effect: triggers @mcp.tool registration)
 
 # Create the MCP ASGI app mounted at root
 mcp_app = mcp.http_app(path='/')
@@ -168,19 +183,31 @@ class TokenQuerystringMiddleware:
             client_ip = (scope.get("client") or ("?", 0))[0]
             async with registration_lock:
                 if not getattr(app.state, "dynamic_tools_registered", False):
-                    _logger.info('%s %s "Initializing dynamic tools (token: %s...)"', "[JIT]", client_ip, token[:8])
+                    _logger.info(
+                        '%s %s "Initializing dynamic tools (token: %s...)"',
+                        "[JIT]",
+                        client_ip,
+                        token[:8],
+                    )
                     success = await asyncio.to_thread(docuengine.init_dynamic_tools, token)
                     if success:
                         app.state.dynamic_tools_registered = True
                     else:
-                        _logger.warning('%s %s "Registration failed — will retry on next request"', "[JIT]", client_ip)
+                        _logger.warning(
+                            '%s %s "Registration failed — will retry on next request"',
+                            "[JIT]",
+                            client_ip,
+                        )
 
         await self.app(scope, receive, send)
 
 
 _OAUTH_NOT_SUPPORTED_BODY = json.dumps({
     "error": "oauth_not_supported",
-    "message": "This server does not support OAuth. Use a pre-configured Bearer token in the Authorization header."
+    "message": (
+        "This server does not support OAuth. Use a pre-configured Bearer "
+        "token in the Authorization header."
+    ),
 }).encode()
 
 _OAUTH_DISCOVERY_PATHS = {
@@ -190,18 +217,25 @@ _OAUTH_DISCOVERY_PATHS = {
 }
 
 class RejectOAuthDiscoveryMiddleware:
-    """Return a JSON 404 for OAuth discovery endpoints so MCP clients fall back to Bearer auth."""
+    """Return a JSON 404 for OAuth discovery endpoints."""
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] == "http" and scope["path"].rstrip("/") in {p.rstrip("/") for p in _OAUTH_DISCOVERY_PATHS}:
+        if (
+            scope["type"] == "http"
+            and scope["path"].rstrip("/") in {p.rstrip("/") for p in _OAUTH_DISCOVERY_PATHS}
+        ):
             await send({
                 "type": "http.response.start",
                 "status": 404,
                 "headers": [(b"content-type", b"application/json")],
             })
-            await send({"type": "http.response.body", "body": _OAUTH_NOT_SUPPORTED_BODY, "more_body": False})
+            await send({
+                "type": "http.response.body",
+                "body": _OAUTH_NOT_SUPPORTED_BODY,
+                "more_body": False,
+            })
             return
         await self.app(scope, receive, send)
 
@@ -214,7 +248,7 @@ class RejectOAuthDiscoveryMiddleware:
 app.add_middleware(McpAuditMiddleware)            # innermost — logs MCP JSON-RPC actions
 app.add_middleware(Enrich404Middleware)           # wraps 404s in JSON
 app.add_middleware(TokenQuerystringMiddleware)    # injects auth header + JIT registration
-app.add_middleware(RejectOAuthDiscoveryMiddleware) # short-circuits OAuth discovery paths
+app.add_middleware(RejectOAuthDiscoveryMiddleware)  # short-circuits OAuth discovery paths
 # CORS must be outermost so it runs before anything else on every request,
 # including pre-flight OPTIONS. expose_headers exposes Mcp-Session-Id to browsers.
 # allow_credentials must NOT be True when allow_origins=["*"].
@@ -243,7 +277,9 @@ async def callbacks_endpoint(request: Request):
         return {"status": "error", "message": "Body not a valid JSON"}
 
     cb_obj = callback.get("callback")
-    custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
+    custom = callback.get("custom") or (
+        cb_obj.get("data") if isinstance(cb_obj, dict) else None
+    )
     if not custom:
         _logger.warning('%s %s "Missing callback.custom field"', "[CB]", client_ip)
         return {"status": "error", "message": "'callback.custom' missing from received data"}

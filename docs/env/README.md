@@ -26,15 +26,6 @@ cache backend, and any platform-specific notes.
 | `MCP_CACHE_PORT` | `11211` | Memcached port                                                                           |
 | `MCP_CACHE_URL` | _(none)_ | Redis connection URL (used when `MCP_CACHE_BACKEND=redis`)                               |
 
-### Legacy variables (GCP Cloud Run — deprecated)
-
-These are still read by the current codebase for backward compatibility with the
-existing GCP deployment. Prefer the explicit variables above for new deployments.
-
-| Variable | Description |
-|---|---|
-| `K_SERVICE` | Cloud Run service name — auto-injects `MCP_BASE_URL`, `MCP_OPENAPI_ENV`, Memcached IPs |
-
 ---
 
 ## Why storage matters

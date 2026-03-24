@@ -126,8 +126,8 @@ MCP_URL=https://abcd1234.ngrok-free.app SANDBOX=1 make test-openai-sandbox
 | Data | real | simulated |
 | Token variable | `OPENAPI_TOKEN` | `OPENAPI_SANDBOX_TOKEN` |
 
-The MCP server switches between production and sandbox based on the `K_SERVICE` environment
-variable (handled automatically by the test runners).
+The MCP server switches between production and sandbox based on the `MCP_OPENAPI_ENV`
+environment variable (handled automatically by the test runners).
 
 ---
 

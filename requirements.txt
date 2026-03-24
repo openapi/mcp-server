@@ -18,3 +18,4 @@ fastmcp
 requests
 pydantic
 uvicorn
+pytest
