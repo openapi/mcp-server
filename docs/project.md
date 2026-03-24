@@ -215,7 +215,7 @@ if __name__ == "__main__":
       "servers": {
         "openapi.com": {
           "type": "http",
-          "url": "http://INDIRIZZO_IP_DEL_TUO_SERVER:8000/mcp/",
+          "url": "http://INDIRIZZO_IP_DEL_TUO_SERVER:8000",
           "headers": {
             "Authorization": "Bearer IL_TUO_BEARER_TOKEN_DI_PRODUZIONE"
           }

@@ -59,7 +59,7 @@ fi
 
 codex mcp remove "$MCP_SERVER_NAME" 2>/dev/null || true
 codex mcp add "$MCP_SERVER_NAME" \
-    --url "http://localhost:8080/mcp/" \
+    --url "http://localhost:8080" \
     --bearer-token-env-var "OPENAPI_MCP_TOKEN"
 
 # --- start MCP server in background ---

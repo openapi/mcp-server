@@ -112,7 +112,7 @@ ngrok http 8080
 # Terminal 3 — run tests
 export OPENAI_API_KEY=sk-...
 export OPENAPI_SANDBOX_TOKEN=your_sandbox_token
-MCP_URL=https://abcd1234.ngrok-free.app/mcp/ SANDBOX=1 make test-openai-sandbox
+MCP_URL=https://abcd1234.ngrok-free.app SANDBOX=1 make test-openai-sandbox
 ```
 
 ---

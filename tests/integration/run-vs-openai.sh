@@ -22,8 +22,8 @@ fi
 # MCP_URL: the URL OpenAI will use to reach the MCP server.
 # OpenAI cloud CANNOT reach localhost — expose the server first:
 #   ngrok http 8080
-#   MCP_URL=https://xxxx.ngrok-free.app/mcp/ make test-openai
-MCP_URL="${MCP_URL:-http://localhost:8080/mcp/}"
+#   MCP_URL=https://xxxx.ngrok-free.app make test-openai
+MCP_URL="${MCP_URL:-http://localhost:8080}"
 
 cleanup() {
     [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
@@ -53,7 +53,7 @@ if echo "$MCP_URL" | grep -qE "localhost|127\.0\.0\.1"; then
     echo "WARNING: MCP_URL='$MCP_URL' — OpenAI cloud cannot reach localhost."
     echo "         Expose the server with ngrok and set MCP_URL to the public URL:"
     echo "           ngrok http 8080"
-    echo "           MCP_URL=https://xxxx.ngrok-free.app/mcp/ make test-openai"
+    echo "           MCP_URL=https://xxxx.ngrok-free.app make test-openai"
     echo ""
 fi
 
