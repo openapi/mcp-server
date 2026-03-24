@@ -1,24 +1,29 @@
+"""Server diagnostic tools."""
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from ..mcp_core import mcp, getSessionHash
-from ..memory_store import MCP_BASE_URL, MCP_OPENAPI_ENV
-from fastmcp import Context
-from typing import Any
-import sys
 import os
-import socket
 import platform
+import socket
+import sys
 from datetime import datetime, timezone
+from typing import Any
+
+from fastmcp import Context  # pylint: disable=import-error
+
+from ..mcp_core import getSessionHash, mcp
+from ..memory_store import MCP_BASE_URL, MCP_OPENAPI_ENV
+
+logging.getLogger(__name__).debug("module loaded")
 
 # All instance identity fields are captured once at startup.
 # Each running process (local dev, staging, Cloud Run) will show
 # different values, making instances distinguishable at a glance.
-_SERVER_START    = datetime.now(timezone.utc)
-_INSTANCE_HOST   = socket.gethostname()
-_INSTANCE_USER   = os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
-_INSTANCE_PID    = os.getpid()
+_SERVER_START = datetime.now(timezone.utc)
+_INSTANCE_HOST = socket.gethostname()
+_INSTANCE_USER = os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
+_INSTANCE_PID = os.getpid()
 # Human-readable label: "alice@macbook-pro" locally, pod name on k8s/Cloud Run
-_INSTANCE_LABEL  = f"{_INSTANCE_USER}@{_INSTANCE_HOST}"
+_INSTANCE_LABEL = f"{_INSTANCE_USER}@{_INSTANCE_HOST}"
 
 try:
     from importlib.metadata import version as _pkg_version
@@ -27,7 +32,7 @@ except Exception:
     _FASTMCP_VERSION = "unknown"
 
 _SERVER_VERSION = "0.2.0"
-_SERVER_NAME    = "Openapi.com MCP Gateway"
+_SERVER_NAME = "Openapi.com MCP Gateway"
 
 
 def _mask_token(token: str) -> str:

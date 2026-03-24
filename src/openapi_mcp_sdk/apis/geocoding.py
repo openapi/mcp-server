@@ -1,16 +1,27 @@
+"""Geocoding tools."""
+
+# MCP tool names and parameter names intentionally mirror the public API.
+# pylint: disable=redefined-builtin
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from fastmcp import Context
 from typing import Any
+
+from fastmcp import Context  # pylint: disable=import-error
+
 from ..mcp_core import make_api_call, mcp
 from ..memory_store import OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
+logger.debug("module loaded")
+
 
 @mcp.tool
 async def geocode(address: str, ctx: Context) -> Any:
     """Retrieve informations about a place supplying address.
-    To improve success of results, please specify an address conforming to the following format: [street], [city] [postal code] [country]
+
+    To improve success of results, use the format:
+    ``[street], [city] [postal code] [country]``.
+
     Args:
         address: string
     """
@@ -19,13 +30,19 @@ async def geocode(address: str, ctx: Context) -> Any:
         "address": address
     })
 
+
 @mcp.tool
-async def reverse_geocode(type: str,id: str,lat: float,long: float, ctx: Context) -> Any:
+async def reverse_geocode(
+    type: str, id: str, lat: float, long: float, ctx: Context
+) -> Any:
     """Get place information from ID or latitude/longitude:
+
     To obtain infos via ID make sure to pass the following format:
     {"type": "id", "id": "<id>"}
+
     To obtain infos via lat/long, make sure to provide the following format:
     {"type": "coordinates", "lat": "<lat>", "long": "<long>"}
+
     Args:
         type: required, can be "coordinates" or "id"
         id: string required only for type=id

@@ -1,12 +1,19 @@
+"""Company tools."""
+
+# MCP tool names and parameter names intentionally mirror the public API.
+# pylint: disable=invalid-name,too-many-arguments,too-many-locals
+# pylint: disable=too-many-branches,too-many-statements
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result, callbackUrl, OPENAPI_HOST_PREFIX  # usa sempre il singleton globale
-from fastmcp import Context
 from typing import Any
-from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
 from typing import Union
 
+from fastmcp import Context  # pylint: disable=import-error
 
+from ..mcp_core import getSessionHash, make_api_call, mcp, processPolling
+from ..memory_store import OPENAPI_HOST_PREFIX, callbackUrl, set_callback_result
+
+logging.getLogger(__name__).debug("module loaded")
 
 @mcp.tool(
     annotations={
@@ -17,18 +24,22 @@ from typing import Union
     }
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Returns the complete and detailed profile of an Italian company given a VAT number or Tax Code.  
+    """Returns the complete and detailed profile of an Italian company.
+
+    The lookup uses a VAT number or Tax Code.
         - Company Data (Name, VAT Number, Tax Code, CCIAA, and REA)
         - Managers
         - Registered Office and other types of offices
-        - Activity Classifications (New ATECO 2025, ATECO history since 2022, NACE, SIC, RAE, and SAE)
+        - Activity Classifications (New ATECO 2025, ATECO history since 2022,
+          NACE, SIC, RAE, and SAE)
         - Corporate Affiliation
         - Exporter / Importer Status
         - Company Size
         - Company Contacts (Email, phone, fax, website, social media)
         - Shareholders and their ownership shares
         - Employees, number, trends, statistics on contract duration and types
-        - Regarding shareholders, it is possible to access the list of the top 10 (based on ownership share size) and view their respective ownership shares.
+        - Regarding shareholders, it is possible to access the list of the top 10
+          (based on ownership share size) and view their respective ownership shares.
         - Liquidity and profitability
         - Receivables and Payables
         - EBITDA and EBIT
@@ -38,12 +49,15 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         - Financial revenues and expenses
         - Tangible, intangible, and financial assets
         - Net profit/loss
-    Use get_company_IT_search to obtain VAT  
+    Use get_company_IT_search to obtain VAT
     Args:
         vat_or_taxCode: VAT number or Tax Code of an Italian company
     """
-    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
-    
+    auth_header = (
+        ctx.request_context.request.headers.get('authorization')
+        or ctx.request_context.request.headers.get('Authorization')
+    )
+
     # Usa un request_id
     request_id = getSessionHash(ctx)
     # Serialize context
@@ -51,7 +65,10 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
         "request_id": request_id,
         "vat_or_taxCode": vat_or_taxCode
     }
-    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-full/{vat_or_taxCode}"
+    url = (
+        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-full/"
+        f"{vat_or_taxCode}"
+    )
     response = make_api_call(ctx, "POST", url, json_payload={
         "callback": {
             "url": callbackUrl,
@@ -61,12 +78,12 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
             }
         }
     })
-    
+
     #gestione asincrona
     if response.get("state") == "PENDING":
         # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # Poll callback_results once per second 
+        # Poll callback_results once per second
         response = await processPolling(ctx, request_id, [not None],"companyDetails")
     return response
 
@@ -79,7 +96,11 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     }
 )
 async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Returns taxCode, companyName, vatCode,address,activityStatus,reaCode,cciaa,atecoClassification,detailedLegalForm,startDate,registrationDate,endDate,pec,taxCodeCeased,taxCodeCeasedTimestamp,vatGroup,sdiCode,sdiCodeTimestamp,balanceSheets (turnover,employee,networt,staffCost,totalAssets.avgGrossSalary of the last 10 years),shareHolders	
+    """Returns taxCode, companyName, vatCode, address, activityStatus, reaCode,
+    cciaa, atecoClassification, detailedLegalForm, startDate, registrationDate,
+    endDate, pec, taxCodeCeased, taxCodeCeasedTimestamp, vatGroup, sdiCode,
+    sdiCodeTimestamp, balanceSheets (turnover, employee, networt, staffCost,
+    totalAssets.avgGrossSalary of the last 10 years), shareHolders
     of an italian company from vatCode or taxCode.
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
@@ -96,7 +117,8 @@ async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
     }
 )
 async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Returns taxCode,companyName,vatCode,address,activityStatus,sdiCode,registrationDate of an italian company from vatCode or taxCode.
+    """Returns taxCode, companyName, vatCode, address, activityStatus, sdiCode,
+    registrationDate of an italian company from vatCode or taxCode.
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
@@ -141,26 +163,34 @@ async def get_company_IT_search(
     creationTimestamp: Union[int, None, str] = None,
     lastUpdateTimestamp: Union[int, None, str] = None
 ) -> Any:
-    """Returns a list of italian companies based on the search criteria. 
-        Use this tool if you don't know the VAT number of a company.
-        Use this tool with dryRun=1 and no limit parameter to get the count of available results for the matching criterias
-        Use this tool if you need to extract enriched data (max 1000 records paginable with the skip parameter) like name, address, pec, start (all the data in the get_company_IT_start tool) or advanced (all the data in the get_company_IT_advanced tool) based on matching criterias.
+    """Returns a list of Italian companies based on the search criteria.
+
+    Use this tool if you do not know the VAT number of a company.
+    Use it with ``dryRun=1`` and no ``limit`` parameter to get only the count
+    of available results for the matching criteria.
+    Use it to extract enriched data, paginated with ``skip`` up to 1000
+    records, such as name, address, PEC, start data, or advanced data.
+
     Args:
         companyName: The name or part of it of an Italian company (optional).
-        provinceCode: The 2 letters provinceCode where the company is located to restrict the results (optional).
+        provinceCode: The 2 letter province code to restrict the results.
         skip: The number of records to skip for pagination (optional).
-        limit: The maximum number of results to return (optional, default is 10), if you want to have the total count of records with matching criterias skip this parameter and set dryRun to 1. 
-        dataEnrichment: Avoid further queries receiving Additional data enrichment options in the results (default is name), multiple values are forbidden, Available values : start, advanced, pec, address, shareholders, name
-        legalFormCode: Filter by legalformcode of the company (optional). For Available values use get_company_IT_legal_forms_list tool, multiple values are forbidden, possible values: ["EI","EL","OO","OS","RC","ST","AF","AP","AS","CO","EE","FO","SL","SR","SZ","AL","AN","CC","CF","EC","ED","EN","OC","PA","SF","SO","AA","AC","AI","AM","AT","CR","ES","GE","IF","LL","RS","SI","AR","CS","SA","SC","SD","SG","AE","EP","PF","SN","SP","XX","AU","CE","CI","CL","CN","CZ","DI","RR","SE","SU","AZ","CM","EM","ER","FI","IC","ID","IR","MA","PC","PS","SM","SS","SV"]
+        limit: The max number of results to return. To get only the total
+            count, skip this parameter and set ``dryRun`` to 1.
+        dataEnrichment: Additional enrichment options. Allowed values are
+            ``start``, ``advanced``, ``pec``, ``address``, ``shareholders``,
+            and ``name``.
+        legalFormCode: Filter by company legal form. Use
+            ``get_company_IT_legal_forms_list`` to inspect the available codes.
         startDate: Filter by the start date of the company (optional).
         endDate: Filter by the end date of the company (optional).
-        dryRun: Simulates a request by returning only the number of records "count" found and the price "cost" (optional) Available values :0,1.
+        dryRun: Returns only the number of records found and the price.
         lat: Latitude for geographical search (optional).
         long: Longitude for geographical search (optional).
         radius: Radius in meters for geographical search (optional).
         autocomplete: Search for strings that begin with the specified query (optional).
         townCode: The cadastral code for the town (optional).
-        atecoCode: ATECO code for the company (optional). 
+        atecoCode: ATECO code for the company (optional).
         cciaa: Chamber of Commerce code (optional).
         reaCode: REA code (optional).
         minTurnover: Minimum turnover value (optional).
@@ -169,26 +199,28 @@ async def get_company_IT_search(
         maxEmployees: Maximum number of employees (optional).
         sdiCode: SDI code (optional).
         shareHolderTaxCode: Tax code of a company member (optional).
-        activityStatus: Status of the company in the Chamber of Commerce (optional), Available values : ATTIVA, CESSATA, REGISTRATA, INATTIVA, SOSPESA, IN_ISCRIZIONE.
+        activityStatus: Status in the Chamber of Commerce. Allowed values are
+            ``ATTIVA``, ``CESSATA``, ``REGISTRATA``, ``INATTIVA``,
+            ``SOSPESA``, and ``IN_ISCRIZIONE``.
         pec: PEC email address of the company (optional).
         creationTimestamp: Filter by creation unix timestamp (optional).
         lastUpdateTimestamp: Filter by last update unix timestamp (optional).
     """
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-search?limit={limit}"
 
-    
+
     if companyName:
-        if companyName != "*" and companyName != "null":
+        if companyName not in {"*", "null"}:
             url += f"&companyName={companyName}"
     if provinceCode:
-        if provinceCode != "*" and provinceCode != "null":
+        if provinceCode not in {"*", "null"}:
             url += f"&province={provinceCode}"
     if skip is not None and skip != "null":
         url += f"&skip={skip}"
     if limit is not None and limit != "null":
         url += f"&limit={limit}"
     if dryRun is None and limit is None:
-        url += f"&limit=10"
+        url += "&limit=10"
     if dataEnrichment:
         url += f"&dataEnrichment={dataEnrichment}"
     if startDate:
@@ -247,8 +279,17 @@ async def get_company_IT_search(
         "idempotentHint": True
     }
 )
-async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context) -> Any:
-    """Returns companyName,nativeCompanyName,companySize,address,gps,activityStatus,incorporationDate,contacts,nace,nationalClassification,balanceSheets data like employees,netWorth,operatingRevenue,equity,totalAssets .
+async def get_company_WW_top(
+    vat_or_taxCode: str,
+    country_code: str,
+    ctx: Context,
+) -> Any:
+    """Returns worldwide top company data.
+
+    Includes company name, native company name, company size, address, GPS,
+    activity status, incorporation date, contacts, classifications, and key
+    balance sheet highlights.
+
     Args:
         vat_or_taxCode: vatCode or taxCode of a company
         country_code: country code of the company
@@ -258,10 +299,10 @@ async def get_company_WW_top(vat_or_taxCode: str,country_code: str, ctx: Context
 
 @mcp.tool
 async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
-    """Obtain all the updated legalFormsCodes and descriptions available in italy. Usefull with get_company_IT_search.
+    """Returns the updated Italian legal form codes and descriptions.
 
-    "EI"="ENTE IMPRESA","EL"="ENTE SOCIALE","OO"="COOPERATIVA SOCIALE","OS"="SOCIETA' CONSORTILE COOPERATIVA A RESPONSABILITA' LIMITATA","RC"="CONTRATTO DI RETE DOTATO DI SOGGETTIVITA' GIURIDICA","ST"="SOGGETTO ESTERO","AF"="ALTRE FORME","AP"="AZIENDA PROVINCIALE","AS"="SOCIETA' IN ACCOMANDITA SEMPLICE","CO"="CONSORZIO","EE"="ENTE ECCLESIASTICO","FO"="FONDAZIONE","SL"="SOCIETA' CONSORTILE A RESPONSABILITA' LIMITATA","SR"="SOCIETA' A RESPONSABILITA' LIMITATA","SZ"="SOCIETA' NON PREVISTA DALLA LEGISLAZIONE ITALIANA","AL"="AZIENDA SPECIALE","AN"="SOCIETA' CONSORTILE IN NOME COLLETTIVO","CC"="CONSORZIO CON ATTIVITA' ESTERNA","CF"="CONSORZIO FIDI","EC"="ENTE PUBBLICO COMMERCIALE","ED"="ENTE DIRITTO PUBBLICO","EN"="ENTE","OC"="SOCIETA' COOPERATIVA CONSORTILE","PA"="ASSOCIAZIONE IN PARTECIPAZIONE","SF"="SOCIETA' DI FATTO","SO"="SOCIETA' CONSORTILE PER AZIONI","AA"="SOCIETA' IN ACCOMANDITA PER AZIONI","AC"="ASSOCIAZIONE","AI"="ASSOCIAZIONE IMPRESA","AM"="AZIENDA MUNICIPALE","AT"="AZIENDA AUTONOMA STATALE","CR"="CONSORZIO INTERCOMUNALE","ES"="ENTE DI CUI ALLA L.R. 21-12-93 N88","GE"="GRUPPO EUROPEO DI INTERESSE ECONOMICO","IF"="IMPRESA FAMILIARE","LL"="AZIENDA SPECIALE DI CUI AL DLGS 267/2000","RS"="SOCIETA' A RESPONSABILITA' LIMITATA SEMPLIFICATA","SI"="SOCIETA' IRREGOLARE","AR"="AZIENDA REGIONALE","CS"="CONSORZIO SENZA ATTIVITA' ESTERNA","SA"="SOCIETA' ANONIMA","SC"="SOCIETA' COOPERATIVA","SD"="SOCIETA' EUROPEA","SG"="SOCIETA' COOPERATIVA EUROPEA","AE"="SOCIETA' CONSORTILE IN ACCOMANDITA SEMPLICE","EP"="ENTE PUBBLICO ECONOMICO","PF"="PERSONA FISICA","SN"="SOCIETA' IN NOME COLLETTIVO","SP"="SOCIETA' PER AZIONI","XX"="NON PRECISATA","AU"="SOCIETA'  PER AZIONI CON SOCIO UNICO","CE"="COMUNIONE EREDITARIA","CI"="SOCIETA' COOPERATIVA A RESPONSABILITA ILLIMITATA","CL"="SOCIETA' COOPERATIVA A RESPONSABILITA LIMITATA","CN"="SOCIETA' CONSORTILE","CZ"="CONSORZIO DI CUI AL DLGS 267/2000","DI"="IMPRESA INDIVIDUALE","RR"="SOCIETA' A RESPONSABILITA' LIMITATA A CAPITALE RIDOTTO","SE"="SOCIETA' SEMPLICE","SU"="SOCIETA' A RESPONSABILITA' LIMITATA CON UNICO SOCIO","AZ"="AZIENDA SPECIALE REA","CM"="CONSORZIO MUNICIPALE","EM"="ENTE MORALE","ER"="ENTE ECCLESIASTICO CIVILMENTE RICONOSCIUTO","FI"="FONDAZIONE IMPRESA","IC"="ISTITUTO DI CREDITO","ID"="ISTITUTO DI CREDITO DI DIRITTO PUBBLICO","IR"="ISTITUTO RELIGIOSO","MA"="MUTUA ASSICURAZIONE","PC"="PICCOLA SOCIETA' COOPERATIVA","PS"="PICCOLA SOCIETA' COOPERATIVA A RESPONSABILITA' LIMITATA","SM"="SOCIETA' DI MUTUO SOCCORSO","SS"="SOCIETA' COSTITUITA IN BASE A LEGGI DI ALTRO STATO","SV"="SOCIETA' TRA PROFESSIONISTI"
-
+    Use this tool together with ``get_company_IT_search`` to discover the
+    accepted ``legalFormCode`` values.
     """
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-legalforms/"
     return make_api_call(ctx, "GET", url)
@@ -280,11 +321,13 @@ async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
 )
 async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) -> Any:
     """Returns basic company information for a company in the specified country.
-    Returns: companyName, vatCode, address, activityStatus, and other basic details.
-    
+
+    Returns companyName, vatCode, address, activityStatus, and other basic
+    details.
+
     Args:
-        vatCode: VAT code or company registration number (e.g., DE123456789, FR12345678901234)
-        country_code: Two-letter country code (e.g., DE, ES, PT, GB, BE, AT, CH, PL, FR)
+        vatCode: VAT code or company registration number.
+        country_code: Two-letter country code.
     """
     country_code = country_code.upper()
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-start/{vatCode}"
@@ -300,14 +343,19 @@ async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) ->
 )
 async def get_company_EU_advanced(vatCode: str, country_code: str, ctx: Context) -> Any:
     """Returns advanced company information for a company in the specified country.
-    Returns: Detailed company data including financial highlights or extended registry info where available.
-    
+
+    Returns detailed company data including financial highlights or extended
+    registry info where available.
+
     Args:
         vatCode: VAT code or company registration number
         country_code: Two-letter country code (e.g., FR, DE, ES, etc.)
     """
     country_code = country_code.upper()
-    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-advanced/{vatCode}"
+    url = (
+        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/"
+        f"{country_code}-advanced/{vatCode}"
+    )
     return make_api_call(ctx, "GET", url)
 
 # ============================================================================
@@ -345,7 +393,10 @@ async def get_company_WW_advanced(vatCode: str, country_code: str, ctx: Context)
         vatCode: VAT code or company registration number
         country_code: Two-letter country code of the country
     """
-    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-advanced/{country_code}/{vatCode}"
+    url = (
+        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-advanced/"
+        f"{country_code}/{vatCode}"
+    )
     return make_api_call(ctx, "GET", url)
 
 # ============================================================================
@@ -382,15 +433,25 @@ async def get_company_FR_search(
         nafCode: NAF Activity Code for the company (optional).
         activityStatus: Status of the company (optional).
     """
-    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/FR-search?limit={limit if limit else 10}"
-    
-    if companyName: url += f"&companyName={companyName}"
-    if provinceCode: url += f"&province={provinceCode}"
-    if skip: url += f"&skip={skip}"
-    if dataEnrichment: url += f"&dataEnrichment={dataEnrichment}"
-    if dryRun: url += f"&dryRun={dryRun}"
-    if nafCode: url += f"&nafCode={nafCode}"
-    if activityStatus: url += f"&activityStatus={activityStatus}"
+    effective_limit = limit if limit else 10
+    url = (
+        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/"
+        f"FR-search?limit={effective_limit}"
+    )
+
+    if companyName:
+        url += f"&companyName={companyName}"
+    if provinceCode:
+        url += f"&province={provinceCode}"
+    if skip:
+        url += f"&skip={skip}"
+    if dataEnrichment:
+        url += f"&dataEnrichment={dataEnrichment}"
+    if dryRun:
+        url += f"&dryRun={dryRun}"
+    if nafCode:
+        url += f"&nafCode={nafCode}"
+    if activityStatus:
+        url += f"&activityStatus={activityStatus}"
 
     return make_api_call(ctx, "GET", url)
-

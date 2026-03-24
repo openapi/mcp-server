@@ -1,15 +1,18 @@
+"""Exchange rate tools."""
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from fastmcp import Context
 from typing import Any
+
+from fastmcp import Context  # pylint: disable=import-error
+
 from ..mcp_core import make_api_call, mcp
 from ..memory_store import OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
+logger.debug("module loaded")
 
 @mcp.tool
 async def get_today_exchange_rates(ctx: Context) -> Any:
-    """Obtain daily world exchange rate based on USD value
-    """
+    """Obtain daily world exchange rates based on USD value."""
     url = f"https://{OPENAPI_HOST_PREFIX}exchange.altravia.com/"
     return make_api_call(ctx, "GET", url)
