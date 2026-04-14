@@ -1,10 +1,17 @@
+"""Risk tools."""
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result, callbackUrl, OPENAPI_HOST_PREFIX  # usa sempre il singleton globale
-from fastmcp import Context
 from typing import Any
-from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
-import asyncio
+
+# MCP tool names and parameter names intentionally mirror the public API.
+# pylint: disable=invalid-name
+
+from fastmcp import Context  # pylint: disable=import-error
+
+from ..mcp_core import getSessionHash, make_api_call, mcp, processPolling
+from ..memory_store import OPENAPI_HOST_PREFIX, callbackUrl, set_callback_result
+
+logging.getLogger(__name__).debug("module loaded")
 
 
 @mcp.tool(
@@ -15,17 +22,31 @@ import asyncio
         "idempotentHint": True
     }
 )
-async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,name: str, ctx: Context) -> Any:
-    """This endpoint allows you to create a full kyc request on a subject (politically exposed person, adverse media, local politicians, legal enforcement, sanctions, whitelists)    
-    	use name for entityType L,W,VE,AC,NA or firstName/lastName for entityType I
+async def post_risk_WW_kyc_full(
+    firstName: str,
+    lastName: str,
+    entityType: str,
+    name: str,
+    ctx: Context,
+) -> Any:
+    """Create a full KYC request on a subject.
+
+    Covers politically exposed persons, adverse media, local politicians,
+    legal enforcement, sanctions, and whitelists.
+    Use ``name`` for entity types ``L``, ``W``, ``VE``, ``AC``, ``NA`` or
+    ``firstName`` and ``lastName`` for entity type ``I``.
+
     Args:
         firstName: first name of the person
         lastName: lastName of the person
-        entityType: can be I=Individual,L=Legal Entity,W=Website,VE=Vessel,AC=Aircraft,NA=Unknown
+        entityType: one of I, L, W, VE, AC, or NA
         name: the name of the entity if not Individual
     """
-    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
-    
+    auth_header = (
+        ctx.request_context.request.headers.get("authorization")
+        or ctx.request_context.request.headers.get("Authorization")
+    )
+
     # Usa un request_id
     request_id = getSessionHash(ctx)
     # Serialize context
@@ -56,12 +77,12 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
         json_payload["name"] = {"value": name}
     response = make_api_call(ctx, "POST", url, json_payload=json_payload)
     state = response.get("state")
-    
+
     if state == "PENDING":
         # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
-        # Poll callback_results once per second 
-        response =  await processPolling(ctx, request_id, ["DONE"])
+        # Poll callback_results once per second
+        response = await processPolling(ctx, request_id, ["DONE"])
     return response
 
 @mcp.tool(
@@ -73,8 +94,8 @@ async def post_risk_WW_kyc_full(firstName: str,lastName: str,entityType: str,nam
     }
 )
 async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
-    """Returns Operational credit limits, Rating evaluations, Risk score history, Public ratings, Financial positions and profiles
-        of an italian company from vatCode or taxCode.
+    """Returns detailed credit score information for an Italian company.
+
     Args:
         vat_or_taxCode: vatCode or taxCode of an italian company
     """

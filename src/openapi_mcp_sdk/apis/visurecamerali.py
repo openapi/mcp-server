@@ -1,20 +1,21 @@
+"""Italian company official document tools."""
+
+import base64
+import io
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from ..memory_store import set_callback_result, callbackUrl, MCP_BASE_URL, OPENAPI_HOST_PREFIX
+import mimetypes
+import zipfile
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
+from fastmcp import Context  # pylint: disable=import-error
+
+from ..mcp_core import getSessionHash, make_api_call, mcp, processPolling
+from ..memory_store import MCP_BASE_URL, OPENAPI_HOST_PREFIX, callbackUrl, set_callback_result
+from ..storage_backend import save_file
 
 logger = logging.getLogger(__name__)
-from fastmcp import Context
-from typing import Any
-from ..mcp_core import make_api_call, mcp, processPolling, getSessionHash
-from ..storage_backend import save_file
-import base64
-import zipfile
-import io
-import json
-
-import os
-import mimetypes
-from datetime import datetime, timedelta, timezone
+logger.debug("module loaded")
 
 @mcp.tool
 async def get_italian_company_official_documents_list(vat_or_tax_code:str, ctx: Context) -> Any:
@@ -36,7 +37,6 @@ async def get_italian_company_official_document(document_url:str,vat_or_tax_code
         vat_or_taxCode: vatCode or taxCode of an italian company
     """
     url = f"https://{document_url}"
-    auth_header = ctx.request_context.request.headers.get('authorization') or ctx.request_context.request.headers.get('Authorization')
     request_id = getSessionHash(ctx)
     custom_context = {
         "request_id": request_id,
@@ -65,7 +65,7 @@ async def download_italian_company_official_document(document_id:str,document_ur
     """
     Download a document when the "stato_richiesta" of a get_italian_company_official_document call is "Dati disponibili"
     Response is a json containing one or more files with attributes: file_name, file_size, download_link, content, expire.
-    
+
     Args:
         document_id: the value id in return of a previous request.
         document_url: the value id in return of a previous request.

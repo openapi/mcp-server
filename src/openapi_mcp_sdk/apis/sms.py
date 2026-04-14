@@ -1,11 +1,16 @@
+"""SMS tools."""
+
 import logging
-logging.getLogger(__name__).debug("module loaded")
-from fastmcp import Context
 from typing import Any
+
+from fastmcp import Context  # pylint: disable=import-error
+
 from ..mcp_core import make_api_call, mcp
 from ..memory_store import OPENAPI_HOST_PREFIX
 
 logger = logging.getLogger(__name__)
+logger.debug("module loaded")
+
 
 @mcp.tool
 async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
@@ -19,9 +24,12 @@ async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
     # Ensure the mobile number has a '-' between the international prefix and the number
     if mobile.startswith("+") and "-" not in mobile:
         return {
-            "success":False,
-            "error":111,
-            "message":"please use minus simbol to separate international prefix and the number"
+            "success": False,
+            "error": 111,
+            "message": (
+                "please use minus simbol to separate international prefix and "
+                "the number"
+            ),
         }
 
     url = f"https://{OPENAPI_HOST_PREFIX}ws.messaggisms.com/messages/"

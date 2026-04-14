@@ -4,13 +4,57 @@ from hashlib import md5
 from typing import Any, Optional
 from pydantic import BaseModel
 from .memory_store import get_callback_result, MCP_BASE_URL
+from urllib.parse import urlparse
+
 import asyncio
 import logging
 import requests
 import json
-from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
+
+
+def _log_api_event(
+    tag: str,
+    client_ip: str,
+    action: str,
+    path: str,
+    reason: Optional[str] = None,
+) -> None:
+    if reason:
+        logger.info('%s %s "%s %s (%s)"', tag, client_ip, action, path, reason)
+        return
+    logger.info('%s %s "%s %s"', tag, client_ip, action, path)
+
+
+def _describe_http_error(error: requests.exceptions.HTTPError) -> str:
+    response = error.response
+    if response is None:
+        return "api error"
+
+    reason_parts = [f"api {response.status_code}"]
+    if response.reason:
+        reason_parts.append(str(response.reason).lower())
+
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = None
+
+    if isinstance(payload, dict):
+        detail = payload.get("message") or payload.get("error")
+        if detail:
+            reason_parts.append(str(detail).strip())
+
+    return " - ".join(reason_parts)
+
+
+def _describe_request_exception(error: requests.exceptions.RequestException) -> str:
+    if isinstance(error, requests.exceptions.Timeout):
+        return "timeout"
+    if isinstance(error, requests.exceptions.ConnectionError):
+        return "connection failed"
+    return str(error).strip() or "request failed"
 
 # Create the MCP server instance
 mcp = FastMCP(
@@ -32,7 +76,7 @@ class ApiError(BaseModel):
     message: str
 
 # Build a unique hash for the current session
-def getSessionHash(ctx: Context): 
+def getSessionHash(ctx: Context):
     session_hash = ctx.request_id+ctx.session_id+ctx.fastmcp.name+(ctx.client_id or "Unknown client")
     headers = get_http_headers()
     if headers:
@@ -73,16 +117,15 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
     except Exception:
         client_ip = "?"
     tag = f"[{service}]"
-    logger.info('%s %s "%s %s"', tag, client_ip, method, parsed.path)
     # Attempt to retrieve the Authorization header from multiple sources
     try:
         auth_header = None
-        
+
         # Try to get the Authorization header via FastMCP
         headers = get_http_headers()
         if headers:
             auth_header = headers.get('authorization') or headers.get('Authorization')
-        
+
         # If not found, fall back to the request context
         if not auth_header and hasattr(ctx, 'request_context'):
             request_context = ctx.request_context
@@ -98,13 +141,15 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
                     # If headers is an object with attributes
                     elif hasattr(headers_obj, 'authorization'):
                         auth_header = getattr(headers_obj, 'authorization', None) or getattr(headers_obj, 'Authorization', None)
-        
+
         if not auth_header or not auth_header.lower().startswith('bearer '):
             raise ValueError("Missing or malformed Header 'Authorization: Bearer <token>'.")
-            
+
     except Exception as e:
+        _log_api_event(tag, client_ip, "ERROR", parsed.path, "missing bearer token")
         return ApiError(error="Auth Error", message=f"Missing Token from client: {e}").model_dump()
 
+    _log_api_event(tag, client_ip, method, parsed.path)
     headers = {"Authorization": auth_header, **kwargs.pop("headers", {})}
     try:
         request_args = dict(method=method, url=url, headers=headers, **kwargs)
@@ -125,8 +170,22 @@ def make_api_call(ctx: Context, method: str, url: str, json_payload: Optional[di
             return return_data
         return response_data
     except requests.exceptions.HTTPError as e:
+        _log_api_event(
+            tag,
+            client_ip,
+            "ERROR",
+            parsed.path,
+            _describe_http_error(e),
+        )
         error_details = e.response.text
         return e.response.json()
         return ApiError(error="API HTTP Error", message=f"{e.response.status_code}: {error_details}").model_dump()
     except requests.exceptions.RequestException as e:
+        _log_api_event(
+            tag,
+            client_ip,
+            "ERROR",
+            parsed.path,
+            _describe_request_exception(e),
+        )
         return ApiError(error="API Request Error", message=str(e)).model_dump()

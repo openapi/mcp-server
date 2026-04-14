@@ -2,6 +2,7 @@
 # Start the MCP server and expose it publicly via ngrok (if installed).
 # Usage: bash scripts/start.sh
 # Env:   MCP_PORT (default 8080), HOST (default 0.0.0.0)
+#        MCP_ENV (default dev), DEV_MODE (default 1)
 #        NGROK_DOMAIN — set to your reserved ngrok static domain to get a
 #                       stable URL that never changes across restarts.
 #                       Claim your free static domain at:
@@ -13,6 +14,8 @@ set -uo pipefail
 
 MCP_PORT="${MCP_PORT:-8080}"
 HOST="${HOST:-0.0.0.0}"
+MCP_ENV="${MCP_ENV:-dev}"
+DEV_MODE="${DEV_MODE:-1}"
 NGROK_DOMAIN="${NGROK_DOMAIN:-}"
 
 SERVER_PID=""
@@ -25,12 +28,34 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# ── clear Python bytecode cache so edited sources are always reloaded ──────
-find src/ -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+clear_python_cache() {
+    find src/ -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+}
+
+start_server() {
+    clear_python_cache
+    PYTHONPATH=src MCP_ENV="$MCP_ENV" \
+        uv run uvicorn openapi_mcp_sdk.main:app \
+        --host "$HOST" \
+        --port "$MCP_PORT" \
+        --log-config scripts/log_config.json &
+    SERVER_PID=$!
+}
+
+stop_server() {
+    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    wait "$SERVER_PID" 2>/dev/null || true
+    SERVER_PID=""
+}
+
+snapshot_sources() {
+    find src tests scripts -type f \( -name '*.py' -o -name '*.php' \) -print0 2>/dev/null \
+        | sort -z \
+        | xargs -0 stat -c '%n:%Y' 2>/dev/null
+}
 
 # ── start uvicorn ──────────────────────────────────────────────────────────
-PYTHONPATH=src uv run uvicorn openapi_mcp_sdk.main:app --host "$HOST" --port "$MCP_PORT" --log-config scripts/log_config.json &
-SERVER_PID=$!
+start_server
 
 # ── wait for server to accept connections ──────────────────────────────────
 printf "Waiting for server\n"
@@ -97,4 +122,30 @@ else
     echo "Check the dashboard at http://localhost:4040"
 fi
 
-wait "$SERVER_PID" 2>/dev/null || true
+if [ "$DEV_MODE" != "1" ]; then
+    wait "$SERVER_PID" 2>/dev/null || true
+    exit 0
+fi
+
+echo "dev mode enabled (MCP_ENV=${MCP_ENV})"
+echo "watching *.py and *.php for changes"
+
+LAST_SNAPSHOT="$(snapshot_sources)"
+while true; do
+    sleep 1
+
+    if [ -n "$SERVER_PID" ] && ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        echo "server exited, restarting..."
+        start_server
+        LAST_SNAPSHOT="$(snapshot_sources)"
+        continue
+    fi
+
+    CURRENT_SNAPSHOT="$(snapshot_sources)"
+    if [ "$CURRENT_SNAPSHOT" != "$LAST_SNAPSHOT" ]; then
+        echo "source change detected, restarting server..."
+        stop_server
+        start_server
+        LAST_SNAPSHOT="$CURRENT_SNAPSHOT"
+    fi
+done
