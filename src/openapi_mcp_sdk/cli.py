@@ -17,15 +17,16 @@ _BANNER = r"""
 def _print_banner(port: int) -> None:
     try:
         from importlib.metadata import version
+
         ver = version("openapi-mcp-sdk")
     except Exception:
         ver = "dev"
 
-    py_ver   = platform.python_version()
-    os_name  = platform.system()
-    os_rel   = platform.release()
-    arch     = platform.machine()
-    node     = platform.node()
+    py_ver = platform.python_version()
+    os_name = platform.system()
+    os_rel = platform.release()
+    arch = platform.machine()
+    node = platform.node()
 
     sep = "─" * 54
 
@@ -44,10 +45,7 @@ def _print_banner(port: int) -> None:
 def main():
     parser = argparse.ArgumentParser(
         prog="openapi-mcp-sdk",
-        description=(
-            "Openapi.com MCP SDK — run as a ready-to-use MCP server "
-            "or import as a library to build your own."
-        ),
+        description=("Openapi.com MCP SDK — run as a ready-to-use MCP server or import as a library to build your own."),
     )
 
     subparsers = parser.add_subparsers(dest="command", metavar="<command>")
@@ -65,12 +63,14 @@ def main():
 
     if args.command == "server":
         import warnings
+
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         port = int(os.environ.get("MCP_PORT", 8080))
         _print_banner(port)
 
         from .main import run
+
         run()
     else:
         parser.print_help()

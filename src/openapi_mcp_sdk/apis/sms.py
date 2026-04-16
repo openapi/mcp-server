@@ -26,15 +26,8 @@ async def send_sms(sender: str, body: str, mobile: str, ctx: Context) -> Any:
         return {
             "success": False,
             "error": 111,
-            "message": (
-                "please use minus simbol to separate international prefix and "
-                "the number"
-            ),
+            "message": ("please use minus simbol to separate international prefix and the number"),
         }
 
     url = f"https://{OPENAPI_HOST_PREFIX}ws.messaggisms.com/messages/"
-    return make_api_call(ctx, "POST", url, json_payload={
-        "sender": sender,
-        "body": body,
-        "recipients": mobile
-    })
+    return make_api_call(ctx, "POST", url, json_payload={"sender": sender, "body": body, "recipients": mobile})

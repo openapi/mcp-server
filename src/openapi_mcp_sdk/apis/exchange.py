@@ -11,6 +11,7 @@ from ..memory_store import OPENAPI_HOST_PREFIX
 logger = logging.getLogger(__name__)
 logger.debug("module loaded")
 
+
 @mcp.tool
 async def get_today_exchange_rates(ctx: Context) -> Any:
     """Obtain daily world exchange rates based on USD value."""

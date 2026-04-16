@@ -27,6 +27,7 @@ _INSTANCE_LABEL = f"{_INSTANCE_USER}@{_INSTANCE_HOST}"
 
 try:
     from importlib.metadata import version as _pkg_version
+
     _FASTMCP_VERSION = _pkg_version("fastmcp")
 except Exception:
     _FASTMCP_VERSION = "unknown"
@@ -67,13 +68,14 @@ async def openapi_server_info(ctx: Context) -> Any:
     sandbox_mode = bool(MCP_OPENAPI_ENV)
 
     # Token presence and masked preview — never expose the full token
-    prod_token    = os.environ.get("OPENAPI_TOKEN", "")
+    prod_token = os.environ.get("OPENAPI_TOKEN", "")
     sandbox_token = os.environ.get("OPENAPI_SANDBOX_TOKEN", "")
     token_info = {
-        "OPENAPI_TOKEN":         "set" if prod_token    else "not set",
+        "OPENAPI_TOKEN": "set" if prod_token else "not set",
         "OPENAPI_SANDBOX_TOKEN": "set" if sandbox_token else "not set",
-        "active_token_preview":  _mask_token(sandbox_token if sandbox_mode else prod_token)
-                                 if (sandbox_token if sandbox_mode else prod_token) else None,
+        "active_token_preview": _mask_token(sandbox_token if sandbox_mode else prod_token)
+        if (sandbox_token if sandbox_mode else prod_token)
+        else None,
     }
 
     # Collect registered tool names from the MCP instance
@@ -84,34 +86,34 @@ async def openapi_server_info(ctx: Context) -> Any:
 
     return {
         "server": {
-            "name":        _SERVER_NAME,
-            "version":     _SERVER_VERSION,
-            "mode":        "sandbox" if sandbox_mode else "production",
-            "base_url":    MCP_BASE_URL,
+            "name": _SERVER_NAME,
+            "version": _SERVER_VERSION,
+            "mode": "sandbox" if sandbox_mode else "production",
+            "base_url": MCP_BASE_URL,
             "description": mcp.instructions,
         },
         "instance": {
-            "label":      _INSTANCE_LABEL,
-            "host":       _INSTANCE_HOST,
-            "user":       _INSTANCE_USER,
-            "pid":        _INSTANCE_PID,
+            "label": _INSTANCE_LABEL,
+            "host": _INSTANCE_HOST,
+            "user": _INSTANCE_USER,
+            "pid": _INSTANCE_PID,
             "started_at": _SERVER_START.isoformat(),
         },
         "token": token_info,
         "runtime": {
-            "python":   sys.version,
+            "python": sys.version,
             "platform": platform.platform(),
-            "fastmcp":  _FASTMCP_VERSION,
+            "fastmcp": _FASTMCP_VERSION,
         },
         "uptime": {
-            "started_at":     _SERVER_START.isoformat(),
-            "checked_at":     now.isoformat(),
+            "started_at": _SERVER_START.isoformat(),
+            "checked_at": now.isoformat(),
             "uptime_seconds": uptime_seconds,
         },
         "session": {
-            "request_id":   ctx.request_id,
-            "session_id":   ctx.session_id,
-            "client_id":    ctx.client_id or "unknown",
+            "request_id": ctx.request_id,
+            "session_id": ctx.session_id,
+            "client_id": ctx.client_id or "unknown",
             "session_hash": getSessionHash(ctx),
         },
         "tools": {

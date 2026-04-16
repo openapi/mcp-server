@@ -16,9 +16,7 @@ logger.debug("module loaded")
 
 
 @mcp.tool
-async def check_license_plate(
-    countryCode: str, type: str, licensePlate: str, ctx: Context
-) -> Any:
+async def check_license_plate(countryCode: str, type: str, licensePlate: str, ctx: Context) -> Any:
     """Retrieve vehicle data for a supported country and plate.
 
     Available combinations:
@@ -30,8 +28,5 @@ async def check_license_plate(
         type: required, type of information needed (car|bike|insurance|mot)
         licensePlate: required, the license plate to check
     """
-    url = (
-        f"https://{OPENAPI_HOST_PREFIX}automotive.openapi.com/"
-        f"{countryCode}-{type}/{licensePlate}"
-    )
+    url = f"https://{OPENAPI_HOST_PREFIX}automotive.openapi.com/{countryCode}-{type}/{licensePlate}"
     return make_api_call(ctx, "GET", url)
