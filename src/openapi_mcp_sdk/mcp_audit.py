@@ -13,7 +13,8 @@ Uniform layout across all log lines:
 
 import json
 import logging
-from starlette.types import ASGIApp, Scope, Receive, Send  # pylint: disable=import-error
+
+from starlette.types import ASGIApp, Receive, Scope, Send  # pylint: disable=import-error
 
 _log = logging.getLogger("openapi_mcp_sdk.audit")
 

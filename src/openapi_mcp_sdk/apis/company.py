@@ -5,8 +5,7 @@
 # pylint: disable=too-many-branches,too-many-statements
 
 import logging
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 from fastmcp import Context  # pylint: disable=import-error
 

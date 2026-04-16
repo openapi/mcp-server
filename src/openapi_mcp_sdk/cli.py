@@ -3,7 +3,6 @@ import os
 import platform
 import sys
 
-
 _BANNER = r"""
      ____                               _
     / __ \____  ___  ____  ____ _____  (_) ®
@@ -31,7 +30,7 @@ def _print_banner(port: int) -> None:
     sep = "─" * 54
 
     sys.stderr.write(_BANNER)
-    sys.stderr.write(f"  The official openapi.com MCP SDK\n")
+    sys.stderr.write("  The official openapi.com MCP SDK\n")
     sys.stderr.write(f"  {sep}\n")
     sys.stderr.write(f"  version   {ver}\n")
     sys.stderr.write(f"  listen    http://0.0.0.0:{port}\n")

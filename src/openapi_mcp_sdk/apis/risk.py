@@ -5,7 +5,6 @@ from typing import Any
 
 # MCP tool names and parameter names intentionally mirror the public API.
 # pylint: disable=invalid-name
-
 from fastmcp import Context  # pylint: disable=import-error
 
 from ..mcp_core import getSessionHash, make_api_call, mcp, processPolling

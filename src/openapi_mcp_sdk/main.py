@@ -1,34 +1,23 @@
 """ASGI entrypoint for the OpenAPI MCP server."""
 
+import asyncio
+import json
+import logging
 import os
 import re
 import sys
-import json
-import logging
-import asyncio
-from copy import copy
-from fastapi import FastAPI, Request, HTTPException, Response
+
+from fastapi import FastAPI, HTTPException, Request, Response
 from starlette.middleware.cors import CORSMiddleware
-from starlette.types import ASGIApp, Scope, Receive, Send, Message
-from .mcp_audit import McpAuditMiddleware
-from .storage_backend import read_file
-from .memory_store import get_callback_result, set_callback_result
-from .mcp_core import mcp
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
 from .apis import (
-    async_tool,
-    automotive,
-    cap,
-    company,
     docuengine,
-    exchange,
-    geocoding,
-    info,
-    pec,
-    risk,
-    sms,
-    trust,
-    visurecamerali,
 )
+from .mcp_audit import McpAuditMiddleware
+from .mcp_core import mcp
+from .memory_store import get_callback_result, set_callback_result
+from .storage_backend import read_file
 
 # ---------------------------------------------------------------------------
 # Bootstrap package logger early — before uvicorn configures its own logging.
