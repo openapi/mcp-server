@@ -1,10 +1,10 @@
 """DocuEngine tools."""
 
-from datetime import datetime
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 from fastmcp import Context  # pylint: disable=import-error
 
@@ -13,6 +13,7 @@ from ..memory_store import OPENAPI_HOST_PREFIX, callbackUrl, set_callback_result
 
 logger = logging.getLogger(__name__)
 logger.debug("module loaded")
+
 
 class DocuEngineHelper:
     """Helper class to manage DocuEngine services and parameter mapping."""
@@ -38,9 +39,7 @@ class DocuEngineHelper:
         return mapped_search
 
     @staticmethod
-    def validate_params(
-        service_data: Dict[str, Any], input_params: Dict[str, Any]
-    ) -> tuple[bool, Optional[str]]:
+    def validate_params(service_data: Dict[str, Any], input_params: Dict[str, Any]) -> tuple[bool, Optional[str]]:
         """
         Validates input parameters against service requestStructure.
         Returns (is_valid, error_message).
@@ -66,57 +65,47 @@ class DocuEngineHelper:
 
             # Type validation
             if field_type == "taxCode" and param_value:
-                is_valid_tax_code = (
-                    isinstance(param_value, str)
-                    and re.match(r'^[A-Z0-9]{11,16}$', param_value.upper())
-                )
+                is_valid_tax_code = isinstance(param_value, str) and re.match(r"^[A-Z0-9]{11,16}$", param_value.upper())
                 if not is_valid_tax_code:
                     return (
                         False,
-                        f"Field '{param_name}' must be a valid tax code "
-                        "(11-16 alphanumeric characters)",
+                        f"Field '{param_name}' must be a valid tax code (11-16 alphanumeric characters)",
                     )
 
             elif field_type == "email" and param_value:
-                if not isinstance(param_value, str) or '@' not in param_value:
+                if not isinstance(param_value, str) or "@" not in param_value:
                     return False, f"Field '{param_name}' must be a valid email address"
 
             elif field_type == "date" and param_value:
                 if isinstance(param_value, str):
                     try:
-                        datetime.fromisoformat(param_value.replace('Z', '+00:00'))
-                    except:
+                        datetime.fromisoformat(param_value.replace("Z", "+00:00"))
+                    except ValueError:
                         return (
                             False,
-                            f"Field '{param_name}' must be a valid date "
-                            "(ISO format: YYYY-MM-DD)",
+                            f"Field '{param_name}' must be a valid date (ISO format: YYYY-MM-DD)",
                         )
 
             elif field_type == "integer" and param_value is not None:
                 try:
                     int(param_value)
-                except:
+                except ValueError:
                     return False, f"Field '{param_name}' must be an integer"
 
             elif field_type == "float" and param_value is not None:
                 try:
                     float(param_value)
-                except:
+                except ValueError:
                     return False, f"Field '{param_name}' must be a number"
 
             # Options validation
             options = field_info.get("options")
             if options and isinstance(options, list) and param_value:
-                valid_codes = [
-                    option.get("code")
-                    for option in options
-                    if isinstance(option, dict) and option.get("code")
-                ]
+                valid_codes = [option.get("code") for option in options if isinstance(option, dict) and option.get("code")]
                 if param_value not in valid_codes:
                     return (
                         False,
-                        f"Field '{param_name}' must be one of: "
-                        f"{', '.join(valid_codes)}",
+                        f"Field '{param_name}' must be one of: {', '.join(valid_codes)}",
                     )
 
         # 2. Validate required fields and validation logic
@@ -124,10 +113,7 @@ class DocuEngineHelper:
             field_presence = {}
             for field_key, field_info in fields.items():
                 param_name = field_info.get("name")
-                field_presence[field_key] = (
-                    param_name in input_params
-                    and input_params[param_name] not in [None, "", []]
-                )
+                field_presence[field_key] = param_name in input_params and input_params[param_name] not in [None, "", []]
 
             try:
                 eval_rule = validation_rule
@@ -137,14 +123,13 @@ class DocuEngineHelper:
                 if not eval(eval_rule):
                     return (
                         False,
-                        "Validation failed: "
-                        f"{validation_rule}. Please check required field "
-                        "combinations.",
+                        f"Validation failed: {validation_rule}. Please check required field combinations.",
                     )
             except Exception:
                 pass
 
         return True, None
+
 
 @mcp.tool()
 async def get_docuengine_services(ctx: Context) -> Any:
@@ -153,6 +138,7 @@ async def get_docuengine_services(ctx: Context) -> Any:
     """
     url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/documents"
     return make_api_call(ctx, "GET", url)
+
 
 async def _post_docuengine_request(
     document_id: str,
@@ -163,9 +149,8 @@ async def _post_docuengine_request(
     Internal helper to request any DocuEngine service.
     """
     logger.debug("tool: post_docuengine_request id=%s", document_id)
-    auth_header = (
-        ctx.request_context.request.headers.get("authorization")
-        or ctx.request_context.request.headers.get("Authorization")
+    auth_header = ctx.request_context.request.headers.get("authorization") or ctx.request_context.request.headers.get(
+        "Authorization"
     )
     request_id = getSessionHash(ctx)
 
@@ -207,10 +192,8 @@ async def _post_docuengine_request(
             "data": custom_context,
             "method": "JSON",
             "field": "data",
-            "headers": {
-                "Authorization": auth_header
-            }
-        }
+            "headers": {"Authorization": auth_header},
+        },
     }
 
     response = make_api_call(ctx, "POST", url, json_payload)
@@ -220,11 +203,13 @@ async def _post_docuengine_request(
 
     return response
 
+
 @mcp.tool()
 async def get_docuengine_request_status(request_id: str, ctx: Context) -> Any:
     """Returns the details and status of a specific DocuEngine request."""
     url = f"https://{OPENAPI_HOST_PREFIX}docuengine.openapi.com/requests/{request_id}"
     return make_api_call(ctx, "GET", url)
+
 
 @mcp.tool()
 async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
@@ -233,8 +218,8 @@ async def get_docuengine_documents(request_id: str, ctx: Context) -> Any:
     return make_api_call(ctx, "GET", url)
 
 
-
 _dynamic_tools_initialized = False
+
 
 def init_dynamic_tools(token: Optional[str] = None) -> bool:
     """Register a specialized MCP tool for each DocuEngine service.
@@ -246,10 +231,11 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
     if _dynamic_tools_initialized:
         return True
 
-    import requests
-    import re
     import keyword
+    import re
     from inspect import Parameter, Signature
+
+    import requests
 
     logger.info('%s "Initializing"', "[JIT]")
 
@@ -268,11 +254,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response_data = response.json()
-            services = (
-                response_data.get("data", [])
-                if isinstance(response_data, dict)
-                else response_data
-            )
+            services = response_data.get("data", []) if isinstance(response_data, dict) else response_data
             if services and isinstance(services, list):
                 logger.info('%s "Fetched %d services"', "[JIT]", len(services))
         else:
@@ -285,7 +267,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         return False
 
     def sanitize_name(name):
-        return re.sub(r'[^a-z0-9_]', '_', name.lower())
+        return re.sub(r"[^a-z0-9_]", "_", name.lower())
 
     def create_tool_fn(s_id, s_name, s_desc, s_fields, t_name):
         params = []
@@ -327,10 +309,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
         specialized_tool.__name__ = t_name
         specialized_tool.__signature__ = Signature(params)
         specialized_tool.__annotations__ = {p.name: p.annotation for p in params}
-        specialized_tool.__doc__ = (
-            f"Direct tool for DocuEngine service: {s_name} "
-            f"(ID: {s_id}). {s_desc}"
-        )
+        specialized_tool.__doc__ = f"Direct tool for DocuEngine service: {s_name} (ID: {s_id}). {s_desc}"
         return specialized_tool
 
     def create_patch_tool_fn(s_id, s_name, p_name, t_name):
@@ -340,7 +319,7 @@ def init_dynamic_tools(token: Optional[str] = None) -> bool:
             Parameter("request_id", Parameter.KEYWORD_ONLY, annotation=str),
             Parameter("id", Parameter.KEYWORD_ONLY, annotation=str),
             Parameter("year", Parameter.KEYWORD_ONLY, default=None, annotation=Optional[str]),
-            Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context)
+            Parameter("ctx", Parameter.KEYWORD_ONLY, annotation=Context),
         ]
 
         async def specialized_patch_tool(
@@ -390,7 +369,7 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
 
                 sanitized = sanitize_name(service_name)
                 tool_name = f"docuengine_{sanitized}"
-                tool_name = re.sub(r'_+', '_', tool_name).strip('_')
+                tool_name = re.sub(r"_+", "_", tool_name).strip("_")
 
                 request_structure = service.get("requestStructure", {})
                 fields = request_structure.get("fields", {})
@@ -411,10 +390,7 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                 if total_price > 0:
                     param_desc += f"\n💰 Price: €{total_price:.2f}"
                     if search_price > 0:
-                        param_desc += (
-                            f" (search: €{search_price:.2f}, "
-                            f"document: €{doc_price:.2f})"
-                        )
+                        param_desc += f" (search: €{search_price:.2f}, document: €{doc_price:.2f})"
 
                 # Add sync/async info
                 if is_sync:
@@ -424,8 +400,7 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                 required_params = [
                     field_info.get("name")
                     for _, field_info in fields.items()
-                    if field_info.get("required", False)
-                    and field_info.get("name")
+                    if field_info.get("required", False) and field_info.get("name")
                 ]
                 if required_params:
                     param_desc += f"\n📋 Required: {', '.join(required_params)}"
@@ -434,8 +409,7 @@ Example: If the search returned options with 'id' and 'year' fields, pass those 
                 has_search = service.get("hasSearch", False)
                 if has_search:
                     param_desc += (
-                        "\n🔍 Two-step process: This returns search results. "
-                        f"Use 'patch_{tool_name}' to select and finalize."
+                        f"\n🔍 Two-step process: This returns search results. Use 'patch_{tool_name}' to select and finalize."
                     )
 
                 # 1. Register primary tool

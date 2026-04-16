@@ -22,8 +22,12 @@ SERVER_PID=""
 NGROK_PID=""
 
 cleanup() {
-    [ -n "$NGROK_PID" ] && kill "$NGROK_PID" 2>/dev/null || true
-    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    if [ -n "$NGROK_PID" ]; then
+        kill "$NGROK_PID" 2>/dev/null || true
+    fi
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null || true
+    fi
     wait 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
@@ -43,7 +47,9 @@ start_server() {
 }
 
 stop_server() {
-    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null || true
+    fi
     wait "$SERVER_PID" 2>/dev/null || true
     SERVER_PID=""
 }
@@ -59,7 +65,7 @@ start_server
 
 # ── wait for server to accept connections ──────────────────────────────────
 printf "Waiting for server\n"
-for i in $(seq 1 30); do
+for _ in $(seq 1 30); do
     if curl -s --max-time 1 "http://localhost:$MCP_PORT/" > /dev/null 2>&1; then
         break
     fi
@@ -84,7 +90,7 @@ NGROK_PID=$!
 
 # poll the ngrok local API until the tunnel URL is available or ngrok exits with an error
 NGROK_URL=""
-for i in $(seq 1 20); do
+for _ in $(seq 1 20); do
     # check if ngrok process died early (auth error, config error, etc.)
     if ! kill -0 "$NGROK_PID" 2>/dev/null; then
         NGROK_ERROR=$(grep -oP 'ERROR:\s+\K.+' /tmp/ngrok-mcp.log | grep -v '^\s*$' | head -5)

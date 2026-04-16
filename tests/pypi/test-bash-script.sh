@@ -4,6 +4,7 @@
 # Uses uvx under the hood (same as the documented quick start)
 # =============================================================================
 set -euo pipefail
+# shellcheck source=tests/pypi/lib.sh
 source "$(dirname "$0")/lib.sh"
 
 require_wheel

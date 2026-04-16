@@ -46,7 +46,7 @@ NGROK_DOMAIN ?=
 ## Targets
 ## =======
 
-.PHONY: start check-env release test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox try-claude try-claude-sandbox test-docker-compose-up
+.PHONY: start check-env style release test test-sandbox test-openai test-openai-sandbox test-codex test-codex-sandbox try-claude try-claude-sandbox test-docker-compose-up
 
 ## Check that python3 and uv are available, with OS-specific install hints
 check-env:
@@ -63,6 +63,12 @@ check-env:
 ## Set NGROK_DOMAIN=your-name.ngrok-free.app for a stable URL across restarts.
 start: check-env .install.stamp
 	@MCP_PORT=$(MCP_PORT) HOST=$(HOST) MCP_ENV=$(MCP_ENV) DEV_MODE=$(DEV_MODE) NGROK_DOMAIN=$(NGROK_DOMAIN) bash scripts/start.sh
+
+## Run lightweight style checks for Python and shell scripts
+style: check-env
+	@uvx ruff format --check .
+	@uvx ruff check .
+	@bash -lc 'command -v shellcheck >/dev/null 2>&1 || { echo "shellcheck not found. Install it from https://www.shellcheck.net/ or your package manager."; exit 1; }; shellcheck $$(git ls-files "*.sh")'
 
 ## Start local MCP server and open Claude interactively - production (requires: export OPENAPI_TOKEN=your_token)
 try-claude: check-env .install.stamp
