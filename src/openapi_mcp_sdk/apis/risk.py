@@ -5,7 +5,6 @@ from typing import Any
 
 # MCP tool names and parameter names intentionally mirror the public API.
 # pylint: disable=invalid-name
-
 from fastmcp import Context  # pylint: disable=import-error
 
 from ..mcp_core import getSessionHash, make_api_call, mcp, processPolling
@@ -15,12 +14,7 @@ logging.getLogger(__name__).debug("module loaded")
 
 
 @mcp.tool(
-    annotations={
-        "title": "Full Worldwide KYC FULL",
-        "readOnlyHint": True,
-        "openWorldHint": False,
-        "idempotentHint": True
-    }
+    annotations={"title": "Full Worldwide KYC FULL", "readOnlyHint": True, "openWorldHint": False, "idempotentHint": True}
 )
 async def post_risk_WW_kyc_full(
     firstName: str,
@@ -42,9 +36,8 @@ async def post_risk_WW_kyc_full(
         entityType: one of I, L, W, VE, AC, or NA
         name: the name of the entity if not Individual
     """
-    auth_header = (
-        ctx.request_context.request.headers.get("authorization")
-        or ctx.request_context.request.headers.get("Authorization")
+    auth_header = ctx.request_context.request.headers.get("authorization") or ctx.request_context.request.headers.get(
+        "Authorization"
     )
 
     # Usa un request_id
@@ -58,15 +51,7 @@ async def post_risk_WW_kyc_full(
         "name": name,
     }
     url = f"https://{OPENAPI_HOST_PREFIX}risk.openapi.com/WW-kyc-full"
-    json_payload = {
-        "callback": {
-            "url": callbackUrl,
-            "custom": custom_context,
-            "headers": {
-                "Authorization": auth_header
-            }
-        }
-    }
+    json_payload = {"callback": {"url": callbackUrl, "custom": custom_context, "headers": {"Authorization": auth_header}}}
     if firstName:
         json_payload["firstname"] = {"value": firstName}
     if lastName:
@@ -85,12 +70,13 @@ async def post_risk_WW_kyc_full(
         response = await processPolling(ctx, request_id, ["DONE"])
     return response
 
+
 @mcp.tool(
     annotations={
         "title": "Provides detailed credit score information for a specific organization using a tax code, VAT number",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
@@ -102,12 +88,13 @@ async def get_risk_IT_creditscore_top(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://{OPENAPI_HOST_PREFIX}risk.openapi.com/IT-creditscore-top/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "Check if Italian Fiscal Code is real and existent in the official database",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def check_IT_fiscal_code(fiscalCode: str, ctx: Context) -> Any:

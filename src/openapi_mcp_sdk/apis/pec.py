@@ -10,6 +10,7 @@ from ..memory_store import OPENAPI_HOST_PREFIX
 
 logging.getLogger(__name__).debug("module loaded")
 
+
 @mcp.tool(
     annotations={
         "title": "Certified email address availability check",
@@ -18,7 +19,6 @@ logging.getLogger(__name__).debug("module loaded")
         "idempotentHint": False,  # The same input yields the same result.
     }
 )
-
 async def check_pec(pec: str, ctx: Context) -> Any:
     """
     Checks if a specific PEC (Certified Email) address is available.

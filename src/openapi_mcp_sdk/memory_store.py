@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
-import os
 import logging
+import os
 from typing import Dict
 
 logger = logging.getLogger(__name__)
 try:
     from pymemcache.client import base
+
     _PYMEMCACHE_AVAILABLE = True
 except ImportError:
     base = None  # type: ignore[assignment]
@@ -38,15 +39,15 @@ if not callbackUrl:
     if MCP_ENV == "dev":
         callbackUrl = callbackUrl.replace("alpha", "dev")
 
-MEMCACHED_HOST = os.getenv("MCP_CACHE_HOST", '0.0.0.0')
+MEMCACHED_HOST = os.getenv("MCP_CACHE_HOST", "0.0.0.0")
 MEMCACHED_PORT = int(os.getenv("MCP_CACHE_PORT", "11211"))
 # connect_timeout / timeout = 1 s: when Memcached is unreachable (e.g. local dev,
 # Docker without the VPC network) the client fails fast and the except block
 # falls back to the in-process dict, keeping every endpoint responsive.
 memcached_client = (
-    base.Client((MEMCACHED_HOST, MEMCACHED_PORT), connect_timeout=1, timeout=1)
-    if _PYMEMCACHE_AVAILABLE else None
+    base.Client((MEMCACHED_HOST, MEMCACHED_PORT), connect_timeout=1, timeout=1) if _PYMEMCACHE_AVAILABLE else None
 )
+
 
 # Funzioni aggiornate per supportare Memcached
 def get_callback_result(request_id: str):
@@ -61,9 +62,7 @@ def get_callback_result(request_id: str):
         # Fallback al dizionario in memoria
         logger.debug("memcached get failed, falling back to in-memory store: %s", e)
         if request_id not in callback_results:
-            raise KeyError(
-                f"Result not found for request_id: {request_id}"
-            ) from e
+            raise KeyError(f"Result not found for request_id: {request_id}") from e
         return callback_results[request_id]
 
 
@@ -71,10 +70,7 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
     """
     Saves or updates the result of a callback given the request_id.
     """
-    result = {
-        "data": data,
-        "custom": custom
-    }
+    result = {"data": data, "custom": custom}
     try:
         if memcached_client is None:
             raise RuntimeError("pymemcache not available")
@@ -84,9 +80,10 @@ def set_callback_result(request_id: str, data: Dict, custom: Dict):
         logger.debug("memcached set failed, falling back to in-memory store: %s", e)
         callback_results[request_id] = result
 
+
 def save_to_memcached(client, key, value):
     """Serialize a callback payload and store it in Memcached."""
-    binary_value = json.dumps(value).encode('utf-8')
+    binary_value = json.dumps(value).encode("utf-8")
     client.set(key, binary_value)
 
 
@@ -94,5 +91,5 @@ def get_from_memcached(client, key):
     """Read a callback payload from Memcached and decode it from JSON."""
     binary_value = client.get(key)
     if binary_value is not None:
-        return json.loads(binary_value.decode('utf-8'))
+        return json.loads(binary_value.decode("utf-8"))
     return None

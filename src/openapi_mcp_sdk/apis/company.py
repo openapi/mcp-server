@@ -5,8 +5,7 @@
 # pylint: disable=too-many-branches,too-many-statements
 
 import logging
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 from fastmcp import Context  # pylint: disable=import-error
 
@@ -15,12 +14,13 @@ from ..memory_store import OPENAPI_HOST_PREFIX, callbackUrl, set_callback_result
 
 logging.getLogger(__name__).debug("module loaded")
 
+
 @mcp.tool(
     annotations={
         "title": "Full italian companies data from VAT",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
@@ -53,46 +53,37 @@ async def get_company_IT_full(vat_or_taxCode: str, ctx: Context) -> Any:
     Args:
         vat_or_taxCode: VAT number or Tax Code of an Italian company
     """
-    auth_header = (
-        ctx.request_context.request.headers.get('authorization')
-        or ctx.request_context.request.headers.get('Authorization')
+    auth_header = ctx.request_context.request.headers.get("authorization") or ctx.request_context.request.headers.get(
+        "Authorization"
     )
 
     # Usa un request_id
     request_id = getSessionHash(ctx)
     # Serialize context
-    custom_context = {
-        "request_id": request_id,
-        "vat_or_taxCode": vat_or_taxCode
-    }
-    url = (
-        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-full/"
-        f"{vat_or_taxCode}"
+    custom_context = {"request_id": request_id, "vat_or_taxCode": vat_or_taxCode}
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-full/{vat_or_taxCode}"
+    response = make_api_call(
+        ctx,
+        "POST",
+        url,
+        json_payload={"callback": {"url": callbackUrl, "custom": custom_context, "headers": {"Authorization": auth_header}}},
     )
-    response = make_api_call(ctx, "POST", url, json_payload={
-        "callback": {
-            "url": callbackUrl,
-            "custom": custom_context,
-            "headers": {
-                "Authorization": auth_header
-            }
-        }
-    })
 
-    #gestione asincrona
+    # gestione asincrona
     if response.get("state") == "PENDING":
         # Store partial result immediately for polling
         set_callback_result(request_id, response, custom_context)
         # Poll callback_results once per second
-        response = await processPolling(ctx, request_id, [not None],"companyDetails")
+        response = await processPolling(ctx, request_id, [not None], "companyDetails")
     return response
+
 
 @mcp.tool(
     annotations={
         "title": "Advanced italian companies data from VAT",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
@@ -108,12 +99,13 @@ async def get_company_IT_advanced(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-advanced/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "Start italian companies data from VAT",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
@@ -125,12 +117,13 @@ async def get_company_IT_start(vat_or_taxCode: str, ctx: Context) -> Any:
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-start/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "Search italian companies by advanced search criteria",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_IT_search(
@@ -161,7 +154,7 @@ async def get_company_IT_search(
     activityStatus: Union[str, None] = None,
     pec: Union[str, None] = None,
     creationTimestamp: Union[int, None, str] = None,
-    lastUpdateTimestamp: Union[int, None, str] = None
+    lastUpdateTimestamp: Union[int, None, str] = None,
 ) -> Any:
     """Returns a list of Italian companies based on the search criteria.
 
@@ -207,7 +200,6 @@ async def get_company_IT_search(
         lastUpdateTimestamp: Filter by last update unix timestamp (optional).
     """
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-search?limit={limit}"
-
 
     if companyName:
         if companyName not in {"*", "null"}:
@@ -271,12 +263,13 @@ async def get_company_IT_search(
 
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "Start worldwide companies data from VAT or company number",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_WW_top(
@@ -297,6 +290,7 @@ async def get_company_WW_top(
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-top/{country_code}/{vat_or_taxCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool
 async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
     """Returns the updated Italian legal form codes and descriptions.
@@ -307,16 +301,18 @@ async def get_company_IT_legal_forms_list(ctx: Context) -> Any:
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/IT-legalforms/"
     return make_api_call(ctx, "GET", url)
 
+
 # ============================================================================
 # WORLDWIDE / EUROPEAN COUNTRIES ENDPOINTS (GENERIC)
 # ============================================================================
+
 
 @mcp.tool(
     annotations={
         "title": "European/Worldwide basic company data",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) -> Any:
@@ -333,12 +329,13 @@ async def get_company_EU_start(vatCode: str, country_code: str, ctx: Context) ->
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-start/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "European/Worldwide advanced company data",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_EU_advanced(vatCode: str, country_code: str, ctx: Context) -> Any:
@@ -352,23 +349,17 @@ async def get_company_EU_advanced(vatCode: str, country_code: str, ctx: Context)
         country_code: Two-letter country code (e.g., FR, DE, ES, etc.)
     """
     country_code = country_code.upper()
-    url = (
-        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/"
-        f"{country_code}-advanced/{vatCode}"
-    )
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/{country_code}-advanced/{vatCode}"
     return make_api_call(ctx, "GET", url)
+
 
 # ============================================================================
 # WORLDWIDE SPECIFIC ENDPOINTS
 # ============================================================================
 
+
 @mcp.tool(
-    annotations={
-        "title": "Worldwide basic company data",
-        "readOnlyHint": True,
-        "openWorldHint": False,
-        "idempotentHint": True
-    }
+    annotations={"title": "Worldwide basic company data", "readOnlyHint": True, "openWorldHint": False, "idempotentHint": True}
 )
 async def get_company_WW_start(vatCode: str, country_code: str, ctx: Context) -> Any:
     """Returns basic company information for a company worldwide.
@@ -379,12 +370,13 @@ async def get_company_WW_start(vatCode: str, country_code: str, ctx: Context) ->
     url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-start/{country_code}/{vatCode}"
     return make_api_call(ctx, "GET", url)
 
+
 @mcp.tool(
     annotations={
         "title": "Worldwide advanced company data",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_WW_advanced(vatCode: str, country_code: str, ctx: Context) -> Any:
@@ -393,22 +385,21 @@ async def get_company_WW_advanced(vatCode: str, country_code: str, ctx: Context)
         vatCode: VAT code or company registration number
         country_code: Two-letter country code of the country
     """
-    url = (
-        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-advanced/"
-        f"{country_code}/{vatCode}"
-    )
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/WW-advanced/{country_code}/{vatCode}"
     return make_api_call(ctx, "GET", url)
+
 
 # ============================================================================
 # FRANCE SPECIFIC ENDPOINTS
 # ============================================================================
+
 
 @mcp.tool(
     annotations={
         "title": "Search French companies by advanced criteria",
         "readOnlyHint": True,
         "openWorldHint": False,
-        "idempotentHint": True
+        "idempotentHint": True,
     }
 )
 async def get_company_FR_search(
@@ -420,7 +411,7 @@ async def get_company_FR_search(
     dataEnrichment: str = "name",
     dryRun: Union[int, None, str] = None,
     nafCode: Union[str, None] = None,
-    activityStatus: Union[str, None] = None
+    activityStatus: Union[str, None] = None,
 ) -> Any:
     """Returns a list of French companies based on the search criteria.
     Args:
@@ -434,10 +425,7 @@ async def get_company_FR_search(
         activityStatus: Status of the company (optional).
     """
     effective_limit = limit if limit else 10
-    url = (
-        f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/"
-        f"FR-search?limit={effective_limit}"
-    )
+    url = f"https://{OPENAPI_HOST_PREFIX}company.openapi.com/FR-search?limit={effective_limit}"
 
     if companyName:
         url += f"&companyName={companyName}"

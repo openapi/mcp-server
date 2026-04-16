@@ -39,7 +39,10 @@ cleanup() {
     rm -rf "$_TMPDIR"
     if [ "$CONTAINER_STARTED" -eq 1 ]; then
         info "Stopping container..."
-        cd "$ROOT_DIR" && docker compose -f compose.yml down --remove-orphans 2>/dev/null || true
+        (
+            cd "$ROOT_DIR" &&
+            docker compose -f compose.yml down --remove-orphans 2>/dev/null
+        ) || true
     fi
 }
 trap cleanup EXIT
@@ -73,7 +76,11 @@ parse_mcp_response() {
         # SSE stream — find the last "data:" line containing a jsonrpc result or error
         local line
         line=$(echo "$raw" | grep '^data:' | grep -E '"result"|"error"' | tail -1 | sed 's/^data: //')
-        [ -n "$line" ] && echo "$line" || echo "$raw" | grep '^data:' | tail -1 | sed 's/^data: //'
+        if [ -n "$line" ]; then
+            echo "$line"
+        else
+            echo "$raw" | grep '^data:' | tail -1 | sed 's/^data: //'
+        fi
     else
         echo "$raw"
     fi

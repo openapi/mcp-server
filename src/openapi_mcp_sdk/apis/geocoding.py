@@ -26,15 +26,11 @@ async def geocode(address: str, ctx: Context) -> Any:
         address: string
     """
     url = f"https://{OPENAPI_HOST_PREFIX}geocoding.openapi.it/geocode"
-    return make_api_call(ctx, "POST", url, json_payload={
-        "address": address
-    })
+    return make_api_call(ctx, "POST", url, json_payload={"address": address})
 
 
 @mcp.tool
-async def reverse_geocode(
-    type: str, id: str, lat: float, long: float, ctx: Context
-) -> Any:
+async def reverse_geocode(type: str, id: str, lat: float, long: float, ctx: Context) -> Any:
     """Get place information from ID or latitude/longitude:
 
     To obtain infos via ID make sure to pass the following format:

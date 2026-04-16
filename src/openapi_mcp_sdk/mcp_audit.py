@@ -13,26 +13,27 @@ Uniform layout across all log lines:
 
 import json
 import logging
-from starlette.types import ASGIApp, Scope, Receive, Send  # pylint: disable=import-error
+
+from starlette.types import ASGIApp, Receive, Scope, Send  # pylint: disable=import-error
 
 _log = logging.getLogger("openapi_mcp_sdk.audit")
 
 # Maps JSON-RPC method → display label (None = suppress at INFO, log at DEBUG only)
 _LABELS: dict[str, str | None] = {
-    "initialize":                   "Connect",
-    "notifications/initialized":    "Initialized",
-    "notifications/cancelled":      "Cancelled",
-    "notifications/progress":       None,
-    "ping":                         None,
-    "tools/list":                   "Tools list",
-    "tools/call":                   "Tool call",
-    "resources/list":               "Resources list",
-    "resources/read":               "Resource read",
-    "resources/subscribe":          "Resource subscribe",
-    "prompts/list":                 "Prompts list",
-    "prompts/get":                  "Prompt get",
-    "completion/complete":          "Completion",
-    "logging/setLevel":             "Set log level",
+    "initialize": "Connect",
+    "notifications/initialized": "Initialized",
+    "notifications/cancelled": "Cancelled",
+    "notifications/progress": None,
+    "ping": None,
+    "tools/list": "Tools list",
+    "tools/call": "Tool call",
+    "resources/list": "Resources list",
+    "resources/read": "Resource read",
+    "resources/subscribe": "Resource subscribe",
+    "prompts/list": "Prompts list",
+    "prompts/get": "Prompt get",
+    "completion/complete": "Completion",
+    "logging/setLevel": "Set log level",
 }
 
 _TAG = "[MCP]"
@@ -58,9 +59,9 @@ def _emit(body: bytes, client_ip: str) -> None:
 
     if method == "initialize":
         info = params.get("clientInfo") or {}
-        name    = info.get("name", "unknown")
+        name = info.get("name", "unknown")
         version = info.get("version", "")
-        proto   = (params.get("protocolVersion") or "")
+        proto = params.get("protocolVersion") or ""
         _log.info('%s %s "Connect" client=%s/%s protocol=%s', _TAG, client_ip, name, version, proto)
 
     elif method == "tools/call":

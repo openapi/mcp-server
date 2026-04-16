@@ -3,6 +3,7 @@
 # test-pip3.sh — verify: pip3 install <wheel> && openapi-mcp-sdk server
 # =============================================================================
 set -euo pipefail
+# shellcheck source=tests/pypi/lib.sh
 source "$(dirname "$0")/lib.sh"
 
 require_wheel

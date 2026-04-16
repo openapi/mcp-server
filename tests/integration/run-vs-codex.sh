@@ -24,7 +24,9 @@ fi
 cleanup() {
     rm -f "$RESPONSE_TMP"
     codex mcp remove "$MCP_SERVER_NAME" 2>/dev/null || true
-    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT
 

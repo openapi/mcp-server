@@ -6,8 +6,7 @@
 # =============================================================================
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-WHEEL="$(ls "$REPO_ROOT"/dist/openapi_mcp_sdk-*.whl 2>/dev/null | sort -V | tail -1)"
-TARBALL="$(ls "$REPO_ROOT"/dist/openapi_mcp_sdk-*.tar.gz 2>/dev/null | sort -V | tail -1)"
+WHEEL="$(find "$REPO_ROOT/dist" -maxdepth 1 -type f -name 'openapi_mcp_sdk-*.whl' 2>/dev/null | sort -V | tail -1)"
 
 # --- colours ---
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RESET='\033[0m'
@@ -39,7 +38,7 @@ require_cmd() {
 start_server() {
     local port="$1"; shift
     export MCP_PORT="$port"
-    "$@" >/tmp/pypi-test-server-$port.log 2>&1 &
+    "$@" >"/tmp/pypi-test-server-$port.log" 2>&1 &
     SERVER_PID=$!
 }
 

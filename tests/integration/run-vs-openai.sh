@@ -26,7 +26,9 @@ fi
 MCP_URL="${MCP_URL:-http://localhost:8080}"
 
 cleanup() {
-    [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT
 

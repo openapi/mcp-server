@@ -28,7 +28,7 @@ section "=== Building package ==="
 cd "$REPO_ROOT"
 uv build 2>&1 | tail -4
 
-WHEEL="$(ls "$REPO_ROOT"/dist/openapi_mcp_sdk-*.whl 2>/dev/null | sort -V | tail -1)"
+WHEEL="$(find "$REPO_ROOT/dist" -maxdepth 1 -type f -name 'openapi_mcp_sdk-*.whl' 2>/dev/null | sort -V | tail -1)"
 if [[ -z "$WHEEL" ]]; then
     echo -e "${RED}ERROR${RESET} wheel not found after build"
     exit 1
@@ -42,7 +42,6 @@ section "=== Running tests ==="
 
 PASS=0
 FAIL=0
-SKIP=0
 RESULTS=()
 
 for test_script in "$SCRIPT_DIR"/test-*.sh; do

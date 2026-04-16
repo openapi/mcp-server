@@ -1,34 +1,23 @@
 """ASGI entrypoint for the OpenAPI MCP server."""
 
+import asyncio
+import json
+import logging
 import os
 import re
 import sys
-import json
-import logging
-import asyncio
-from copy import copy
-from fastapi import FastAPI, Request, HTTPException, Response
+
+from fastapi import FastAPI, HTTPException, Request, Response
 from starlette.middleware.cors import CORSMiddleware
-from starlette.types import ASGIApp, Scope, Receive, Send, Message
-from .mcp_audit import McpAuditMiddleware
-from .storage_backend import read_file
-from .memory_store import get_callback_result, set_callback_result
-from .mcp_core import mcp
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
 from .apis import (
-    async_tool,
-    automotive,
-    cap,
-    company,
     docuengine,
-    exchange,
-    geocoding,
-    info,
-    pec,
-    risk,
-    sms,
-    trust,
-    visurecamerali,
 )
+from .mcp_audit import McpAuditMiddleware
+from .mcp_core import mcp
+from .memory_store import get_callback_result, set_callback_result
+from .storage_backend import read_file
 
 # ---------------------------------------------------------------------------
 # Bootstrap package logger early — before uvicorn configures its own logging.
@@ -41,6 +30,7 @@ if not _pkg_log.handlers:
     _h = logging.StreamHandler(sys.stderr)
     try:
         from uvicorn.logging import DefaultFormatter
+
         _h.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s", use_colors=True))
     except ImportError:
         _h.setFormatter(logging.Formatter("%(levelname)-8s %(message)s"))
@@ -56,13 +46,15 @@ class _SanitizedAccessFormatter:
     Output format matches all other log lines in this project:
       [HTTP]             X.X.X.X "POST / HTTP/1.1" 200 OK
     """
-    _TOKEN_RE  = re.compile(r'([?&])token=[^&\s"]+')
+
+    _TOKEN_RE = re.compile(r'([?&])token=[^&\s"]+')
     # Parses the inner formatter output to extract the parts we need to rebuild
     _FORMAT_RE = re.compile(r'^(.*?)\[HTTP\] (\S+) - "(.+)" (\S.*)$')
 
     def __init__(self, *args, **kwargs):
         try:
             from uvicorn.logging import AccessFormatter
+
             self._inner = AccessFormatter(*args, **kwargs)
         except ImportError:
             self._inner = logging.Formatter(*args, **kwargs)
@@ -72,17 +64,18 @@ class _SanitizedAccessFormatter:
         m = self._FORMAT_RE.match(result)
         if m:
             levelprefix, addr, req, status = m.groups()
-            ip  = addr.rsplit(":", 1)[0] if ":" in addr else addr
-            req = self._TOKEN_RE.sub(r'\1token=***', req)
+            ip = addr.rsplit(":", 1)[0] if ":" in addr else addr
+            req = self._TOKEN_RE.sub(r"\1token=***", req)
             return f'{levelprefix}[HTTP] {ip} "{req}" {status}'
         # Fallback: at least mask tokens
-        return self._TOKEN_RE.sub(r'\1token=***', result)
+        return self._TOKEN_RE.sub(r"\1token=***", result)
 
     def __getattr__(self, name):
         return getattr(self._inner, name)
 
+
 # Create the MCP ASGI app mounted at root
-mcp_app = mcp.http_app(path='/')
+mcp_app = mcp.http_app(path="/")
 
 # Create the FastAPI app
 app = FastAPI(lifespan=mcp_app.lifespan)
@@ -103,8 +96,10 @@ registration_lock = asyncio.Lock()
 # bodies, causing "RuntimeError: No response returned." on POST / requests.
 # ---------------------------------------------------------------------------
 
+
 class Enrich404Middleware:
     """Replace plain 404 responses with a structured JSON body."""
+
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -120,19 +115,23 @@ class Enrich404Middleware:
             if message["type"] == "http.response.start":
                 if message.get("status") == 404:
                     is_404 = True
-                    body = json.dumps({
-                        "error": "not_found",
-                        "method": scope["method"],
-                        "path": scope["path"],
-                    }).encode()
-                    await send({
-                        "type": "http.response.start",
-                        "status": 404,
-                        "headers": [
-                            (b"content-type", b"application/json"),
-                            (b"content-length", str(len(body)).encode()),
-                        ],
-                    })
+                    body = json.dumps(
+                        {
+                            "error": "not_found",
+                            "method": scope["method"],
+                            "path": scope["path"],
+                        }
+                    ).encode()
+                    await send(
+                        {
+                            "type": "http.response.start",
+                            "status": 404,
+                            "headers": [
+                                (b"content-type", b"application/json"),
+                                (b"content-length", str(len(body)).encode()),
+                            ],
+                        }
+                    )
                     await send({"type": "http.response.body", "body": body, "more_body": False})
                 else:
                     await send(message)
@@ -147,6 +146,7 @@ class TokenQuerystringMiddleware:
     """Lift ?token=<value> from the query string into an Authorization: Bearer header.
     Also triggers JIT registration of dynamic tools on first authenticated request.
     """
+
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -156,6 +156,7 @@ class TokenQuerystringMiddleware:
             return
 
         from urllib.parse import parse_qs, urlencode
+
         query_string = scope.get("query_string", b"").decode()
         params = parse_qs(query_string, keep_blank_values=True)
         token: str | None = (params.pop("token", None) or [None])[0]
@@ -202,13 +203,12 @@ class TokenQuerystringMiddleware:
         await self.app(scope, receive, send)
 
 
-_OAUTH_NOT_SUPPORTED_BODY = json.dumps({
-    "error": "oauth_not_supported",
-    "message": (
-        "This server does not support OAuth. Use a pre-configured Bearer "
-        "token in the Authorization header."
-    ),
-}).encode()
+_OAUTH_NOT_SUPPORTED_BODY = json.dumps(
+    {
+        "error": "oauth_not_supported",
+        "message": ("This server does not support OAuth. Use a pre-configured Bearer token in the Authorization header."),
+    }
+).encode()
 
 _OAUTH_DISCOVERY_PATHS = {
     "/.well-known/oauth-authorization-server",
@@ -216,26 +216,29 @@ _OAUTH_DISCOVERY_PATHS = {
     "/.well-known/openid-configuration",
 }
 
+
 class RejectOAuthDiscoveryMiddleware:
     """Return a JSON 404 for OAuth discovery endpoints."""
+
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if (
-            scope["type"] == "http"
-            and scope["path"].rstrip("/") in {p.rstrip("/") for p in _OAUTH_DISCOVERY_PATHS}
-        ):
-            await send({
-                "type": "http.response.start",
-                "status": 404,
-                "headers": [(b"content-type", b"application/json")],
-            })
-            await send({
-                "type": "http.response.body",
-                "body": _OAUTH_NOT_SUPPORTED_BODY,
-                "more_body": False,
-            })
+        if scope["type"] == "http" and scope["path"].rstrip("/") in {p.rstrip("/") for p in _OAUTH_DISCOVERY_PATHS}:
+            await send(
+                {
+                    "type": "http.response.start",
+                    "status": 404,
+                    "headers": [(b"content-type", b"application/json")],
+                }
+            )
+            await send(
+                {
+                    "type": "http.response.body",
+                    "body": _OAUTH_NOT_SUPPORTED_BODY,
+                    "more_body": False,
+                }
+            )
             return
         await self.app(scope, receive, send)
 
@@ -245,9 +248,9 @@ class RejectOAuthDiscoveryMiddleware:
 # the outermost wrapper (executed first on every request).
 # Desired execution order (outer → inner):
 #   CORS → RejectOAuth → TokenQuerystring → Enrich404 → McpAudit → FastAPI router
-app.add_middleware(McpAuditMiddleware)            # innermost — logs MCP JSON-RPC actions
-app.add_middleware(Enrich404Middleware)           # wraps 404s in JSON
-app.add_middleware(TokenQuerystringMiddleware)    # injects auth header + JIT registration
+app.add_middleware(McpAuditMiddleware)  # innermost — logs MCP JSON-RPC actions
+app.add_middleware(Enrich404Middleware)  # wraps 404s in JSON
+app.add_middleware(TokenQuerystringMiddleware)  # injects auth header + JIT registration
 app.add_middleware(RejectOAuthDiscoveryMiddleware)  # short-circuits OAuth discovery paths
 # CORS must be outermost so it runs before anything else on every request,
 # including pre-flight OPTIONS. expose_headers exposes Mcp-Session-Id to browsers.
@@ -265,6 +268,7 @@ app.add_middleware(
 # Plain HTTP REST endpoints (outside MCP/JSON-RPC)
 # ---------------------------------------------------------------------------
 
+
 @app.post("/callbacks")
 async def callbacks_endpoint(request: Request):
     client_ip = request.client.host if request.client else "?"
@@ -277,9 +281,7 @@ async def callbacks_endpoint(request: Request):
         return {"status": "error", "message": "Body not a valid JSON"}
 
     cb_obj = callback.get("callback")
-    custom = callback.get("custom") or (
-        cb_obj.get("data") if isinstance(cb_obj, dict) else None
-    )
+    custom = callback.get("custom") or (cb_obj.get("data") if isinstance(cb_obj, dict) else None)
     if not custom:
         _logger.warning('%s %s "Missing callback.custom field"', "[CB]", client_ip)
         return {"status": "error", "message": "'callback.custom' missing from received data"}
@@ -288,7 +290,7 @@ async def callbacks_endpoint(request: Request):
         _logger.warning('%s %s "Missing request_id in custom field"', "[CB]", client_ip)
         return {"status": "error", "message": "'request_id' missing from custom field"}
 
-    data = callback.get("data",{}) or callback
+    data = callback.get("data", {}) or callback
     if not data:
         _logger.warning('%s %s "Missing callback.data field"', "[CB]", client_ip)
         return {"status": "error", "message": "'callback.data' missing from received data"}
@@ -300,6 +302,7 @@ async def callbacks_endpoint(request: Request):
 
     return {"status": "ok"}
 
+
 @app.get("/status/{request_id}")
 async def get_status(request_id: str):
     try:
@@ -309,8 +312,9 @@ async def get_status(request_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
+
 @app.get("/status/{request_id}/files/{file_name}")
-async def get_file(request_id: str,file_name: str):
+async def get_file(request_id: str, file_name: str):
     try:
         file_content, content_type = read_file(f"{request_id}/{file_name}")
         return Response(content=file_content, media_type=content_type)
@@ -320,6 +324,7 @@ async def get_file(request_id: str,file_name: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving file: {str(e)}")
+
 
 # Mount MCP at root; /callbacks and /status/* are handled by FastAPI above
 app.mount("/", mcp_app)
@@ -362,9 +367,9 @@ _LOG_CONFIG: dict = {
         },
     },
     "loggers": {
-        "uvicorn":        {"handlers": ["default"], "level": "INFO", "propagate": False},
-        "uvicorn.error":  {"handlers": ["default"], "level": "INFO", "propagate": False},
-        "uvicorn.access": {"handlers": ["access"],  "level": "INFO", "propagate": False},
+        "uvicorn": {"handlers": ["default"], "level": "INFO", "propagate": False},
+        "uvicorn.error": {"handlers": ["default"], "level": "INFO", "propagate": False},
+        "uvicorn.access": {"handlers": ["access"], "level": "INFO", "propagate": False},
         # Our package loggers — same handler/format as uvicorn, INFO by default.
         # Set LOG_LEVEL=debug in the environment to promote to DEBUG.
         "openapi_mcp_sdk": {
@@ -378,6 +383,7 @@ _LOG_CONFIG: dict = {
 
 def run():
     import uvicorn
+
     port = int(os.environ.get("MCP_PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port, log_config=_LOG_CONFIG)
 

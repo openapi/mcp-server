@@ -46,6 +46,7 @@ After adding a new file, make sure it is imported in [`main.py`](../main.py).
 ## Guidelines
 
 - Follow the existing **Python coding style** (PEP 8).
+- Run `make style` before opening a pull request to check Python formatting/linting and shell scripts.
 - Include **tests** for new features or bug fixes when applicable.
 - Keep **commit messages clear and concise**.
 - Update **documentation** as needed for your changes.

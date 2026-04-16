@@ -27,7 +27,7 @@ async def get_IT_regions_list(ctx: Context) -> Any:
 @mcp.tool
 async def get_IT_provinces_list(ctx: Context) -> Any:
     """
-     Returns the list of Italian provinces
+    Returns the list of Italian provinces
     """
     url = f"https://{OPENAPI_HOST_PREFIX}cap.openapi.it/province"
     return make_api_call(ctx, "GET", url)

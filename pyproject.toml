@@ -27,5 +27,12 @@ license-files = ["LICENSE"]
 [tool.pytest.ini_options]
 testpaths = ["tests/pytest"]
 
+[tool.ruff]
+line-length = 127
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
 [project.scripts]
 openapi-mcp-sdk = "openapi_mcp_sdk.cli:main"
