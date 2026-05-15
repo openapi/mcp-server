@@ -1,6 +1,6 @@
 [project]
 name = "openapi-mcp-sdk"
-version = "0.3.0"
+version = "0.3.1"
 description = "Openapi.com official mcp server implementation"
 readme = "docs/readme-pypi.md"
 requires-python = ">=3.13"
