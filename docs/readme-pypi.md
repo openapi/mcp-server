@@ -9,7 +9,6 @@ Use it in two ways:
 - **Python library** — import `openapi_mcp_sdk` in your own project to build a
   custom MCP server on top of openapi.com APIs.
 
----
 
 ## Run the server
 
@@ -31,7 +30,6 @@ pipx run openapi-mcp-sdk server
 pip install openapi-mcp-sdk && openapi-mcp-sdk server
 ```
 
----
 
 ## Local launcher script
 
@@ -59,7 +57,6 @@ Next time, just run:
 bash mcp-server.sh
 ```
 
----
 
 ## CLI reference
 
@@ -72,7 +69,6 @@ Commands:
   token    Generate or inspect an openapi.com Bearer token    [coming soon]
 ```
 
----
 
 ## MCP client configuration
 
@@ -110,7 +106,6 @@ Get your Bearer Token at [console.openapi.com](https://console.openapi.com/oauth
 The server automatically promotes `?token=` to an `Authorization: Bearer` header,
 so both methods behave identically.
 
----
 
 ## Links
 
