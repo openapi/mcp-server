@@ -1,14 +1,43 @@
 [project]
 name = "openapi-mcp-sdk"
-version = "0.3.0"
-description = "Openapi.com official mcp server implementation"
+version = "0.3.1"
+description = "Openapi.com official MCP server — ready-to-use gateway and Python SDK for AI agents"
 readme = "docs/readme-pypi.md"
 requires-python = ">=3.13"
 license = "MIT"
+license-files = ["LICENSE"]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "openapi",
+    "ai",
+    "llm",
+    "agent",
+    "fastapi",
+    "sdk",
+    "gateway",
+    "claude",
+    "anthropic",
+    "tools",
+    "api",
+]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
+]
+authors = [
+    { name = "Francesco Bianco", email = "info.francescobianco@gmail.com" },
+    { name = "Marco Prosperi",   email = "m.prosperi@openapi.com" },
+    { name = "Simone Desantis",  email = "s.desantis@openapi.com" },
+]
+maintainers = [
+    { name = "openapi.com", email = "support@openapi.com" },
 ]
 dependencies = [
     "expiringdict>=1.2.2",
@@ -21,8 +50,11 @@ dependencies = [
     "fastapi>=0.110.0",
 ]
 
-[tool.setuptools]
-license-files = ["LICENSE"]
+[project.urls]
+Homepage       = "https://openapi.com/"
+Repository     = "https://github.com/openapi/mcp-server"
+"Bug Tracker"  = "https://github.com/openapi/mcp-server/issues"
+Changelog      = "https://github.com/openapi/mcp-server/releases"
 
 [tool.pytest.ini_options]
 testpaths = ["tests/pytest"]
