@@ -27,6 +27,19 @@ can be used in two ways:
   custom MCP server that wraps openapi.com APIs with your own logic, tools, or auth
   layer on top.
 
+<p align="center">
+  <a href="https://github.com/orgs/openapi/discussions">
+    <picture>
+      <source media="(prefers-color-scheme: dark)"
+              srcset="https://raw.githubusercontent.com/openapi/pulse/main/public/ticker-dark.svg">
+      <source media="(prefers-color-scheme: light)"
+              srcset="https://raw.githubusercontent.com/openapi/pulse/main/public/ticker.svg">
+      <img alt="OpenAPI Pulse — this week in the OpenAPI community"
+           src="https://raw.githubusercontent.com/openapi/pulse/main/public/ticker.svg">
+    </picture>
+  </a>
+</p>
+
 ## Environment variables
 
 All configuration is done through environment variables. None are required to
