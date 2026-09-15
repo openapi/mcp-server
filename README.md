@@ -11,6 +11,8 @@
   </a>
 </p>
 
+---
+
 <div align="center">
   <a href="https://openapi.com/">
     <img alt="Openapi MCP" src=".github/assets/images/repo-header-a4.png" >
