@@ -161,6 +161,34 @@ class TokenQuerystringMiddleware:
         token: str | None = (params.pop("token", None) or [None])[0]
 
         if token:
+            # Check for conflicting auth sources — reject with 400 if both
+            # ?token= and an Authorization header are present.
+            existing_auth = [
+                (k, v) for k, v in scope["headers"] if k.lower() == b"authorization"
+            ]
+            if existing_auth:
+                conflict_body = json.dumps({
+                    "error": "conflicting_auth",
+                    "message": (
+                        "Both ?token= query parameter and Authorization header "
+                        "are present. Use only one authentication source."
+                    ),
+                }).encode()
+                await send({
+                    "type": "http.response.start",
+                    "status": 400,
+                    "headers": [
+                        (b"content-type", b"application/json"),
+                        (b"content-length", str(len(conflict_body)).encode()),
+                    ],
+                })
+                await send({
+                    "type": "http.response.body",
+                    "body": conflict_body,
+                    "more_body": False,
+                })
+                return
+
             # Strip any existing Authorization header and inject the new one.
             # Also remove ?token= from the query string so it never appears in
             # access logs — the token travels as a header from this point on.
