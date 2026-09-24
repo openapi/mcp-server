@@ -161,11 +161,26 @@ class TokenQuerystringMiddleware:
         token: str | None = (params.pop("token", None) or [None])[0]
 
         if token:
-            # Strip any existing Authorization header and inject the new one.
-            # Also remove ?token= from the query string so it never appears in
+            # Check if Authorization header already exists — conflicting auth sources
+            has_auth_header = any(
+                k.lower() == b"authorization" for k, _ in scope["headers"]
+            )
+            if has_auth_header:
+                from starlette.responses import JSONResponse
+                response = JSONResponse(
+                    status_code=400,
+                    content={
+                        "error": "conflicting_auth",
+                        "message": "Both Authorization header and ?token= query parameter are provided. Use only one authentication method.",
+                    },
+                )
+                await response(scope, receive, send)
+                return
+
+            # Remove ?token= from the query string so it never appears in
             # access logs — the token travels as a header from this point on.
             clean_qs = urlencode(params, doseq=True).encode()
-            headers = [(k, v) for k, v in scope["headers"] if k.lower() != b"authorization"]
+            headers = [(k, v) for k, v in scope["headers"]]
             headers.append((b"authorization", f"Bearer {token}".encode()))
             scope = {**scope, "headers": headers, "query_string": clean_qs}
         else:
