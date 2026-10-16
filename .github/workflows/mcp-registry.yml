@@ -1,0 +1,24 @@
+name: MCP registry
+# Publishes server.json (the hosted server at mcp.openapi.com) to the official
+# MCP registry as io.github.openapi/mcp-server, authenticated with GitHub OIDC.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      # server.json always follows the version in pyproject.toml.
+      - run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          jq --arg v "$version" '.version = $v' server.json > server.tmp
+          mv server.tmp server.json
+      - run: |
+          curl -fsSL https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish

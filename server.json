@@ -1,0 +1,34 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.openapi/mcp-server",
+  "title": "Openapi®",
+  "description": "Official Openapi® MCP server: Italian company data, PEC, SMS, vehicles, geocoding and more APIs.",
+  "repository": {
+    "url": "https://github.com/openapi/mcp-server",
+    "source": "github"
+  },
+  "websiteUrl": "https://openapi.com/",
+  "version": "0.3.1",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.openapi.com/",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Openapi® Bearer token, created at https://console.openapi.com/oauth with the scopes you need",
+          "value": "Bearer {token}",
+          "isRequired": true,
+          "isSecret": true,
+          "variables": {
+            "token": {
+              "description": "Openapi® Bearer token",
+              "isRequired": true,
+              "isSecret": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
