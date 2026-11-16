@@ -26,6 +26,7 @@
 [![Python](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/github/license/openapi/mcp-server)](LICENSE)
 [![MCP](https://img.shields.io/badge/protocol-MCP-1f6feb.svg)](https://modelcontextprotocol.io/)
+[![mcptry](https://mcptry.com/badge/io.github.openapi/mcp-server)](https://mcptry.com/servers/io.github.openapi/mcp-server)
 <br>
 [![Linux Foundation Member](https://img.shields.io/badge/Linux%20Foundation-Silver%20Member-003778?logo=linux-foundation&logoColor=white)](https://www.linuxfoundation.org/about/members)
 </div>
