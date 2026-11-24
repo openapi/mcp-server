@@ -27,6 +27,7 @@
 [![License](https://img.shields.io/github/license/openapi/mcp-server)](LICENSE)
 [![MCP](https://img.shields.io/badge/protocol-MCP-1f6feb.svg)](https://modelcontextprotocol.io/)
 [![mcptry](https://mcptry.com/badge/io.github.openapi/mcp-server)](https://mcptry.com/servers/io.github.openapi/mcp-server)
+[![openapi/mcp-server MCP server](https://glama.ai/mcp/servers/openapi/mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/openapi/mcp-server)
 <br>
 [![Linux Foundation Member](https://img.shields.io/badge/Linux%20Foundation-Silver%20Member-003778?logo=linux-foundation&logoColor=white)](https://www.linuxfoundation.org/about/members)
 </div>
